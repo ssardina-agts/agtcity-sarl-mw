@@ -1,0 +1,7 @@
+{
+  "agents" : {
+    "agentA1" : {"entity" : "connectionA1", "team" : "A", "class" : "BasicAgent"},
+    "agentA2" : {"entity" : "connectionA2", "team" : "A", "class" : "BasicAgent"},
+    "agentA3" : {"entity" : "connectionA3", "team" : "A", "class" : "BasicAgent"}
+  }
+}

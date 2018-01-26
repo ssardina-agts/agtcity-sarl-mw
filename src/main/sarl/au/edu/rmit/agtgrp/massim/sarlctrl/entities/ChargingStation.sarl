@@ -1,0 +1,50 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.massim.sarlctrl.entities
+
+import eis.iilang.Percept
+import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.Util
+
+/** 
+ * @author Keiran 
+ */
+ /**
+  * Charging station facility for defining the name, location and rate of a 
+  * charging station extends Facility
+  * @param rate The charging rate of the facility
+  * @see Facility
+  */
+class ChargingStation extends Facility { 
+    var rate : double
+    
+    /**
+     * Construct an instance of a charging station from percepts
+     */
+    new(p : Percept) {
+    	super(p)
+		this.rate = Util.extractDouble(p.parameters.get(3))
+    }
+    
+    /**
+     * @return The rate for the charging station
+     */
+    def getRate(): double{
+    	return rate
+    }
+}

@@ -1,0 +1,87 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.massim.sarlctrl.agents.scheduler
+
+import java.util.ArrayList
+import java.util.Random
+
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_AgentPercept
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.EntityPercept
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_SpawnAgent
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.FacilitySensedPercept
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.GotoFacility
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.TeamMemberPercept
+import au.edu.rmit.agtgrp.massim.sarlctrl.capacities.*
+import au.edu.rmit.agtgrp.massim.sarlctrl.skills.*
+
+
+/** 
+ * @author keiran
+ * A Dummy agent used to build the framework to connect SARL to the eisMassim server
+ * The agent receives percepts via the E_AgentPercept event @see E_AgentPercept
+ * 
+ */
+agent DummyAgent {
+    uses DefaultContextInteractions, C_Reporting
+
+    var agentName : String
+    var facilities : ArrayList<String>
+    var rand : Random
+
+    on Initialize {
+        this.agentName = occurrence.parameters.get(0) as String
+        this.facilities = new ArrayList<String>()
+        rand = new Random()
+        
+        
+        // Event to signal my existance
+        // Emitted before the agent begin to live or to be used.
+        // You should put all the initialization statements in this block of code.
+		emit(new E_SpawnAgent(this.agentName))
+		setSkill(new S_ConsoleReporting(this.agentName), C_Reporting)
+		agent_shouts("I am a alive!")
+    }
+    /** 
+     * This event receiver gets E_AgentPercepts from the world space, if the occurrence name matches the
+     * agents names the agent will store the percepts and then call selectAction to 
+     * decide which action to emit based on the information it has about the world.
+     */
+    on EntityPercept {
+    	//COde to react to entities.
+    }
+    
+    on FacilitySensedPercept {
+    	//Build an internal list of facilities
+    	if(!facilities.contains(occurrence.facility.name))
+    	{
+    		facilities.add(occurrence.facility.name)
+    	}
+    }
+    
+    on TeamMemberPercept [occurrence.PlayerState.name == this.agentName && facilities.length > 0] { 
+    	// Randomly select a facility (if there is one!) and visit it.
+    	// This event will be handled by coordinator who will send it to EIS for execution
+    	emit(new GotoFacility(this.agentName, facilities.get(rand.nextInt(facilities.length - 1)), null))
+    }
+    
+}

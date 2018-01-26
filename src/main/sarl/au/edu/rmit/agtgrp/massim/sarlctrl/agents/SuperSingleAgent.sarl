@@ -1,0 +1,163 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.massim.sarlctrl.agents
+
+
+// MASSIM EIS imports
+import eis.iilang.Action			// needed to do actions
+import eis.iilang.Percept			// needed to process percepts
+import eis.iilang.EnvironmentState;	
+
+
+// SARL imports
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+
+// General Java tools
+import java.util.*;
+import java.nio.file.Paths
+
+// Import project content
+import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.ConfHandler
+import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.Util
+import au.edu.rmit.agtgrp.massim.sarlctrl.entities.PlayerState
+
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.*
+import au.edu.rmit.agtgrp.massim.sarlctrl.capacities.C_Reporting
+import au.edu.rmit.agtgrp.massim.sarlctrl.capacities.C_MassimTalking
+import au.edu.rmit.agtgrp.massim.sarlctrl.skills.S_ConsoleReporting
+import au.edu.rmit.agtgrp.massim.sarlctrl.skills.S_MassimTalking07
+import eis.exceptions.PerceiveException
+
+/** 
+ * @author Sebastian Sardina (ssardina@gmail.com
+ * 
+ * This is a monolithic SARL agent that uses the S_MassimTalking07 skill 
+ * to manage ALL the players in the  game simulation.
+ */
+agent SuperSingleAgent {
+    uses Logging, Lifecycle, DefaultContextInteractions 
+    uses C_Reporting, C_MassimTalking
+
+	val agentLogLevel = 3	// debug = 4
+
+	// Data kept by this single SARL agent: just the step number
+	var last_step : int
+
+
+	/*
+	 * Agent may receive the path directory where the config files for server connection
+	 * and player authentications are located. Otherwise, will query via terminal.
+	 */
+    on Initialize { // Should only be initializing with the EIS as a parameter.
+    {
+        var args = newArrayList(occurrence.parameters)	// may receive directory conf directory
+        var eiConfigDir : String = ""
+		val eiMassimConfigFile = "eismassimconfig.json"
+		val eiMassimAuthConfigFile = "agentsconfig.json"
+
+		// Give reporting skill via console
+			setSkill(new S_ConsoleReporting("Super-Single-Agent"), C_Reporting)
+		setLogLevel(4)
+
+
+		agent_says("PHASE 1: REGISTERING MASSIM TALKING SKILL VIA CONFIGURATION FILES {0} AND {1}", eiMassimConfigFile,
+				eiMassimAuthConfigFile)
+        if (args.length != 0)
+            eiConfigDir = args.get(0) as String
+        else {
+            eiConfigDir = ConfHandler.getConfDir()
+        }
+  		// Give agent ability to talk to MASSIM server
+		setSkill(new S_MassimTalking07(Paths.get(eiConfigDir, eiMassimConfigFile), Paths.get(eiConfigDir, eiMassimAuthConfigFile)),
+				C_MassimTalking)
+
+		agent_says("PHASE 2: INITIALIZING ENVIRONMENT INTERFACE USING CONFIGURATION FILE {0} ", eiMassimConfigFile)
+        if (MT_initialize()) {
+        	agent_says("I have initialized the EI successfully!")
+        } else {
+			agent_says("Something wrong when registering the game server, I am finished...")
+			killMe
+        }
+
+        agent_says("PHASE 3: REGISTERING AGENTS INTO ENVIRONMENT (GAME ENGINE) VIA FILE {0}", eiMassimAuthConfigFile)
+		MT_registerPlayersFromConfig()
+
+
+		agent_shouts("I am now alive! Will start working now (sending and acting!)...")
+        // Signal that all SARL agents have been created - Communicator will start working!        
+        emit(new E_SenseEnvironment())
+	}
+}
+
+
+
+	/*
+	 * Handle the process of sensing the environment
+	 */
+	on E_SenseEnvironment {
+		agent_shouts("Start sensing the environment")
+		var step = 0 
+		
+		// While the environment is running, wait for new percepts (read them all per player registered)
+		while (MT_getStatus() == EnvironmentState.RUNNING) {
+			MT_getConnectedPlayers().keySet().forEach([ playerName : String |
+				var allPercepts : Map<String, Collection<Percept>>
+				try {
+					allPercepts = MT_sensePlayerPercepts(playerName) 	// This is blocking!
+				} catch (e : PerceiveException) {
+						agent_shouts("I am sorry, there seems to be an error in perception. Killing myself..")
+						error(e.toString)
+						e.printStackTrace()
+						killMe
+					}
+				var percepts = allPercepts.values().get(0) // works if an agent is of only one entity, so allPercepts has just one map
+				
+
+				// Process the percepts: update player skill state
+				MT_getConnectedPlayers().get(playerName).update(percepts) // update the agent data
+				
+				last_step = MT_getConnectedPlayers().get(playerName).step
+			])
+
+			agent_shouts("I am finished sensing the environment for step {0}", last_step)
+			
+			// All percepts per agent read, now do some actions in the world
+			emit(new E_Act())
+		}
+		
+		agent_shouts("Environment Interface not running anymore, done sensing....")
+	}
+
+
+	// Do something!
+	on E_Act {
+
+		// Tell the KB to process last percept
+		MT_getConnectedPlayers().keySet().forEach([ playerName : String |
+			agent_says(MT_getConnectedPlayers().get(playerName).reportState()) // report agent state
+		])
+	}
+
+}
+// /////////////////////////////////////////////////
+// END OF FILE
+// /////////////////////////////////////////////////
