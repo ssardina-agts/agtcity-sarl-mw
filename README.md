@@ -1,4 +1,4 @@
-# SARL Agent Controller for MAC Agents in the City 2017 #
+# SARL Agent Interface Framework for MAC Agents in the City 2017 
 
 This is the SARL infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
 
