@@ -26,59 +26,59 @@ import org.json.JSONObject
 /** 
  * @author keiran
  */
-/** 
- * Baseline E_AgentAction Representing the action the agent wants to take in the world
- * @param action The action the agent wants to make in the world @see Action
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- */
 event E_AgentAction {
-    var action : Action
+	/** 
+	 * Baseline E_AgentAction Representing the action the agent wants to take in the world
+	 * @param action The action the agent wants to make in the world @see Action
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 */
+	var action : Action
     var playerName : String
     var constraints : JSONObject = null
 }
-/** 
- * The GotoFacility event represents an agents desire to take a gotoFacility Action
- * @param name The name of the agent taking the action
- * @param facility The name of the facility the agent wants to go to
- * @param constraints A JSONObject for any constraints that need to be confirmed before the agent can take the action
- * @see E_AgentAction
- */
 event GotoFacility extends E_AgentAction {
-    new(playerName : String, facility : String, constraints : JSONObject) {
+	/** 
+	 * The GotoFacility event represents an agents desire to take a gotoFacility Action
+	 * @param name The name of the agent taking the action
+	 * @param facility The name of the facility the agent wants to go to
+	 * @param constraints A JSONObject for any constraints that need to be confirmed before the agent can take the action
+	 * @see E_AgentAction
+	 */
+	new(playerName : String, facility : String, constraints : JSONObject) {
         super.action = new Action("goto", new Identifier(facility))
         super.constraints = constraints
         super.playerName = playerName 
     }
 }
-/** 
- * The GotoLatLong represents the agents desire to go to a particular map coordinate
- * represented in Latitude and Longitude
- * @param name The name of the agent taking the action
- * @param latitude The latitude the agent wants to go to
- * @param longitude The longitude the agent wants to go to 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event GotoLatLong extends E_AgentAction {
-    new(playerName : String, latitude : String, longitude : String, constraints : JSONObject) {
+	/** 
+	 * The GotoLatLong represents the agents desire to go to a particular map coordinate
+	 * represented in Latitude and Longitude
+	 * @param name The name of the agent taking the action
+	 * @param latitude The latitude the agent wants to go to
+	 * @param longitude The longitude the agent wants to go to 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(playerName : String, latitude : String, longitude : String, constraints : JSONObject) {
         super.action = new Action("goto", new ParameterList(new Identifier(latitude), new Identifier(longitude)))
         super.constraints = constraints
         super.playerName = playerName 
     }
 }
-/** 
- * The GivenAgentItem event represents the agents desire to give an item to another agent
- * The agent receiving the item needs to invoke the ReceiveItem action to complete pair.
- * @see ReceiveItem
- * @param name The name of the agent taking the action
- * @param ^agent  The agent that is to receive the item
- * @param amount The quantity that the agent wants to give
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction 
- */
 event GiveAgentItem extends E_AgentAction {
-    new(name : String, ^agent : String, item : String, amount : int, constraints : JSONObject) {
+	/** 
+	 * The GivenAgentItem event represents the agents desire to give an item to another agent
+	 * The agent receiving the item needs to invoke the ReceiveItem action to complete pair.
+	 * @see ReceiveItem
+	 * @param name The name of the agent taking the action
+	 * @param ^agent  The agent that is to receive the item
+	 * @param amount The quantity that the agent wants to give
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction 
+	 */
+	new(name : String, ^agent : String, item : String, amount : int, constraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(^agent))
         pList.add(new Identifier(item))
@@ -89,34 +89,32 @@ event GiveAgentItem extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * ReceiveItem represents an agents desire to receive a quantity of items from another agent
- * The sending agent needs to use the GiveAgentItem action to complete the pair
- * @see GiveAgentItem
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event ReceiveItem extends E_AgentAction {
-
-    new(name : String, constraints : JSONObject) {
+	/** 
+	 * ReceiveItem represents an agents desire to receive a quantity of items from another agent
+	 * The sending agent needs to use the GiveAgentItem action to complete the pair
+	 * @see GiveAgentItem
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, constraints : JSONObject) {
         super.action = new Action("receive")
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * The StoreItem event represents an agents desire to store and item in a shared
- * storage facility.
- * @param name The name of the agent taking the action
- * @param item The item the agent wishes to store
- * @param amount The quantity the agent wishes to store 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event StoreItem extends E_AgentAction {
-
-    new(name : String, item : String, amount : int, constraints : JSONObject) {
+	/** 
+	 * The StoreItem event represents an agents desire to store and item in a shared
+	 * storage facility.
+	 * @param name The name of the agent taking the action
+	 * @param item The item the agent wishes to store
+	 * @param amount The quantity the agent wishes to store 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, item : String, amount : int, constraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -126,16 +124,20 @@ event StoreItem extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * RetrieveFromStorage event represents that agents desire to get an quantity of an item from a storage facility
- * @param name The name of the agent taking the action
- * @param item The item the agent wishes to collect
- * @param amount The quantity the agent wishes to take 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
+
+
+
 event RetrieveFromStorage extends E_AgentAction {
-    new(name : String, item : String, amount : int, contraints : JSONObject) {
+	/** 
+	 * RetrieveFromStorage event represents that agents desire to get an quantity of an item from a storage facility
+	 * 
+	 * @param name The name of the agent taking the action
+	 * @param item The item the agent wishes to collect
+	 * @param amount The quantity the agent wishes to take 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -145,19 +147,21 @@ event RetrieveFromStorage extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * RetrieveFromSpecialStorage is used to retrieve an item from the special storage
- * Special storage is used to store Items if a team delivers an item to a job 
- * but another team was faster or the job ended or if the team posted the job and 
- * another team delivers the completed resource. 
- * @param name The name of the agent taking the action
- * @param item The item the agent wants to collect
- * @param amount the quantity the agent wants to collect
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
+
+
 event RetrieveFromSpecialStorage extends E_AgentAction {
-    new(name : String, item : String, amount : int, contraints : JSONObject) {
+	/** 
+	 * RetrieveFromSpecialStorage is used to retrieve an item from the special storage
+	 * Special storage is used to store Items if a team delivers an item to a job 
+	 * but another team was faster or the job ended or if the team posted the job and 
+	 * another team delivers the completed resource. 
+	 * @param name The name of the agent taking the action
+	 * @param item The item the agent wants to collect
+	 * @param amount the quantity the agent wants to collect
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -167,49 +171,49 @@ event RetrieveFromSpecialStorage extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * Assemble item is used to assemble an item, the agent can get assistance assembling an 
- * item if another nearby agent triggers AssistAssembly
- * @see AssistAssembly
- * @param name The name of the agent taking the action
- * @param item The item the agent wants to assemble
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event AssembleItem extends E_AgentAction {
-    new(name : String, item : String, contraints : JSONObject) {
+	/** 
+	 * Assemble item is used to assemble an item, the agent can get assistance assembling an 
+	 * item if another nearby agent triggers AssistAssembly
+	 * @see AssistAssembly
+	 * @param name The name of the agent taking the action
+	 * @param item The item the agent wants to assemble
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, item : String, contraints : JSONObject) {
         super.action = new Action("assemble", new Identifier(item))
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * AssistAssembly will assist another agent in assembling an item by sharing parts
- * The other agent must be triggering the AssembleItem event
- * @see AssembleItem
- * @param name The name of the agent taking the action
- * @param agentToAssist The name of the agent we are trying to assist. 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event AssistAssembly extends E_AgentAction {
-    new(name : String, agentToAssist : String, contraints : JSONObject) {
+	/** 
+	 * AssistAssembly will assist another agent in assembling an item by sharing parts
+	 * The other agent must be triggering the AssembleItem event
+	 * @see AssembleItem
+	 * @param name The name of the agent taking the action
+	 * @param agentToAssist The name of the agent we are trying to assist. 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, agentToAssist : String, contraints : JSONObject) {
         super.action = new Action("assist_assemble", new Identifier(agentToAssist))
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * BuyItem event will purchase an item from a shop if the shop has sufficient quantity
- * and our team can afford the purchase
- * @param name The name of the agent taking the action
- * @param item The item the agent wishes to purchase
- * @param amount The quantity the agent wishes to purchase. 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event BuyItem extends E_AgentAction {
-    new(name : String, item : String, amount : int, contraints : JSONObject) {
+	/** 
+	 * BuyItem event will purchase an item from a shop if the shop has sufficient quantity
+	 * and our team can afford the purchase
+	 * @param name The name of the agent taking the action
+	 * @param item The item the agent wishes to purchase
+	 * @param amount The quantity the agent wishes to purchase. 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -219,33 +223,33 @@ event BuyItem extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * DeliverJob will deliver a job removing the requested items from inventory and 
- * completing the job if all items have been delivered, if only some items have 
- * been delivered a success_partial error will be given.
- * @param name The name of the agent taking the action
- * @param job The name of the job the agent is trying to complete.
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction 
- */
 event DeliverJob extends E_AgentAction {
-    new(name : String, job : String, contraints : JSONObject) {
+	/** 
+	 * DeliverJob will deliver a job removing the requested items from inventory and 
+	 * completing the job if all items have been delivered, if only some items have 
+	 * been delivered a success_partial error will be given.
+	 * @param name The name of the agent taking the action
+	 * @param job The name of the job the agent is trying to complete.
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction 
+	 */
+	new(name : String, job : String, contraints : JSONObject) {
         super.action = new Action("deliver_job", new Identifier(job))
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * BigForJob will place a bid on a job.
- * If the job is not an auction a failed_job_type error will be given
- * @param name The name of the agent taking the action
- * @param job The name of the job to bid on
- * @param bid The value of the bid we wish to place. 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event BidForJob extends E_AgentAction {
-    new(name : String, job : String, bid : int, contraints : JSONObject) {
+	/** 
+	 * BigForJob will place a bid on a job.
+	 * If the job is not an auction a failed_job_type error will be given
+	 * @param name The name of the agent taking the action
+	 * @param job The name of the job to bid on
+	 * @param bid The value of the bid we wish to place. 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, job : String, bid : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(job))
         pList.add(new Identifier(bid.toString))
@@ -255,19 +259,19 @@ event BidForJob extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * PostJob will post a new job for other teams to complete. Only regular jobs will be posted.
- * Once a job is posted it cannot be taken down
- * The number of jobs a team can post is limited
- * @param name The name of the agent taking the action
- * @param duration The number of steps the job is to be kept alive for
- * @param storage The target storage facility where the required items are to be dropped off
- * @param itemAndCount a Map of Strings(The item names) and Integers(The quantity of each item requested) 
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event PostJob extends E_AgentAction {
-    new(name : String, reward : int, duration : int, storage : String, itemAndCount : Map<String, Integer>,
+	/** 
+	 * PostJob will post a new job for other teams to complete. Only regular jobs will be posted.
+	 * Once a job is posted it cannot be taken down
+	 * The number of jobs a team can post is limited
+	 * @param name The name of the agent taking the action
+	 * @param duration The number of steps the job is to be kept alive for
+	 * @param storage The target storage facility where the required items are to be dropped off
+	 * @param itemAndCount a Map of Strings(The item names) and Integers(The quantity of each item requested) 
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, reward : int, duration : int, storage : String, itemAndCount : Map<String, Integer>,
         contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(reward.toString))
@@ -283,16 +287,16 @@ event PostJob extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * DumpItem will destroy a number of items at a dump facility
- * @param name The name of the agent taking the action
- * @param item The item the agent wants to destroy
- * @param amount The quantity the agent wants to destroy
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event DumpItem extends E_AgentAction {
-    new(name : String, item : String, amount : int, contraints : JSONObject) {
+	/** 
+	 * DumpItem will destroy a number of items at a dump facility
+	 * @param name The name of the agent taking the action
+	 * @param item The item the agent wants to destroy
+	 * @param amount The quantity the agent wants to destroy
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -302,85 +306,85 @@ event DumpItem extends E_AgentAction {
         super.playerName = playerName
     }
 }
-/** 
- * ChargeFrom Station will charge the agents battery at a charging station
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event ChargeFromStation extends E_AgentAction {
-    new(name : String, contraints : JSONObject) {
+	/** 
+	 * ChargeFrom Station will charge the agents battery at a charging station
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, contraints : JSONObject) {
         super.action = new Action("charge")
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * ChargeFromSolar will recharge the agents batteries from solar (Slowly)
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event ChargeFromSolar extends E_AgentAction {
-    new(name : String, contraints : JSONObject) {
+	/** 
+	 * ChargeFromSolar will recharge the agents batteries from solar (Slowly)
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, contraints : JSONObject) {
         super.action = new Action("recharge")
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * ContinueOnRoute will trigger the agent to continue moving towards their last
- * current goal.
- * There goal is set by GotoFacility or GotoLatLong
- * @see GotoFacility
- * @see GotoLatLong
- * Notice if the agent has no route they will do nothing
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- * 
- */
 event ContinueOnRoute extends E_AgentAction {
-    new(name : String, contraints : JSONObject) {
+	/** 
+	 * ContinueOnRoute will trigger the agent to continue moving towards their last
+	 * current goal.
+	 * There goal is set by GotoFacility or GotoLatLong
+	 * @see GotoFacility
+	 * @see GotoLatLong
+	 * Notice if the agent has no route they will do nothing
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 * 
+	 */
+	new(name : String, contraints : JSONObject) {
         super.action = new Action("continue")
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * Skip will skip the current step and the agent will do nothing for the current turn
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event Skip extends E_AgentAction {
-    new(name : String, contraints : JSONObject) {
+	/** 
+	 * Skip will skip the current step and the agent will do nothing for the current turn
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, contraints : JSONObject) {
         super.action = new Action("skip")
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * AbortRoute will do nothing and clear the agents route if they have a current route
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event AbortRoute extends E_AgentAction {
-    new(name : String, contraints : JSONObject) {
+	/** 
+	 * AbortRoute will do nothing and clear the agents route if they have a current route
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, contraints : JSONObject) {
         super.action = new Action("Abort")
         super.constraints = constraints
         super.playerName = playerName
     }
 }
-/** 
- * GatherResources will gather a resource from a resource node
- * @param name The name of the agent taking the action
- * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
- * @see E_AgentAction
- */
 event GatherResources extends E_AgentAction {
-    new(name : String, contraints : JSONObject) {
+	/** 
+	 * GatherResources will gather a resource from a resource node
+	 * @param name The name of the agent taking the action
+	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
+	 * @see E_AgentAction
+	 */
+	new(name : String, contraints : JSONObject) {
         super.action = new Action("gather")
         super.constraints = constraints
         super.playerName = playerName
