@@ -212,7 +212,12 @@ skill S_MassimTalking07 implements C_MassimTalking {
 	 * (generally, a player is of just one entity)
 	 */
 	def MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>> {
-		return ei.getAllPercepts(playerName)
+		var allPercepts = ei.getAllPercepts(playerName)
+		
+		// update player state with the first collection (only works if player is linked to just one entity)	
+		players.get(playerName).update(allPercepts.values().get(0)) // update the agent data
+		
+		return allPercepts 
 	}
 	/* 
 	 * Make a player execute an action in the game server

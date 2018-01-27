@@ -55,13 +55,12 @@ import au.edu.rmit.agtgrp.massim.sarlctrl.skills.S_MassimTalking07
 
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_SpawnComplete
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_AgentAction
-import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_SpawnAgent
 
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.ConfHandler
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.PerceptAggregator
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.PlayerStateBuilder
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.Util
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.SimStartBuffer
+import au.edu.rmit.agtgrp.massim.sarlctrl.utils.ConfHandler
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.PerceptAggregator
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.PlayerStateBuilder
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.Util
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.SimStartBuffer
 
 import au.edu.rmit.agtgrp.massim.sarlctrl.entities.PlayerState
 

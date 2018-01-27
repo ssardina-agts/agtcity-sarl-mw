@@ -36,8 +36,8 @@ import java.util.*;
 import java.nio.file.Paths
 
 // Import project content
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.ConfHandler
-import au.edu.rmit.agtgrp.massim.sarlctrl.helpers.Util
+import au.edu.rmit.agtgrp.massim.sarlctrl.utils.ConfHandler
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.Util
 import au.edu.rmit.agtgrp.massim.sarlctrl.entities.PlayerState
 
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.*
@@ -109,7 +109,6 @@ agent SuperSingleAgent {
 }
 
 
-
 	/*
 	 * Handle the process of sensing the environment
 	 */
@@ -131,7 +130,6 @@ agent SuperSingleAgent {
 					}
 				var percepts = allPercepts.values().get(0) // works if an agent is of only one entity, so allPercepts has just one map
 				
-
 				// Process the percepts: update player skill state
 				MT_getConnectedPlayers().get(playerName).update(percepts) // update the agent data
 				

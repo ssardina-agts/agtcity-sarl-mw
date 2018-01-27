@@ -16,26 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package au.edu.rmit.agtgrp.massim.sarlctrl.helpers
+package au.edu.rmit.agtgrp.massim.sarlctrl.aggregator
 
 import eis.iilang.Percept
+import au.edu.rmit.agtgrp.massim.sarlctrl.entities.Position
 import java.util.Collection
-import java.util.HashSet
 /** 
- * @author boblo
+ * Class used to extrace the position field of the source percept agent.
  * 
  */
- /**
-  * AgentBuffer, class used to store a list of current active agents. 
-  * @param agentList, a HashSet that stores the list of agents
-  */
-class AgentBuffer {
-    public static var agentList : HashSet<String>
+class PositionBuilder {
 
-	/**
-	 * populate() Method used to populate the agent list.
-	 * @param percepts - Collection of percepts from MASSIM.
-	 */
-    public static def populate(percepts : Collection<Percept>) {
+    public static def buildPosition(percepts : Collection<Percept>) {
+    	var lat : double
+    	var lon : double
+    	
+        for (p : percepts) {
+            switch p.name {
+                case "lat": lat = Util.extractDouble(p.parameters.get(0))
+                case "lon": lon = Util.extractDouble(p.parameters.get(0))
+            }
+        }
+        
+        return new Position(lat, lon);
     }
 }

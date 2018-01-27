@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package au.edu.rmit.agtgrp.massim.sarlctrl.helpers;
+package au.edu.rmit.agtgrp.massim.sarlctrl.utils;
 
 import java.io.File;
 import java.util.Scanner;

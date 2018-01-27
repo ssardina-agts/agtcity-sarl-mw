@@ -27,13 +27,12 @@ import io.sarl.core.Logging
 
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_AgentPercept
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.EntityPercept
-import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_SpawnAgent
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.FacilitySensedPercept
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.GotoFacility
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.TeamMemberPercept
 import au.edu.rmit.agtgrp.massim.sarlctrl.capacities.*
 import au.edu.rmit.agtgrp.massim.sarlctrl.skills.*
-
+import au.edu.rmit.agtgrp.massim.sarlctrl.events.E_SpawnAgent
 
 /** 
  * @author keiran
