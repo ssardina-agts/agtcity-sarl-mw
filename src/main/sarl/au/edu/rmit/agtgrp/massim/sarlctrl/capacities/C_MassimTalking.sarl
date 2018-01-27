@@ -98,7 +98,7 @@ capacity C_MassimTalking {
 	/* 
 	 * Obtain set of player names that have been registered
 	 */
-	def MT_getPlayersRegistered() : Set<String>
+	def MT_getPlayersNames() : Set<String>
 
 }
 ///////////////////////////////////////////////////

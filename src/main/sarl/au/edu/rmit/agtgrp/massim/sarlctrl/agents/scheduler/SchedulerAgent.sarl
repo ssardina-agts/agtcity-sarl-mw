@@ -104,16 +104,16 @@ agent SchedulerAgent {
 			new S_MassimTalking07(Paths.get(eiConfigDir, eiMassimConfigFile),
 				Paths.get(eiConfigDir, eiAgentConfigFile )), C_MassimTalking)
 		if (MT_initialize()) { // this does not authenticate players, it just establishes the connection to server
-			agent_says("I have registered the following players successfully: {0}", MT_getPlayersRegistered())
+			agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
 		} else {
 			agent_says("Something wrong when registering the game server!")
         }
 
 		info("PHASE 2: SPAWINING ONE AGENT PER GAME PLAYER")
 		if (MT_registerPlayersFromConfig()) { // this is where players authenticate to server to play
-			agent_says("I have registered the following players successfully: {0}", MT_getPlayersRegistered())
+			agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
 
-		MT_getPlayersRegistered().forEach [ playerName : String |
+		MT_getPlayersNames().forEach [ playerName : String |
 				spawn(DummyAgent, playerName) // Spawn a dummy agent called playerName
 				agent_says("Dummy agent spawn for managing player {0}", playerName)
 				agents.add(playerName);

@@ -244,7 +244,7 @@ skill S_MassimTalking07 implements C_MassimTalking {
 	}
 
 
-	def MT_getPlayersRegistered() : Set<String> {
+	def MT_getPlayersNames() : Set<String> {
 		return players.keySet()
 	}
 	/** 
