@@ -1,188 +1,131 @@
-# SARL Agent Controller for MAC Agents in the City 2017 #
+# SARL Agent Interface Framework for MAC Agents in the City 2017 
 
 This is the SARL infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
 
-
-
-
-## INSTALLATION ##
-
-### Prerequisites ###
+## PREREQUISITES
 
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (sun version recommended)
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
-* [SWI Prolog](http://www.swi-prolog.org/) (>7.4.x) with [JPL](http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/jpl.html%27)) Bidirectional interface with Java (package **swi-prolog-java** in Linux)
 * SARL modules and execution engine 
-	* Version tested: 0.5.8.
+	* Version tested: 0.6.1.
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
-* [Mochalog](https://github.com/ssardina/mochalog), a rich bidirectional interface between the Java Runtime and the SWI-Prolog interpreter inspired by JPL.
-	* Obtained via Maven automatically from Github repository via JitPack: <https://jitpack.io/#mochalog/mochalog>.
+* If you want to use Prolog knowledgebases:
+    * [SWI Prolog](http://www.swi-prolog.org/): a state of the art Prolog system.
+	    * Version >7.4.x with [JPL](http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/jpl.html%27)) Bidirectional interface with Java (package **swi-prolog-java** in Linux)
+    * [Mochalog](https://github.com/ssardina/mochalog) (optional): a rich bidirectional interface between the Java Runtime and the SWI-Prolog interpreter inspired by JPL.
+	    * Obtained via Maven automatically from Github repository via JitPack: <https://jitpack.io/#mochalog/mochalog>.
+        * Check the Mocha Wiki to understsand how to install and use it in your agent.
+
+## INSTALL AND RUN
+
+Refer to the my [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
 
 
-#### SWI Connectivity ####
+1. Start MAC17 Game Server. For example, from `server/` subdir:
 
-The connectivity to make use of SWI Prolog in SARL/Java is provided by the [Mochalog](https://github.com/ssardina/mochalog) project, which builds on top of SWI [JPL](http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/jpl.html%27)) Bidirectional interface with Java.
+		java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
 
-If in **Windows**:
+	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuraition file.
 
-* Ensure that the environment variable `SWI_HOME_DIR` is set to the root directory of your installed version of SWI-Prolog.
-
-If in **Linux**:
-
-* Latest package versions at <http://www.swi-prolog.org/build/PPA.txt> 
-* JPL is provided via package `swi-prolog-java` (interface between Java and SWI) installed. This will include library `libjpl.so` (e.g., `/usr/lib/swi-prolog/lib/amd64/libjpl.so`)
-* Extend environment library `LD_LIBRARY_PATH` for system to find library `libjpl.so` at runtime (dynamic linking/binding) to there:
-	```
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/swi-prolog/lib/amd64/ 
-	```
-* Extend environment library `LD_PRELOAD` to give precedence to library `libswipl.so` (Check [this post](https://answers.ros.org/question/132411/unable-to-load-existing-owl-in-semantic-map-editor/) and [this one](https://blog.cryptomilk.org/2014/07/21/what-is-preloading/)) about library preloading):
-	```
-	export LD_PRELOAD=libswipl.so:$LD_PRELOAD
-	```
-* No need to setup **CLASSPATH** or `SWI_HOME_DIR`.
+2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)).
+3. Start the MASSIM Simulation by just hitting *ENTER* in the Game Server console
+4. Enjoy! You should start seeing the agent reporting things in the console. 
+    * You can see the simulation on the web browser.
 
 
-Here is some example code of its use:
+## INFRASTRUCTURED PROVIDED
 
-		import io.mochalog.bridge.prolog.PrologContext
-		import io.mochalog.bridge.prolog.SandboxedPrologContext
-		import io.mochalog.bridge.prolog.query.Query
+So, what is provided by this package?
 
-		// Set-up Prolog knowledgebase
-		var prolog_kb : PrologContext
-		val beliefSpace = String.format("swiplayer")
-		prolog_kb = new SandboxedPrologContext(beliefSpace)
-		prolog_kb.importFile("src/main/prolog/masssim_coordinator.pl") // newest version
+### Capabilities and Skills
 
-		// Assert percepts in the KB
-		prolog_kb.assertFirst("percepts(@A, @I, @S)", agentName, agents.get(agentName).step, percepts.toString)
+The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
-		// Querying one solution - Tell the KB to process last percept
-		agents.keySet().forEach([ agentName : String |
-			prolog_kb.askForSolution(Query.format("process_last_percepts(" + agentName + ")"))
-		])
+* **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agents, and control such players, by receiving their sensing percepts and performing actions in the simulation.
+	* The skill **S_MassimTalking07** implements this capability for the MAC 20017 version.
+* **C_Reporting**: a capability to report information.
+	* The skill **S_ConsoleReporting** implements this capability by just printing messages on console.
+
+The main tools provided by the **C_MassimTalking** capability are:
+
+* `MT_initialize()` and `MT_registerPlayersFromConfig()`: initialize the Massim Talking infrastructure and register players using the configuration file already loaded.
+* `MT_sensePlayerPercepts(playerName : String)`: sense the percepts for a player; blocking.
+* `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
+
+The **S_MassimTalking07** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+
+
+### Events
+
+The main set of events are:
+
+* The genearl event **E_AgentAction** and its many subclases define all the actions that players can do in the environment.
+* The general event **E_AgentPercept** ang its many subclases define all the various percepts players can receive form game server.
+	* Note they are not currently posted automatically, but they are available for use to the programmer to emit.
+
+Both are used by the demo **SchedulerAgent** to inform the dummy agents of the percepts received and to receive from them actions to execute.
+
+There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
+
+### Entities
+
+A set of classes representing entities/artifacts (e.g., facilities, jobs, storages, etc.) in the simulation are provided.
+
+A special one is **PlayerState** which is used to keep track of each player current state, as per the last percept received.
+
+### Aggregators
+
+A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server.
+
+
+## USING THIS INTERFACE IN YOUR SARL SYSTEM
+
+You basically need to make sure the JAR file for this infrastructure is accessible by your system, so you can use the capacities, skills, entities, etc.
+
+You can do that automatically usinv Maven and JitPack, by configuring your POM with:
+
+        <!-- SARL-agtcity-intf version -->
+        <sarl-agtcity-intf.version>-SNAPSHOT</sarl-agtcity-intf.version>
+
+
+        <!-- JitPack used for remote installation of MASSim from Github -->
+        <repository>
+            <id>jitpack.io</id>
+            <name>JitPack Repository</name>
+            <url>https://jitpack.io</url>
+        </repository>
 		
-		// Querying all solutions - Report percepts available in the KB
-		val query = Query.format("percepts(Agent, Step, Percepts)")
-		for (solution : prolog_kb.askForAllSolutions(query))
-		{
-			System.out.format("Information for agent %s on step %d\n", solution.get("Agent").toString(),  solution.get("Step").intValue)
-		}
 		
+        <!--  SARL Agent City Interface  -->
+		<dependency>
+		    <groupId>org.bitbucket.ssardina-research</groupId>
+		    <artifactId>sarl-agtcity-intf</artifactId>
+	    	    <version>${sarl-agtcity-intf.version}</version>
+		</dependency>		
 
 
+## EXAMPLE AGENTS 
 
-### Download the Project ###
-To get the current version of the project, simply run ```git clone git@bitbucket.org:sarlrmit/sarl-massim-intf.git```.
+This package comes with two minimal examples
 
+### SuperSingleAgent ###
 
-### SARL MASSIM Controller Development Framework Setup ###
+This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense and print some status information.
 
-1. Obtain the corresponding [SARL Eclipse Distribution](http://www.sarl.io/download/) that you want to use.
-2. Clone the SARL-SWI Controller `git@bitbucket.org:sarlrmit/sarl-massim-intf.git` if you have not done so already.
-3. In Eclipse, navigate to *File > Import > Existing Maven Projects*.
-4. In the *Root Directory* field, browse to the root directory of the **sarl-massim** repository.
-5. Select the `pom.xml` (Project Object Model) provided in the *Projects* dialog and click *Finish* (see pom.xml details below)
-6. The project should now be imported.
-7. Right-click on the project directory in Eclipse and go to *Maven > Update Project*.
-8. Click OK.
-9. When the project has finished updating, go to *Project > Clean*. Click OK. System should compile.
+### Demo Scheduler
 
+This is the demo agent developed by Bob and Keiran to test the infrastructure and based on the Java-based demo that came with the server. 
 
-## EXAMPLE AGENTS ##
+The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game.
 
-### Demo ###
+**Scheduler** agent reads all percepts from all players, "aggregates" them all (because there is a lot of redundancy in the percepts; all agents receive a lot of the same information, and then emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
 
-This is the demo agent developed by Bob and Keiran to test the infrastructure. The system is run by running the **LoaderAgent** who loads the **SchedulerAgent** and then one **DummyAgent** per agent to be connected to the game.
-
-**Scheduler** agent read all percepts from all agents and "aggregates" them all because there is redundancy in the percepts (all agents receive a lot of the same information). Then it emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
-
-All **DummyAgents** can catch those events and do emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **Scheduler** agent to submit it to the environment/game server.
+All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corrending player being managed by the **DummyAgent**.
 
 This system does not do much at the current time, but a lot of infrastructure is provided to store information as Java data (see `helpers/` and `entities/` subdirs).
 
 
-
-### SWIMassimPlayer ###
-
-This is one single agent whose feature is to store information in an SWI Prolog Knowledge Base, using the [Mochalog Framework](https://github.com/ssardina/mochalog).
-
-This agent is very thin, but should provide a solid base for  developing an agent whose sophisticated reasoning happens on SWI Prolog, for example using constraints.
-
-To help understand how the SWI Knowledge Base is updated, every percept cycle the agent dumps its KB into file `myClauses-n.pl`, where `n` is the step number.
-
-## RUNNING ##
-
-
-### 1 - Start MAC17 Game Server ###
-
-For example, from `server/` subdir:
-
-	java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
-
-Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuraition file.
-
-
-
-### 2 - Start SARL Controller ###
-
-There are two methods to run the SARL Controller - through Eclipse or through the CLI.
-
-#### Running from the SARL Eclipse Distribution ####
-
-You can just run the main agent doing RUN AS "SARL Agent". Or you can directly create a **SARL APPLICATION** under RUN AS. Remember that you may then need to configure that runner to account for other aspects, like parameters or setting of environment variables.
-
-Alternatively, the "low-level" Java based configuration is as follows:
-
-1. Go to *Run > Run Configurations* and double-click on **Java Application**.
-2. Set a name for the Run module, for example **SWIMassimPlayer**
-3. In the *Project* field browse for the project you have just imported into the workspace.
-4. In the *Main class* field search for `io.janusproject.Boot`.
-5. Under the *Arguments* tab in the *Program arguments* field, type the agent class you want to run (e.g., `au.edu.rmit.agtgrp.massim.sarlctrl.agents.SWIMassimPlayer`)
-6. Set up environment variable `LD_LIBRARY_PATH` to where libjpl.so is located (e.g., `/usr/lib/swi-prolog/lib/amd64/` in Linux) and check "Append environment to native environment" 
-7. Set up environment variable `LD_PRELOAD` to `libswipl.so`. Check [this post](https://answers.ros.org/question/132411/unable-to-load-existing-owl-in-semantic-map-editor/) and (Check [this post](https://answers.ros.org/question/132411/unable-to-load-existing-owl-in-semantic-map-editor/) and [this one](https://blog.cryptomilk.org/2014/07/21/what-is-preloading/)) about library preloading).
-7. Click *Apply* or *Run*!
-
-This needs to be set-up once. After that you can just run it by:
-
-1. Run the **SWIMassimPlayer** run configuration we previously setup.
-2. Wait for the console to announce `Launching the agent: au.edu.rmit.agtgrp.massim.sarlctrl.agents.SWIMassimPlayer`.
-3. System will ask which agent configuration file to use of the ones found in the filesystem.
-
-
-#### Compiling and Running from the command line (CLI) ###
-
-The compilation is done via Maven (Maven – [Maven Getting Started Guide](http://tinyurl.com/y994z75j)):
-
-1. Make sure `pom.xml` is correctly configured
-	* sarl version: 0.5.8 AND janus.version: 2.0.5.8
-2. Compile with either:
-	* `mvn compile` (default pom) or `mvn compile -f <pom file>` to compile the application. Compiled classes will be placed in `target/classes`
-	* To do a clean compile: `mvn clean compile`
-	* `mvn package` to generate the compile target and JAR file in current director under `target/`
-3. Run with (after starting Elevator simulator, of course, which will be waiting for client controller connection):
-	* To run using Maven (which will take care of all dependencies needed for the SARL application):
-
-		```
-		mvn exec:java -Dexec.mainClass="io.janusproject.Boot" -Dexec.args="au.edu.rmit.agtgrp.massim.sarlctrl.agents.SWIMassimPlayer"
-		```
-				
-	* To run using plain Java we need to include the Janus Kernel JAR file containing the Janus Project execution engine ([available here](http://maven.sarl.io/io/janusproject/io.janusproject.kernel/)):
-		
-		`
-		java -cp /path/to/sarl-controller-<version>.jar:/path/to/io.janusproject.kernel-<version>-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.massim.sarlctrl.agents.SWIMassimPlayer
-		`
-
-### 3 - Start the Simulation ###
-Hit *ENTER* in the Game Server and enjoy! 
-
-You should start seeing the agent reporting things in the console. 
-
-You can see the simulation on the web browser.
-
-
-
-## LINKS ##
+## LINKS
 
 * Maven:
 	* Doc: <https://maven.apache.org/general.html>
