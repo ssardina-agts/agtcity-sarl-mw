@@ -33,25 +33,29 @@ Refer to the my [general SARL instructions](https://bitbucket.org/snippets/ssard
     * You can see the simulation on the web browser.
 
 
+## INFRASTRUCTURED PROVIDED
+
+
 ## EXAMPLE AGENTS 
 
-### Demo
+This package comes with two minimal examples
 
-This is the demo agent developed by Bob and Keiran to test the infrastructure. The system is run by running the **LoaderAgent** who loads the **SchedulerAgent** and then one **DummyAgent** per agent to be connected to the game.
+### SuperSingleAgent ###
 
-**Scheduler** agent read all percepts from all agents and "aggregates" them all because there is redundancy in the percepts (all agents receive a lot of the same information). Then it emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
+This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense and print some status information.
 
-All **DummyAgents** can catch those events and do emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **Scheduler** agent to submit it to the environment/game server.
+### Demo Scheduler
+
+This is the demo agent developed by Bob and Keiran to test the infrastructure and based on the Java-based demo that came with the server. 
+
+The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game.
+
+**Scheduler** agent reads all percepts from all players, "aggregates" them all (because there is a lot of redundancy in the percepts; all agents receive a lot of the same information, and then emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
+
+All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corrending player being managed by the **DummyAgent**.
 
 This system does not do much at the current time, but a lot of infrastructure is provided to store information as Java data (see `helpers/` and `entities/` subdirs).
 
-### SWIMassimPlayer ###
-
-This is one single agent whose feature is to store information in an SWI Prolog Knowledge Base, using the [Mochalog Framework](https://github.com/ssardina/mochalog).
-
-This agent is very thin, but should provide a solid base for  developing an agent whose sophisticated reasoning happens on SWI Prolog, for example using constraints.
-
-To help understand how the SWI Knowledge Base is updated, every percept cycle the agent dumps its KB into file `myClauses-n.pl`, where `n` is the step number.
 
 ## LINKS
 
