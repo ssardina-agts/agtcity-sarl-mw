@@ -67,18 +67,18 @@ Both are used by the demo **SchedulerAgent** to inform the dummy agents of the p
 
 There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
 
-## Entities
+### Entities
 
 A set of classes representing entities/artifacts (e.g., facilities, jobs, storages, etc.) in the simulation are provided.
 
 A special one is **PlayerState** which is used to keep track of each player current state, as per the last percept received.
 
-## Aggregators
+### Aggregators
 
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server.
 
 
-### How to use this package in your SARL system?
+## USING THIS INTERFACE IN YOUR SARL SYSTEM
 
 You basically need to make sure the JAR file for this infrastructure is accessible by your system, so you can use the capacities, skills, entities, etc.
 
