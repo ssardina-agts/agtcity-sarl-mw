@@ -35,6 +35,74 @@ Refer to the my [general SARL instructions](https://bitbucket.org/snippets/ssard
 
 ## INFRASTRUCTURED PROVIDED
 
+So, what is provided by this package?
+
+### Capabilities and Skills
+
+The main component of this infrastructure are the two capabilities provided with its corresponding skills:
+
+* **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agents, and control such players, by receiving their sensing percepts and performing actions in the simulation.
+	* The skill **S_MassimTalking07** implements this capability for the MAC 20017 version.
+* **C_Reporting**: a capability to report information.
+	* The skill **S_ConsoleReporting** implements this capability by just printing messages on console.
+
+The main tools provided by the **C_MassimTalking** capability are:
+
+* `MT_initialize()` and `MT_registerPlayersFromConfig()`: initialize the Massim Talking infrastructure and register players using the configuration file already loaded.
+* `MT_sensePlayerPercepts(playerName : String)`: sense the percepts for a player; blocking.
+* `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
+
+The **S_MassimTalking07** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+
+
+### Events
+
+The main set of events are:
+
+* The genearl event **E_AgentAction** and its many subclases define all the actions that players can do in the environment.
+* The general event **E_AgentPercept** ang its many subclases define all the various percepts players can receive form game server.
+	* Note they are not currently posted automatically, but they are available for use to the programmer to emit.
+
+Both are used by the demo **SchedulerAgent** to inform the dummy agents of the percepts received and to receive from them actions to execute.
+
+There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
+
+## Entities
+
+A set of classes representing entities/artifacts (e.g., facilities, jobs, storages, etc.) in the simulation are provided.
+
+A special one is **PlayerState** which is used to keep track of each player current state, as per the last percept received.
+
+## Aggregators
+
+A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server.
+
+
+### How to use this package in your SARL system?
+
+You basically need to make sure the JAR file for this infrastructure is accessible by your system, so you can use the capacities, skills, entities, etc.
+
+You can do that automatically usinv Maven and JitPack, by configuring your POM with:
+
+        <!-- SARL-agtcity-intf version -->
+        <sarl-agtcity-intf.version>-SNAPSHOT</sarl-agtcity-intf.version>
+
+
+        <!-- JitPack used for remote installation of MASSim from Github -->
+        <repository>
+            <id>jitpack.io</id>
+            <name>JitPack Repository</name>
+            <url>https://jitpack.io</url>
+        </repository>
+		
+		
+        <!--  SARL Agent City Interface  -->
+		<dependency>
+		    <groupId>org.bitbucket.ssardina-research</groupId>
+		    <artifactId>sarl-agtcity-intf</artifactId>
+	    	    <version>${sarl-agtcity-intf.version}</version>
+		</dependency>		
+
 
 ## EXAMPLE AGENTS 
 
