@@ -9,7 +9,7 @@ This is the SARL infrastructure to control an agent team in the [2017 MAC Agents
 * SARL modules and execution engine 
 	* Version tested: 0.6.1.
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
-* If you want to use Prolog knowledgebases:
+* If you want to use Prolog knowledge-bases:
     * [SWI Prolog](http://www.swi-prolog.org/): a state of the art Prolog system.
 	    * Version >7.4.x with [JPL](http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/jpl.html%27)) Bidirectional interface with Java (package **swi-prolog-java** in Linux)
     * [Mochalog](https://github.com/ssardina/mochalog) (optional): a rich bidirectional interface between the Java Runtime and the SWI-Prolog interpreter inspired by JPL.
@@ -59,8 +59,8 @@ The **S_MassimTalking07** skill makes use of entity class **PlayerState** to sto
 
 The main set of events are:
 
-* The genearl event **E_AgentAction** and its many subclases define all the actions that players can do in the environment.
-* The general event **E_AgentPercept** ang its many subclases define all the various percepts players can receive form game server.
+* The genearl event **E_AgentAction** and its many subclasses define all the actions that players can do in the environment.
+* The general event **E_AgentPercept** and its many subclasses define all the various percepts players can receive form game server.
 	* Note they are not currently posted automatically, but they are available for use to the programmer to emit.
 
 Both are used by the demo **SchedulerAgent** to inform the dummy agents of the percepts received and to receive from them actions to execute.
@@ -82,7 +82,7 @@ A set of classes are provided to support aggregating many percepts (for differen
 
 You basically need to make sure the JAR file for this infrastructure is accessible by your system, so you can use the capacities, skills, entities, etc.
 
-You can do that automatically usinv Maven and JitPack, by configuring your POM with:
+You can do that automatically using Maven and JitPack, by configuring your POM with:
 
         <!-- SARL-agtcity-intf version -->
         <sarl-agtcity-intf.version>-SNAPSHOT</sarl-agtcity-intf.version>
