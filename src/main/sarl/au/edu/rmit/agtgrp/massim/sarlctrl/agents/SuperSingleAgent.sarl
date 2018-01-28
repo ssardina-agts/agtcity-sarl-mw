@@ -35,9 +35,12 @@ import io.sarl.core.Logging
 import java.util.*;
 import java.nio.file.Paths
 
+import eis.exceptions.PerceiveException
+import eis.exceptions.ActException
+import eis.iilang.Identifier
+
 // Import project content
 import au.edu.rmit.agtgrp.massim.sarlctrl.utils.ConfHandler
-import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.Util
 import au.edu.rmit.agtgrp.massim.sarlctrl.entities.PlayerState
 
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.*
@@ -45,7 +48,11 @@ import au.edu.rmit.agtgrp.massim.sarlctrl.capacities.C_Reporting
 import au.edu.rmit.agtgrp.massim.sarlctrl.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.massim.sarlctrl.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.massim.sarlctrl.skills.S_MassimTalking07
-import eis.exceptions.PerceiveException
+
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.SimStartBuffer
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.Util
+import au.edu.rmit.agtgrp.massim.sarlctrl.aggregator.PerceptAggregator
+
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com
@@ -61,8 +68,9 @@ agent SuperSingleAgent {
 
 	// Data kept by this single SARL agent: just the step number
 	var last_step : int
-
-
+	var facilities : Set<String>
+	var rand : Random
+	var aggregator : PerceptAggregator // collect all the percepts from all agents
 	/*
 	 * Agent may receive the path directory where the config files for server connection
 	 * and player authentications are located. Otherwise, will query via terminal.
@@ -74,6 +82,11 @@ agent SuperSingleAgent {
 		val eiMassimConfigFile = "eismassimconfig.json"
 		val eiMassimAuthConfigFile = "agentsconfig.json"
 
+		rand = new Random()
+
+
+		aggregator = new PerceptAggregator() // collect all the percepts from all agents
+		
 		// Give reporting skill via console
 			setSkill(new S_ConsoleReporting("Super-Single-Agent"), C_Reporting)
 		setLogLevel(4)
@@ -114,7 +127,9 @@ agent SuperSingleAgent {
 	 */
 	on E_SenseEnvironment {
 		agent_shouts("Start sensing the environment")
-		var step = 0 
+		var step = 0
+		// Initializes three static data buffers for entities, sim-start and
+		Util.initDataBuffers();
 		
 		// While the environment is running, wait for new percepts (read them all per player registered)
 		while (MT_getStatus() == EnvironmentState.RUNNING) {
@@ -132,6 +147,12 @@ agent SuperSingleAgent {
 				
 				// Process the percepts: update player skill state
 				MT_getConnectedPlayers().get(playerName).update(percepts) // update the agent data
+
+				// FACILITIES: Aggregate all facilities information
+				// (shop, workshops, charging stations, dump, storage, resourceNodes)
+				Util.populateDataBuffers(percepts)
+				aggregator.addFacilities(percepts)
+				facilities = aggregator.getFacilitiesNames()
 				
 				last_step = MT_getConnectedPlayers().get(playerName).step
 			])
@@ -150,9 +171,32 @@ agent SuperSingleAgent {
 	on E_Act {
 
 		// Tell the KB to process last percept
-		MT_getConnectedPlayers().keySet().forEach([ playerName : String |
+		MT_getPlayersNames().forEach([ playerName : String |
 			agent_says(MT_getConnectedPlayers().get(playerName).reportState()) // report agent state
+			if (facilities.length > 0) {
+				performAction(playerName,
+					new Action("goto", new Identifier(facilities.get(rand.nextInt(facilities.length - 1))))
+				)
+			} else {
+				agent_shouts("I just don't know any facility to go!")
+			}
 		])
+	}
+	
+	
+	
+	/** 
+	 * A basic method for sending actions the the EIS server
+	 * If sending fails, the exception is caught and logged. 
+	 */
+	def performAction(playerName : String, action : Action) {
+		try {
+			// perform the action by agentName in the EIS
+			MT_executeAction(playerName, action)
+		} catch (e : ActException) {
+			if (action !== null)
+				warning("Could not perform action {0} for player {1}", action, playerName)
+		}
 	}
 
 }

@@ -59,8 +59,8 @@ class PlayerState extends GameEntity {
         lon : double,
         charge : double,
         load : double,
-        items : HashMap<String, Double>,
-        route : HashMap<Integer, Position>,
+        items : HashMap<String, Double>,	// item --> quantity
+        route : HashMap<Integer, Position>, // index --> waypoint
         routeLength : double,
         facilityName : String
     ) {
@@ -118,7 +118,9 @@ class PlayerState extends GameEntity {
 		var position = PositionBuilder.buildPosition(percepts) // location (lat,long) of agent
 		super.update(position.lat, position.lon)
 
-		this.percepts = percepts	// store current percepts
+		this.percepts = percepts // store current percepts
+		this.route = new HashMap()	// initialize with empty	
+		this.items = new HashMap() // initialize with empty
 		
 		// Populate Entity fields
 		for (p : percepts) {

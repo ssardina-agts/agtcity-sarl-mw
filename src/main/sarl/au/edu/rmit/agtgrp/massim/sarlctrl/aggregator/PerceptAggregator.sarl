@@ -57,6 +57,7 @@ import au.edu.rmit.agtgrp.massim.sarlctrl.events.AuctionJobPercept
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.TeamJobPercept
 import au.edu.rmit.agtgrp.massim.sarlctrl.events.MissionJobPercept
 import java.util.List
+import java.util.Set
 
 /** 
  * @author boblo
@@ -337,6 +338,7 @@ class PerceptAggregator {
 		}
 		return events 
 	}
+
 	
 	/**
 	 * Function used to get all Resources
@@ -407,5 +409,26 @@ class PerceptAggregator {
 		}
 		return events 
 	}
-	
+
+
+
+	/*
+	 * Methods to extract individual information from percepts
+	 */
+
+
+
+	/** 
+	 * Function used to get all storages
+	 * @returns a list of events containing storages
+	 */
+	public def getShopsNames() : Set<String> {
+		return shops.keySet()
+	}
+
+	public def getFacilitiesNames() : Set<String> {
+		return shops.union(storages).union(chargingStations).union(dumps).union(workshops).
+			union(resources).keySet() 
+	}
+
 }
