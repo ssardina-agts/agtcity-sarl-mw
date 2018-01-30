@@ -2,6 +2,8 @@
 
 This is the SARL infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
 
+You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
+
 ## PREREQUISITES
 
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (sun version recommended)
