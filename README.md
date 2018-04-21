@@ -1,6 +1,6 @@
-# SARL Agent Interface Framework for MAC Agents in the City 2017 
+# SARL Agent Middlware Framework for MAC Agents in the City 2017 
 
-This is the SARL infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
+This is the SARL Agents in City Middlware infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
 
 You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
 
@@ -18,10 +18,35 @@ You can see the infrastructure working by [watching this demo video](https://you
 	    * Obtained via Maven automatically from Github repository via JitPack: <https://jitpack.io/#mochalog/mochalog>.
         * Check the Mocha Wiki to understsand how to install and use it in your agent.
 
-## INSTALL AND RUN
 
-Refer to the my [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
+## DEVELOP THE MIDDLEWARE FURTHER
 
+Clone this repo and refer to the the [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
+
+
+## USE and INSTALL MIDDLEWARE
+
+Most of the times one would just use this middleware out-of-the-box to develop SARL Agents in City controller. 
+To do so, just get the JAR file from the Download section for the SARL to be used, and install it in your maven local repository as follows:
+
+```
+mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=rmit.agtgrp.sarl -DartifactId=sarl-agntcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
+```
+
+Then, in your SARL Agents in City controller application you can use the middlware by including this in the project `pom.xml':
+
+```
+        <!--  SARL Agent City Interface  -->
+		<dependency>
+		    <groupId>rmit.agtgrp.sarl</groupId>
+		    <artifactId>sarl-agtcity-mw</artifactId>
+	    	<version>${sarl-agtcity-mw.version}</version>
+		</dependency>
+```
+
+
+
+## RUN DEMO
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
 
@@ -78,32 +103,6 @@ A special one is **PlayerState** which is used to keep track of each player curr
 ### Aggregators
 
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server.
-
-
-## USING THIS INTERFACE IN YOUR SARL SYSTEM
-
-You basically need to make sure the JAR file for this infrastructure is accessible by your system, so you can use the capacities, skills, entities, etc.
-
-You can do that automatically using Maven and JitPack, by configuring your POM with:
-
-        <!-- SARL-agtcity-intf version -->
-        <sarl-agtcity-intf.version>-SNAPSHOT</sarl-agtcity-intf.version>
-
-
-        <!-- JitPack used for remote installation of MASSim from Github -->
-        <repository>
-            <id>jitpack.io</id>
-            <name>JitPack Repository</name>
-            <url>https://jitpack.io</url>
-        </repository>
-		
-		
-        <!--  SARL Agent City Interface  -->
-		<dependency>
-		    <groupId>org.bitbucket.ssardina-research</groupId>
-		    <artifactId>sarl-agtcity-intf</artifactId>
-	    	    <version>${sarl-agtcity-intf.version}</version>
-		</dependency>		
 
 
 ## EXAMPLE AGENTS 
