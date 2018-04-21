@@ -4,6 +4,9 @@ This is the SARL Agents in City Middlware infrastructure to control an agent tea
 
 You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
 
+**Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.7.2 is version 1.3 for SARL 0.7.2.
+
+
 ## PREREQUISITES
 
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (sun version recommended)
@@ -35,14 +38,25 @@ mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=rmit.agt
 
 Then, in your SARL Agents in City controller application you can use the middlware by including this in the project `pom.xml':
 
-```
+		```
         <!--  SARL Agent City Interface  -->
 		<dependency>
 		    <groupId>rmit.agtgrp.sarl</groupId>
 		    <artifactId>sarl-agtcity-mw</artifactId>
 	    	<version>${sarl-agtcity-mw.version}</version>
 		</dependency>
-```
+		```
+
+where `${sarl-agtcity-mw.version}` can be a number like `1.0.7.2` or be a property defined above as:
+
+	``` 
+    <properties>
+        <!-- SARL Agt City Middlware version -->
+        <sarl-agtcity-mw.version>1.0.${sarl.version}</sarl-agtcity-mw.version>
+
+		...
+	</properties>
+	``` 
 
 
 
