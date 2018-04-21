@@ -33,7 +33,7 @@ Most of the times one would just use this middleware out-of-the-box to develop S
 To do so, just get the JAR file from the Download section for the SARL to be used, and install it in your maven local repository as follows:
 
 ```
-mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=rmit.agtgrp.sarl -DartifactId=sarl-agntcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
+mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=rmit.agtgrp.sarl -DartifactId=sarl-agtcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
 ```
 
 Then, in your SARL Agents in City controller application you can use the middlware by including this in the project `pom.xml':
