@@ -6,20 +6,18 @@ You can see the infrastructure working by [watching this demo video](https://you
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.7.2 is version 1.3 for SARL 0.7.2.
 
+This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
+
 
 ## PREREQUISITES
 
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (sun version recommended)
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine 
-	* Version tested: 0.6.1.
+	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.7.2`
+	* Version tested: 0.6.1, 0.7.2
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
-* If you want to use Prolog knowledge-bases:
-    * [SWI Prolog](http://www.swi-prolog.org/): a state of the art Prolog system.
-	    * Version >7.4.x with [JPL](http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/jpl.html%27)) Bidirectional interface with Java (package **swi-prolog-java** in Linux)
-    * [Mochalog](https://github.com/ssardina/mochalog) (optional): a rich bidirectional interface between the Java Runtime and the SWI-Prolog interpreter inspired by JPL.
-	    * Obtained via Maven automatically from Github repository via JitPack: <https://jitpack.io/#mochalog/mochalog>.
-        * Check the Mocha Wiki to understsand how to install and use it in your agent.
+* If you want to use Prolog knowledge-bases in your SARL agent check [this](https://bitbucket.org/snippets/ssardina/bezbBx/swi-prolog-in-sarl-agent-controllers).
 
 
 ## DEVELOP THE MIDDLEWARE FURTHER
@@ -30,33 +28,52 @@ Clone this repo and refer to the the [general SARL instructions](https://bitbuck
 ## USE and INSTALL MIDDLEWARE
 
 Most of the times one would just use this middleware out-of-the-box to develop SARL Agents in City controller. 
-To do so, just get the JAR file from the Download section for the SARL to be used, and install it in your maven local repository as follows:
 
-```
-mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=rmit.agtgrp.sarl -DartifactId=sarl-agtcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
-```
+To do so, you first need to have the JAR file for the middleware installed in your local Maven repo for your controller application to use it.
 
-Then, in your SARL Agents in City controller application you can use the middlware by including this in the project `pom.xml':
+First the `pom.xml` of your SARL controller application using the this middleware should have the following dependency to the middleware:
 
 		```
+	    <properties>
+	        <!-- SARL Agt City MW version -->
+	        <sarl-agtcity-mw.version>1.0.${sarl.version}</sarl-agtcity-mw.version>
+	
+			...
+		</properties>
+
+
         <!--  SARL Agent City Interface  -->
 		<dependency>
-		    <groupId>rmit.agtgrp.sarl</groupId>
+		    <groupId>org.bitbucket.ssardina-research</groupId>
 		    <artifactId>sarl-agtcity-mw</artifactId>
 	    	<version>${sarl-agtcity-mw.version}</version>
 		</dependency>
 		```
 
-where `${sarl-agtcity-mw.version}` can be a number like `1.0.7.2` or be a property defined above as:
+There are then two ways to install the corresponding JAR file for the middleware:
 
-	``` 
-    <properties>
-        <!-- SARL Agt City Middlware version -->
-        <sarl-agtcity-mw.version>1.0.${sarl.version}</sarl-agtcity-mw.version>
+1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
-		...
-	</properties>
-	``` 
+```
+mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research -DartifactId=sarl-agtcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
+```
+
+This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
+
+2. You can specify your application to get it automatically via Maven. To do so, include this repository for the JitPack service:
+
+```
+<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+</repositories>
+```	
+
+When you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
+
+
 
 
 
