@@ -33,7 +33,6 @@ To do so, you first need to have the JAR file for the middleware installed in yo
 
 First the `pom.xml` of your SARL controller application using the this middleware should have the following dependency to the middleware:
 
-		```
 	    <properties>
 	        <!-- SARL Agt City MW version -->
 	        <sarl-agtcity-mw.version>1.0.${sarl.version}</sarl-agtcity-mw.version>
@@ -48,14 +47,14 @@ First the `pom.xml` of your SARL controller application using the this middlewar
 		    <artifactId>sarl-agtcity-mw</artifactId>
 	    	<version>${sarl-agtcity-mw.version}</version>
 		</dependency>
-		```
 
 There are then two ways to install the corresponding JAR file for the middleware:
 
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
 ```
-mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research -DartifactId=sarl-agtcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
+mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
+	-DartifactId=sarl-agtcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
 ```
 
 This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
