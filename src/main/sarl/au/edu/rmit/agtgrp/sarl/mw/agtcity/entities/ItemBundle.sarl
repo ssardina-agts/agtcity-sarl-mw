@@ -1,0 +1,108 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+ */
+package au.edu.rmit.agtgrp.sarl.mw.agtcity.entities
+/** 
+ * @author Keiran
+ */
+ 
+ /**
+  * A Class to define a bundle of a single Item in the world
+  * @param item The Item the bundle is comprised of @see Item
+  * @param amount The amount of the Item in the bundle
+  */
+class ItemBundle {
+    var item : Item 
+    var amount : double
+    /** 
+     * Creates a new item bundle without any items in it to store future items
+     * @param itemName String The name of the item to be stored
+     */
+    new(item : Item) {
+        this.item = item
+        this.amount = 0
+    }
+    /** 
+     * Creates a new item bundle with a specified number of items
+     * @param itemName String The name of the item to be stored
+     * @param amount int The number of items to be stored in the bundle
+     */
+    new(item : Item, amount : double) {
+        this.item = item
+        this.amount = amount
+    }
+    /** 
+     * Removes the given amount of items from the bundle and packages them into a new bundle
+     * @param amount The quantity you want packaged into a new bundle
+     * @return ItemBundle The new item Bundle or null if too many items requested to be removed
+     */
+    def unpackBundle(amount : double) : ItemBundle {
+        var newBundle : ItemBundle
+        if (this.amount >= amount) {
+            newBundle = new ItemBundle(this.item)
+            newBundle.amount = amount
+            this.amount -= amount
+            return newBundle
+        }
+        return null
+    }
+    /** 
+     * Packages a bundle into the current existing bundle
+     * @param bundle The bundle you want to be merged with the existing bundle
+     * @return Boolean Returns true if the bundle is successfully merged else false 
+     */
+    def packageBundle(bundle : ItemBundle) : Boolean {
+        if (this.item.name.equals(bundle.item.name)) {
+            this.amount += bundle.amount
+            bundle.amount = 0
+            return true
+        }
+        return false;
+
+    }
+    /** 
+     * adds a single loose item to a bundle
+     * @param item The item you wish to add
+     * @return true if successful false if not
+     */
+    def addToBundle(item : Item) : Boolean {
+        if (this.item.name.equals(item.name)) {
+            this.amount += 1
+            return true
+        }
+        return false
+    }
+    /**
+     * @return The Item in the bundle
+     */
+    def getItem(): Item{
+        return item
+    }
+    /**
+     * @return The amount of the item in the bundle
+     */
+    def getAmount() : double{
+        return amount
+    }
+    /**
+     * @return The name of the item in the bundle
+     */
+    def getName() : String{
+        return item.name
+    }
+}

@@ -1,0 +1,31 @@
+/** 
+ * 
+ */
+package au.edu.rmit.agtgrp.sarl.mw.agtcity.events
+
+/** 
+ * @author ssardina
+ * 
+ */
+event E_OperationEvent
+
+
+event E_SenseEnvironment
+/** 
+ * Basic event emitted by the Loader to signal to the Communicator that a new agent has been spawned into the environment.
+ * @param agentName The name of the new agent that has been spawned by the Loader.  
+ */
+event E_SpawnAgent {
+	var agentName : String
+
+	new(name : String) {
+		this.agentName = name;
+	}
+}
+
+/** 
+ * Basic event emitted when the Loader is finished to signal to the Communicator to start receiving percpets from the server
+ */
+event E_SpawnComplete
+
+event E_Act

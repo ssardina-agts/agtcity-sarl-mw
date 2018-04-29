@@ -36,7 +36,7 @@ First the `pom.xml` of your SARL controller application using the this middlewar
 		```
 	    <properties>
 	        <!-- SARL Agt City MW version -->
-	        <sarl-agtcity-mw.version>1.0.${sarl.version}</sarl-agtcity-mw.version>
+	        <sarl-agtcity-mw.version>1.1.${sarl.version}</sarl-agtcity-mw.version>
 	
 			...
 		</properties>
@@ -100,7 +100,7 @@ So, what is provided by this package?
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
 * **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agents, and control such players, by receiving their sensing percepts and performing actions in the simulation.
-	* The skill **S_MassimTalking07** implements this capability for the MAC 20017 version.
+	* The skill **S_MassimTalking17** implements this capability for the MAC 20017 version.
 * **C_Reporting**: a capability to report information.
 	* The skill **S_ConsoleReporting** implements this capability by just printing messages on console.
 
@@ -110,14 +110,14 @@ The main tools provided by the **C_MassimTalking** capability are:
 * `MT_sensePlayerPercepts(playerName : String)`: sense the percepts for a player; blocking.
 * `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
 
-The **S_MassimTalking07** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+The **S_MassimTalking17** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
 
 
 ### Events
 
 The main set of events are:
 
-* The genearl event **E_AgentAction** and its many subclasses define all the actions that players can do in the environment.
+* The general event **E_AgentAction** and its many subclasses define all the actions that players can do in the environment.
 * The general event **E_AgentPercept** and its many subclasses define all the various percepts players can receive form game server.
 	* Note they are not currently posted automatically, but they are available for use to the programmer to emit.
 

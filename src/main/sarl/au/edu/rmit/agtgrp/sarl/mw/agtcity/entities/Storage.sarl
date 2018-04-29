@@ -1,0 +1,68 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.sarl.mw.agtcity.entities
+
+import java.util.HashMap
+import eis.iilang.Percept
+import au.edu.rmit.agtgrp.sarl.mw.agtcity.aggregator.Util
+import eis.iilang.ParameterList
+import eis.iilang.Function
+
+/** 
+ * @author Keiran, Bob
+ * 
+ */
+ /**
+  * Storage, a class used to decribe a storage facility
+  * @param p MASSIM percept used to build this facility
+  */
+class Storage extends Facility {
+    var ^capacity : double
+    var usedCapacity : double
+    var storedItems : HashMap<String, StorageItem>
+    
+   	
+    new(p : Percept) {
+    	super(p)
+		this.storedItems = new HashMap<String, StorageItem>
+		this.^capacity = Util.extractDouble(p.parameters.get(3))
+		this.usedCapacity = Util.extractDouble(p.parameters.get(4))
+		var items = p.parameters.get(5) as ParameterList
+		for (item : items) {
+			var f = item as Function
+			var itemName = Util.extractString(f.parameters.get(0))
+			var itemStored = Util.extractDouble(f.parameters.get(1))
+			var itemDelivered = Util.extractDouble(f.parameters.get(2))
+			storedItems.put(itemName, new StorageItem(itemName, itemStored, itemDelivered))
+		} 
+    }
+    
+    def getCapacity() : double{
+    	return ^capacity
+    }
+    def getUsedCapacity() : double{
+    	return usedCapacity
+    }
+    
+    def getItems() : HashMap<String,StorageItem>{
+    	return items
+    }
+    
+
+}

@@ -1,0 +1,71 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.sarl.mw.agtcity.entities
+
+import eis.iilang.Percept
+import au.edu.rmit.agtgrp.sarl.mw.agtcity.aggregator.Util
+
+/** 
+ * @author Keiran
+ */
+/** 
+ * Class to define the required parameters of an Auction job, extends Job
+ * @param auctionTime The time the auction will be available to bid on
+ * @param fine The fine the team will recieve if they don't complete to job on time
+ * @param lowestBid The current lowest bid on the job, lowest bid wins the job.
+ * @see Job
+ */
+class AuctionJob extends Job {
+    var auctionTime : double
+    var fine : double
+    var lowestBid : double
+
+	/**
+	 * Constructor for building an AuctionJob from the AuctionJob Percept
+	 * @Param p MASSIM Percept describing an Auction Job
+	 */
+	new(p : Percept, storage : Storage){
+		super(p, storage)
+		this.fine = Util.extractDouble(p.parameters.get(5))
+		this.lowestBid = Util.extractDouble(p.parameters.get(6))
+		this.auctionTime = Util.extractDouble(p.parameters.get(7))
+	}
+	
+	
+    /**
+     * @return The auction time of the auction
+     */
+    def getAuctionTime() : double {
+        return auctionTime
+    }
+    
+    /**
+     * @return The fine the team will receive if they don't complete the job on time
+     */
+    def getFine() : double {
+        return fine
+    }
+
+    /**
+     * @return The value of the lowest bid for the job
+     */
+    def getLowestBid() : double {
+        return lowestBid
+    }
+}
