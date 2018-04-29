@@ -1,6 +1,6 @@
-# SARL Agent Middlware Framework for MAC Agents in the City 2017 
+# SARL Agent Middleware Framework for MAC Agents in the City 2017 
 
-This is the SARL Agents in City Middlware infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
+This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
 
 You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
 

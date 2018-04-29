@@ -1,0 +1,117 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.massim.sarlmw.entities
+
+import eis.iilang.Percept
+import eis.iilang.ParameterList
+import eis.iilang.Function
+import au.edu.rmit.agtgrp.massim.sarlmw.aggregator.Util
+import au.edu.rmit.agtgrp.massim.sarlmw.aggregator.PerceptAggregator
+import au.edu.rmit.agtgrp.massim.sarlmw.aggregator.SimStartBuffer
+
+/** 
+ * @Author Keiran
+ */
+ 
+ /**
+  * Defines the details of a basic Job in the EISMASSim world
+  * @param startTime The time step the job was posted 
+  * @param endTime The time step the job has to be completed by
+  * @param id The id for the Job
+  * @param reward The reward the team will receive for successfully completing the job
+  * @param dropoff The storage facility where the required items are to be dropped off too
+  * @param required The items and quantities that are required to complete the job
+  */
+abstract class Job {
+	var startTime : double
+	var endTime : double
+	var id : String
+	var reward : double
+	var dropoff : Storage
+	var required : ItemContainer
+    
+    
+    /**
+     * Constructor to build a job from percepts
+     */
+    new(p : Percept, storage : Storage) {
+
+		this.id = Util.extractString(p.parameters.get(0))
+		this.reward = Util.extractDouble(p.parameters.get(2))
+		this.startTime = Util.extractDouble(p.parameters.get(3))
+		this.endTime = Util.extractDouble(p.parameters.get(4))
+		
+		var requireds = p.parameters.get(5) as ParameterList
+		var requiredItems = new ItemContainer()
+
+		for (r : requireds) {
+			var required = r as Function
+			var requiredItemName = Util.extractString(required.parameters.get(0))
+			var requiredQty = Util.extractDouble(required.parameters.get(1))
+			var itemVolume = SimStartBuffer.getItem(requiredItemName).volume
+			var requiredItem = new Item(requiredItemName, itemVolume)
+			requiredItems.add(new ItemBundle(requiredItem, requiredQty))
+		}
+    }
+    /**
+     * @return The start time of the job
+     */
+	def getStartTime() : double {
+		return startTime
+	}
+
+    /**
+     * @return The end time for completing the job by
+     */
+	def getEndTime() : double {
+		return endTime
+	}
+
+    /**
+     * @return The id of the job
+     */
+	def getId() : String {
+		return id
+	}
+
+    /**
+     * @return The reward the player will get for completing the job.
+     */
+	def getReward() : double {
+		return reward
+	}
+	
+	/**
+	 * @return The storage facility for where the required items are to be dropped off
+	 * @see Storage
+	 */
+	def getDropoff(): Storage{
+		return dropoff
+	}
+	
+	/**
+     * @return An ItemContainer containing all the items and quantities required
+     * to complete the job
+     * @see ItemContainer
+	 */
+	def getRequired(): ItemContainer{
+		return required
+	}
+
+}

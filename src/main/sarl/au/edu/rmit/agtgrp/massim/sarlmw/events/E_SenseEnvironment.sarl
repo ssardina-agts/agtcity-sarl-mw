@@ -1,0 +1,11 @@
+/** 
+ * 
+ */
+package au.edu.rmit.agtgrp.massim.sarlmw.events
+/** 
+ * @author ssardina
+ * 
+ */
+event E_SenseEnvironment {
+}
+
