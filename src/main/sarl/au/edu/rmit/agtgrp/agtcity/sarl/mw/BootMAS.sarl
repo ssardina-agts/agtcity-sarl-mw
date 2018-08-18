@@ -1,0 +1,54 @@
+/** 
+ * Class to boot up an agent controller
+ */
+import io.janusproject.Boot
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+
+import io.sarl.lang.core.Agent
+
+/** 
+ * @author Sebastian Sardina (ssardina@gmail.com)
+ * 
+ */
+class BootMAS {
+	// Code adapted from example how to boot from name string: 	http://tinyurl.com/ycolmey5
+	def static main(args : String[]) : void {
+		Boot.offline = true
+		Boot.verboseLevel = 7 //ALL
+		var fullyQualifiedAgent : String
+		val basePackage = "au.edu.rmit.agtgrp.agtcity.sarl.mw.agents"
+
+		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent"]
+		val DEFAULT_CONTROLLER : String = "SingleRandomAgent"
+
+		// Boot a specific one and that' s it
+		// Boot.startJanus(typeof(DummyMultiCarController))
+		var agentToLaunch : String 
+		if (args.length == 0) {	// if not agent given in CLI argument, use default
+			System.out.println(
+				String.format("No controller specified from the available ones %s. Using controller \"%s\"",
+				AGENTS_AVAILABLE.toString, DEFAULT_CONTROLLER))
+			agentToLaunch = DEFAULT_CONTROLLER
+		} 
+		else {
+			agentToLaunch = args.get(0)	// get the agent name from CLI first argument
+		}
+
+		switch agentToLaunch {
+			case 'SingleRandomAgent':
+				fullyQualifiedAgent = basePackage + "SingleRandomAgent" 
+			default:
+			    throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
+   		}
+	
+		
+		// now get agent class for fullQualifiedAgent and boot it
+		System.out.println(String.format("Loading SARL controller agent %s", agentToLaunch))
+		val type = Class.forName(fullyQualifiedAgent)
+		var SARLagent : Class<? extends Agent>
+		SARLagent = type.asSubclass(Agent)
+		assert SARLagent != null;
+		Boot.startJanus(SARLagent)
+	}
+	
+}

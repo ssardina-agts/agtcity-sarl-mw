@@ -11,12 +11,33 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.bitbucket.ssardina-research</groupId>
     <artifactId>sarl-agtcity-mw</artifactId>
-    <version>1.1.${sarl.version}</version>
+    <version>1.2.${sarl.version}</version>
+
+	<name>SARL Agents in City Middleware</name>
+    <description>
+	    This project provides basic capacity and skill to interact with the Agents in City game simulator.
+    </description>
+  	<url>https://bitbucket.org/ssardina-research/sarl-agtcity-mw</url>
+
+    <licenses>
+	    <license>
+	      <name>GNU General Public License, Version 3.0</name>
+	      <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+	    </license>
+  	</licenses>
+  
+  	<developers>
+    	<developer>
+	      <name>Sebastian Sardina</name>
+	      <email>ssardina@gmail.com</email>
+	      <organization>ssardina-research</organization>
+	      <organizationUrl>https://bitbucket.org/ssardina-research/</organizationUrl>
+	    </developer>
+  	</developers>
+
 
     <!-- SARL-MASSIM properties -->
     <properties>
@@ -26,16 +47,33 @@
         <compiler.level>1.8</compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Janus project version -->
+        <!-- JANUS project version -->
         <janus.version>2.${sarl.version}</janus.version>
-        
-        <!-- MASSim version -->
-        <massim.version>massim-2017-1.3</massim.version>
-
-        <!-- Mochalog framework version -->
-        <mochalog.version>ffe16e8</mochalog.version>
     </properties>
 
+
+    <!-- Project dependencies -->
+    <dependencies>
+        <!-- JANUS Project kernel (contains SARL language core) -->
+        <dependency>
+            <groupId>io.janusproject</groupId>
+            <artifactId>io.janusproject.kernel</artifactId>
+            <version>${janus.version}</version>
+        </dependency>
+
+        <!--  EIS-MASSIM Environment Interface Standard -->
+        <dependency>
+            <groupId>com.github.agentcontest.massim</groupId>
+            <artifactId>eismassim</artifactId>
+            <version>massim-2017-1.7</version>
+            <!-- 
+            <version>aopd18-3.2</version>
+            <version>massim-2017-1.3</version>
+             -->
+        </dependency>
+    </dependencies>
+    
+    
     <!-- Repository definitions -->
     <pluginRepositories>
         <pluginRepository>
@@ -66,32 +104,7 @@
         </repository>
     </repositories>
 
-    <!-- Project dependencies -->
-    <dependencies>
-        <!-- Janus Project kernel (contains SARL language core) -->
-        <dependency>
-            <groupId>io.janusproject</groupId>
-            <artifactId>io.janusproject.kernel</artifactId>
-            <version>${janus.version}</version>
-        </dependency>
 
-        <!--  eismassim Environment Interface Standard -->
-        <dependency>
-            <groupId>com.github.agentcontest.massim</groupId>
-            <artifactId>eismassim</artifactId>
-            <version>${massim.version}</version>
-        </dependency>
-        
-        <!--  Mochalog interface for SWI-Prolog -->
-        <dependency>
-            <groupId>com.github.ssardina</groupId>
-            <artifactId>mochalog</artifactId>
-            <version>${mochalog.version}</version>
-        </dependency>
-        
-    </dependencies>
-    
-    
     
 
     <!-- Build pipeline plugins -->
@@ -152,6 +165,9 @@
               </executions>
        </plugin>
        
+			<!--  Aggregate project into a JAR package
+			https://maven.apache.org/plugins/maven-assembly-plugin/
+			-->
             <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <configuration>
@@ -175,12 +191,7 @@
                         </execution>
                     </executions>
               </plugin>
-       
-
-
-
-
-
+    
 
         </plugins>
     </build>

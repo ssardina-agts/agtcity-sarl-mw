@@ -1,0 +1,277 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.skills
+
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.Map
+import java.util.Collection
+import java.util.HashMap
+import java.util.Set
+import javax.management.relation.RelationException
+import java.io.IOException
+
+import org.json.JSONObject
+
+import eis.exceptions.AgentException
+import eis.exceptions.ManagementException
+import eis.iilang.EnvironmentState
+import massim.eismassim.EnvironmentInterface
+import eis.iilang.Percept
+import eis.iilang.Action
+import massim.eismassim.EISEntity
+
+
+import io.sarl.core.Logging
+
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.PlayerState
+import eis.exceptions.ActException
+import massim.eismassim.Log
+
+/** 
+ * @author Sebastian Sardina (ssardina@gmail.com)
+ * 
+ * Skill implementing the C_MassimTalking capacity to conncet to MAC Agents in City MASSIM 2017 Game Server
+ * 
+ * - connect to game server (using configuration files)
+ * - register players (using configuration files for credentials)
+ * - perceive the environment (receive percepts)
+ * - send actions to the game server (for the players registered) 
+ * 
+ * Uses the MASSIM EI interface from EISHUB (https://github.com/eishub/massim)
+ * 
+ * NOTE: we call agents to SARL agents; and players to agents in the MASSIM simulation.
+ * Hence, a SARL agent, may register and control one more players in the simulation (even all)
+ */
+skill S_MassimTalking17 implements C_MassimTalking {
+	uses Logging
+
+	// /////////////////////////////////////////////////////////////////////////
+	// DATA
+	// //////////////////////////////////////////////////////////////////////////
+
+	// Server connection information
+	var eiMassimConfigFile : Path			// Configuration of ei connectivity and connection configuration
+	var eiMassimAuthConfigFile : Path // Authentication details for the agents
+	var detailsCompleted : boolean = false // are all the details ready/filled?
+	var connected : boolean = false
+
+
+	/* 
+	 * EISMASSim is based on the Environment Interface Standard (EIS), a proposed standard for agent-environment interaction. 
+	 * 
+	 * EISMASSim maps the communication between players and the MASSim server, (i.e. sending and receiving XML-messages), 
+	 * to Java method calls. 
+	 * It also automatically establishes and maintains connections to a specified MASSim server.
+	 * In other words, EISMASSim is a proxy environment on the client side which handles communication with the 
+	 * MASSim server completely by itself.
+	 * 
+	 * Check: https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
+	 */
+	var public ei : EnvironmentInterface // main handler for the skill (from massim.eismassim)
+
+	/* 
+	 * Stores the current PlayerState in the simulation per player name 
+	 * (for all that have been authenticated in the game server)
+	 * 
+	 */
+	var players : Map<String, PlayerState> = new HashMap<String, PlayerState>()
+
+
+
+	// /////////////////////////////////////////////////////////////////////////
+	// CONSTRUCTORS
+	// //////////////////////////////////////////////////////////////////////////
+	new (eiMassimConfigFile : Path, eiMassimAuthConfigFile : Path) {
+		super() // Call the super's constructor
+		this.eiMassimConfigFile = eiMassimConfigFile
+		this.eiMassimAuthConfigFile = eiMassimAuthConfigFile
+		detailsCompleted = true
+	}
+
+	new (eiMassimConfigFile : Path) {
+		super() // Call the super's constructor
+		this.eiMassimConfigFile = eiMassimConfigFile
+		detailsCompleted = false
+	}
+
+	// //////////////////////////////////////////////////////////////////////////
+	// MAIN TOOLS: INTERACTION WITH GAME SERVER
+	// //////////////////////////////////////////////////////////////////////////
+
+	/* 
+	 * Sets the file containing the authentication details for players
+	 */
+	def MT_setAuthenticationFile(eiMassimAuthConfigFile : Path) {
+		this.eiMassimAuthConfigFile = eiMassimAuthConfigFile
+		detailsCompleted = true
+	}
+
+
+	/*
+	 * Initialize and start the Environment Interface
+	 */
+	def MT_initialize() : boolean {
+		if (eiMassimConfigFile === null) {
+			warning("Trying to register the game server, but no information about it is registered! :-(")
+			return false
+		}
+
+		// TODO: if this fails (e.g., file is not there) it keeps going, does not throw exception!
+        ei = new EnvironmentInterface(eiMassimConfigFile.toString)
+        try {
+				ei.start()
+				connected = true
+			} catch (e : ManagementException) {
+				e.printStackTrace()
+				connected = false
+			}
+		return connected
+	}
+
+
+	/*
+	 * Registers players in the interface using configuration file eiMassimAuthConfigFile
+	 * 
+	 * Players will be associated with entities in the simulation and connection will happen per agent
+	 */
+	def MT_registerPlayersFromConfig() : boolean {
+		if (detailsCompleted) {
+			try {
+				// Read from config file which agents will participate in the simulation
+				// Agents will be of a certain type entity (define in the EIS)
+	            var config : JSONObject = new JSONObject(
+					new String(Files.readAllBytes(eiMassimAuthConfigFile)))
+				var players : JSONObject = config.optJSONObject("agents")
+	
+				if (players !== null) { // There are agents!
+					for (agName : players.keySet) {
+	                    // Not sure if need all of these but better safe than sorry.
+						var agConf : JSONObject = players.getJSONObject(agName)
+						var playerName: String = agName
+						var playerEntity : String = agConf.getString("entity")
+						var playerTeam : String = agConf.getString("team")
+	                    var playerClass : String = agConf.getString("class")
+
+						try {
+							ei.registerAgent(playerName)
+	                    } catch (e : AgentException) {
+							e.printStackTrace()
+						}
+						try {
+	                        ei.associateEntity(playerName, playerEntity);
+						} catch (e : RelationException) {
+							e.printStackTrace()
+						}
+						
+						// TODO: how to check if the agent did really connect to the server? seems that even if the server is down
+						// the ei system register the agent
+						if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
+							debug("Agent {0} has been successfully associated with entity *{1}*", playerName,
+								playerEntity)
+							this.players.put(playerName, new PlayerState(playerName, playerClass, playerTeam))
+						} else {
+							warning("Unsuccessful association of agent {0} with entity *{1}*", playerName,
+								playerEntity)
+						}
+					}
+				}
+				return true
+			} catch (e : IOException) {
+				e.printStackTrace()
+				return false
+			}
+		} else
+		{
+			error("Sorry, authentication details are not yet loaded...")
+			return false
+		}
+	}
+
+	/*
+	 * Sense all percepts for a player
+	 * 
+	 * For each player's entity, a collection of percepts is returned
+	 * (generally, a player is of just one entity)
+	 */
+	def MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>> {
+		var allPercepts = ei.getAllPercepts(playerName)
+		
+		// update player state with the first collection (only works if player is linked to just one entity)	
+		players.get(playerName).update(allPercepts.values().get(0)) // update the agent data
+		
+		return allPercepts 
+	}
+	/* 
+	 * Make a player execute an action in the game server
+	 */
+	def MT_executeAction(playerName : String, action : Action) {
+		try {
+			ei.performAction(playerName, action)
+		} catch (e : ActException) {
+			error("I was not able to execute action {0} for agent {1}", action.getName(), playerName)
+			e.printStackTrace
+		}
+	}
+
+	// //////////////////////////////////////////////////////////////////////////
+	// INFORMATION GATHERING
+	// //////////////////////////////////////////////////////////////////////////
+
+
+	/* 
+	 * Obtain the current state of the environment interface (paused, running, killed)
+	 */
+	def MT_getStatus() : EnvironmentState {
+		return ei.getState()
+	}
+
+	def MT_getPlayersNames() : Set<String> {
+		return players.keySet()
+	}
+
+
+	/** 
+	 * Provides a map from player names to the player state
+	 */	
+	def MT_getAllPlayerStates() : Map<String, PlayerState> {
+		return players
+	}
+	def MT_getPlayerState(playerName : String) : PlayerState {
+		return players.get(playerName)
+	}
+
+
+	// //////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////
+	def install {
+		// Function invoked when the skill is installed in the owner.
+		// You should put all the initialization statements in this block of code.
+		info("Installing the skill to talk to MASSIM07 Agents in City 2017 Game Server")
+	}
+
+	def uninstall {
+		// Function invoked when the skill is uninstalled from the owner.
+		// You should put all the resource release statements in this block of code.
+		info("Un-installing the skill to talk to MASSIM07 Agents in City 2017 Game Server")
+	}
+}

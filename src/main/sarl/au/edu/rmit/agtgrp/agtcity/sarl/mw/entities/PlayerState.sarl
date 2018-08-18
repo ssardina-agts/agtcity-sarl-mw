@@ -1,0 +1,166 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * var 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
+
+import java.util.HashMap
+
+import eis.iilang.Function
+import eis.iilang.ParameterList
+import eis.iilang.Percept
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Position
+import java.util.Collection
+import java.util.HashMap
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Facility
+
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.*
+
+import java.util.*
+
+/** 
+ * @author bob
+ * @author Sebastian Sardina (ssardina@gmail.com)
+ * 
+ * A class to store a player state in the simulation
+ */
+class PlayerState extends GameEntity {
+
+    public var charge : double      
+    public var load : double
+    public var items : HashMap<String, Double>
+    public var route : HashMap<Integer, Position>
+    public var routeLength : double
+    public var facilityName : String
+	public var percepts : Collection<Percept> 
+	public var lastActioResult : String
+	public var step : int
+
+	// CONSTRUCTOR
+    new(
+        name : String,
+        role : String,
+        team : String,
+        lat : double,
+        lon : double,
+        charge : double,
+        load : double,
+        items : HashMap<String, Double>,	// item --> quantity
+        route : HashMap<Integer, Position>, // index --> waypoint
+        routeLength : double,
+        facilityName : String
+    ) {
+        super(name, role, team, lat, lon)
+        this.charge = charge
+        this.load = load
+        this.items = items
+        this.route = route
+        this.routeLength = routeLength
+        this.facilityName = facilityName        
+        this.percepts = new Vector<Percept>
+        this.step = 0
+    }
+
+	
+	// CONSTRUCTOR
+	new(
+		name : String,
+		role : String,
+		team : String
+	) {
+		super(name, role, team, 0, 0)
+		this.percepts = new Vector<Percept>()
+		
+	}
+
+	// CONSTRUCTOR
+	new(name : String, percepts : Collection<Percept>) {
+		super(name, EntityBuffer.get(name).role, TeamBuffer.selfteam, PositionBuilder.buildPosition(percepts).lat,
+			PositionBuilder.buildPosition(percepts).lon)
+		this.percepts = new Vector<Percept>()
+	}
+
+
+	/*
+	 * Return a string with a summary of the player state: name, location, and battery level
+	 * 
+	 */
+	def reportState() : String {
+		
+		var message : String = String.format("State of player %s: at (%f, %f) with battery level %f and load %f", 
+                   this.name, 
+                   this.lat, this.lon, 
+                   this.charge,
+                   this.load)
+		
+		return message
+	}
+		
+	/*
+	 * Update the state of the player from a collection of percepts
+	 * (a percept is just one piece of information, like the step number or the routeLength)
+	 */
+	def update(percepts : Collection<Percept>) {
+		var position = PositionBuilder.buildPosition(percepts) // location (lat,long) of agent
+		super.update(position.lat, position.lon)
+
+		this.percepts = percepts // store current percepts
+		this.route = new HashMap()	// initialize with empty	
+		this.items = new HashMap() // initialize with empty
+		
+		// Populate Entity fields
+		for (p : percepts) {
+	            switch p.name {
+					case "step": {
+						step= Util.extractInt(p.parameters.get(0))
+					}
+					case "lastActionResult": {
+					lastActioResult = Util.extractString(p.parameters.get(0))
+					}
+	                case "charge": {
+						charge = Util.extractDouble(p.parameters.get(0))
+	                }
+					case "load": {
+						load = Util.extractDouble(p.parameters.get(0))
+	                }
+		            case "routeLength": {
+						routeLength = Util.extractDouble(p.parameters.get(0))
+					}
+	                case "facility": {
+						facilityName = Util.extractString(p.parameters.get(0))
+					}
+					case "hasItem": {
+	                    var itemName = Util.extractString(p.parameters.get(0))
+						var itemQty = Util.extractDouble(p.parameters.get(1))
+						this.items.put(itemName, itemQty)
+					}
+					case "route": {
+						var params = p.parameters.get(0);
+						var wps = params as ParameterList
+						for (w : wps) {
+							var f = w as Function
+		                        var lat = Util.extractDouble(f.parameters.get(1))
+		                        var lon = Util.extractDouble(f.parameters.get(2))
+							var wayPoint = new Position(lat, lon)
+							var index = Util.extractInt(f.parameters.get(0));
+							this.route.put(index, wayPoint)
+						}
+					}
+			}
+		}
+	}
+}

@@ -11,14 +11,18 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 
 ## PREREQUISITES
 
-* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (sun version recommended)
+* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (Sun version recommended)
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine 
 	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.7.2`
 	* Version tested: 0.6.1, 0.7.2
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
-* If you want to use Prolog knowledge-bases in your SARL agent check [this](https://bitbucket.org/snippets/ssardina/bezbBx/swi-prolog-in-sarl-agent-controllers).
-
+* The [EISMASSim](https://github.com/eishub/massim) environment interface.
+	* A Java library using the [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server that can be used with platforms which support the EIS.
+	* Provides a more high-level access to the game sever than low-level JSON messages.
+	* Comes with the game server. Using version `massim-2017-1.7` (Sept 2017)
+* The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim): to run the game.
+	* Version: `massim-2017-1.7`
 
 ## DEVELOP THE MIDDLEWARE FURTHER
 
@@ -76,7 +80,9 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
 
-		java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
+```
+java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
+```
 
 	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuraition file.
 
@@ -154,25 +160,14 @@ This system does not do much at the current time, but a lot of infrastructure is
 
 ## LINKS
 
-* Maven:
-	* Doc: <https://maven.apache.org/general.html>
-	* SARL distribution: <http://mvnrepository.com/artifact/io.sarl.maven>
-	* JANUS / SRE (for janus.version in pom.xml):  <http://search.maven.org/#search%7Cga%7C1%7Cjanusproject>
-* JitPack for remote installation of dependencies from Github & Bitbucket: 
-	* Mochalog: <https://jitpack.io/#mochalog/mochalog>
-	* sarl-elvatorsim-ctrl: <https://jitpack.io/#org.bitbucket.sarlrmit/sarl-elvatorsim-ctrl>
-* SARL:
-	* Main page: <http://www.sarl.io/>
-	* github repo: <https://github.com/sarl/sarl>
-	* User forum: <https://groups.google.com/forum/?hl=en#!forum/sarl>
+For general links check [here](https://bitbucket.org/snippets/ssardina/6eybMg#markdown-header-1-software-prerequisites-and-links).
+
 * The Multi Agent Agents in City 2017 contest:
 	* Multi-Agent Contest Home Page: https://multiagentcontest.org/
 	* Main git repository: https://github.com/agentcontest/massim
 	* Documentation: https://github.com/agentcontest/massim/tree/master/docs
 	* EISMASSim Documentation (the interface provided to communicate with game server): https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
 		* Web page of the Environment Interface Standard (EIS): https://github.com/eishub/
-* Mochalog (higher abstraction than JPL): <https://github.com/ssardina/mochalog>
-* [SWI Prolog](http://www.swi-prolog.org/) (>7.4.x) with [JPL](http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/jpl.html%27)) Bidirectional interface with Java (package **swi-prolog-java** in Linux)
 
 
 ## PROJECT LEADER & CONTACT ##

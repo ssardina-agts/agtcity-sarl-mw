@@ -1,0 +1,36 @@
+/** 
+ * 
+ */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
+
+import eis.iilang.Percept
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
+
+/** 
+ * @author bob
+ * 
+ */
+class MissionJob extends Job {
+	var missionTime : double
+	var fine : double
+	var lowestBid : double
+	
+	new(p : Percept, storage : Storage) {
+		super(p, storage)
+		this.fine = Util.extractDouble(p.parameters.get(5))
+		this.lowestBid = Util.extractDouble(p.parameters.get(6))
+		this.missionTime = Util.extractDouble(p.parameters.get(7))		
+	}
+
+	def getMissionTime() : double {
+		return missionTime
+	}
+
+	def getFine() : double {
+		return fine
+	}
+
+	def getLowestBid() : double {
+		return lowestBid
+	}
+}

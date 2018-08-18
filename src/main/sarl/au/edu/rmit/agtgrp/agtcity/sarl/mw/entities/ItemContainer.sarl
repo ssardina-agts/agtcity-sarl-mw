@@ -1,0 +1,184 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
+
+import java.util.ArrayList
+import java.util.HashMap
+/** 
+ * @author keiran
+ * 
+ * A container for storing various item Bundles allowing for advanced features
+ * such as consolidating items
+ */
+class ItemContainer  {
+    protected var container = new ArrayList<ItemBundle>
+
+    /**
+     * Adds one or more bundles to the container
+     * @param itemBundle* The ItemBundles you want to add
+     */
+    def add(itemBundle : ItemBundle*) {
+        for (i : itemBundle) {
+            container.add(i)
+        }
+    }
+    /**
+     * takes a subset of ItemBundles from the container
+     * @param itemBundles* the ItemBundles you want to take
+     * @return ItemContainer A new container with all your items
+     */
+    def takeFromContainer(itemBundles : ItemBundle*) : ItemContainer {
+        var temp : ItemContainer = new ItemContainer
+        for (i : itemBundles) {
+            for (b : container) {
+                if (i.name.equals(b.name)) {
+                    // If the amount is exact move from container to temp
+                    if (i.amount === b.amount) {
+                        temp.add(b)
+                        container.remove(b)
+                        i.unpackBundle(i.amount)
+                    } else if (i.amount < b.amount) {
+                        var bundle = b.unpackBundle(i.amount)
+                        temp.add(bundle)
+                        i.unpackBundle(i.amount)
+                    } else if (i.amount > b.amount) {
+                        var bundle = b.unpackBundle(b.amount)
+                        temp.add(bundle)
+                        i.unpackBundle(b.amount)
+                    }
+                }
+            }
+        }
+        // Checking to make sure that all the requested Items have been gathered
+        for (i : itemBundles) {
+            // If an amount is > 0 we couldn't collect everything requested.
+            // Moving temp back to container and returning null
+            if (i.amount > 0) {
+                for (t : temp.container) {
+                    container.add(t)
+                }
+                consolidate()
+                cleanup()
+                return null
+            }
+        }
+        return temp
+    }
+    /**
+     * Adds an ItemBundle to an existing item bundle if one exists with the same
+     * name else it adds it to the container
+     * @param bundle* The bundles you want to add 
+     */
+    def addToBundle(bundle : ItemBundle*) {
+        for(newBundle : bundle){
+            for (b : container) {
+                if (b.name.equals(newBundle.name)) {
+                    b.packageBundle(newBundle)
+                    return
+                }
+            }
+            container.add(newBundle)
+        }
+    }
+ 	/**
+ 	 * Extracts an ItemBundle from the ItemContainer
+ 	 * @param item The Item you want to extract
+ 	 * @param amount The quantity you want to extract from the container
+ 	 * @return ItemBundle The itemBundle you requested
+ 	 */   
+    def takeBundleFromContainer(item : Item, amount : double) : ItemBundle {
+        var tempAmount :double = amount
+        var temp = new ItemBundle(item);
+        for (b : container) {
+            if (item.name.equals(b.name)) {
+                //If amount is exact returning the bundle
+                if (amount === b.amount) {
+                    container.remove(b)
+                    return b   
+                } else if (amount < b.amount) {
+                    return b.unpackBundle(amount)
+                } else if (amount > b.amount) {
+                    tempAmount -= b.amount
+                    var bundle = b.unpackBundle(b.amount)
+                    temp.packageBundle(bundle)
+                }
+            }
+        }
+        //If we didn't have enough of the requested item return readd to container
+        //and return null
+        if(tempAmount > 0){
+            container.add(temp)
+            return null
+        }else{
+            return temp
+        }
+    }
+
+    /**
+     * Consolidates the ItemBundles in the container so that all items of the same name are stored together
+     */
+    def consolidate() {
+        var temp = new HashMap<Item, Double>
+        for (bundle : container) {
+            if (temp.containsKey(bundle.item)) {
+                var v : Double = temp.get(bundle.item)
+                temp.replace(bundle.item, v + bundle.amount)
+            } else {
+                temp.put(bundle.item, bundle.amount)
+            }
+        }
+        this.container = new ArrayList<ItemBundle>
+        for (key : temp.keySet) {
+            this.container.add(new ItemBundle(key, temp.get(key)))
+        }
+    }
+	/**
+	 * Removes all '0' amount ItemBundles from the container
+	 */
+    def cleanup() {
+        for (b : container) {
+            if (b.amount === 0) {
+                container.remove(b)
+            }
+        }
+    }
+	
+	/**
+	 * Gets the internal ArrayList from the container
+	 * @returns container The internal ArrayList
+	 */
+    def getContainer() : ArrayList<ItemBundle> {
+        return container
+    }
+    
+    /**
+     * returns the total quantity of an item in the container
+     * @param item The Item you want a quantity for
+     * @returns quantity The quantity of the requestedd item
+     */
+    def getQuantityOfItem(item : Item): double{
+        var quantity : double = 0
+        for(b : container){
+            if(b.name.equals(item.name)){
+                quantity += b.amount
+            }    
+        }
+        return quantity
+    }
+}
