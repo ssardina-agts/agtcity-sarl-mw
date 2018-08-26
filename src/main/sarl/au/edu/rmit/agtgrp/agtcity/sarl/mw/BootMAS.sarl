@@ -18,7 +18,7 @@ class BootMAS {
 		var fullyQualifiedAgent : String
 		val basePackage = "au.edu.rmit.agtgrp.agtcity.sarl.mw.agents"
 
-		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent"]
+		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent", "SchedulerAgent"]
 		val DEFAULT_CONTROLLER : String = "SingleRandomAgent"
 
 		// Boot a specific one and that' s it
@@ -36,7 +36,9 @@ class BootMAS {
 
 		switch agentToLaunch {
 			case 'SingleRandomAgent':
-				fullyQualifiedAgent = basePackage + "SingleRandomAgent" 
+				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
+			case 'SchedulerAgent':
+				fullyQualifiedAgent = basePackage + ".scheduler.SchedulerAgent" 
 			default:
 			    throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
    		}
