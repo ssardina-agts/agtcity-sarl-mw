@@ -35,6 +35,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking17
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SpawnAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ContinueOnRoute
 
 /** 
  * @author keiran
@@ -45,12 +46,12 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SpawnAgent
 agent DummyAgent {
     uses DefaultContextInteractions, C_Reporting
 
-    var agentName : String
+    var playerName : String
     var facilities : ArrayList<String>
     var rand : Random
 
     on Initialize {
-        this.agentName = occurrence.parameters.get(0) as String
+        this.playerName = occurrence.parameters.get(0) as String
         this.facilities = new ArrayList<String>()
         rand = new Random()
         
@@ -58,8 +59,8 @@ agent DummyAgent {
         // Event to signal my existance
         // Emitted before the agent begin to live or to be used.
         // You should put all the initialization statements in this block of code.
-		emit(new E_SpawnAgent(this.agentName))
-		setSkill(new S_ConsoleReporting(this.agentName), C_Reporting)
+		emit(new E_SpawnAgent(this.playerName))
+		setSkill(new S_ConsoleReporting(this.playerName), C_Reporting)
 		agent_shouts("I am a alive!")
     }
     /** 
@@ -68,7 +69,7 @@ agent DummyAgent {
      * decide which action to emit based on the information it has about the world.
      */
     on EntityPercept {
-    	//COde to react to entities.
+    	// Code to react to entities.
     }
     
     on FacilitySensedPercept {
@@ -78,11 +79,19 @@ agent DummyAgent {
     		facilities.add(occurrence.facility.name)
     	}
     }
-    
-    on TeamMemberPercept [occurrence.PlayerState.name == this.agentName && facilities.length > 0] { 
+
+	//	Follow some route to some random place
+    on TeamMemberPercept [occurrence.PlayerState.name == this.playerName && facilities.length > 0] { 
     	// Randomly select a facility (if there is one!) and visit it.
     	// This event will be handled by coordinator who will send it to EIS for execution
-    	emit(new GotoFacility(this.agentName, facilities.get(rand.nextInt(facilities.length - 1)), null))
+	
+		if (occurrence.PlayerState.routeLength > 0) {
+			agent_says("I am traveling somewhere, route length to go: {0}", occurrence.PlayerState.routeLength)
+			emit(new ContinueOnRoute(this.playerName, null))
+		} else {
+			agent_shouts("I am not travelling anywhere, so I will pick a place and go!")
+			emit(new GotoFacility(this.playerName, facilities.get(rand.nextInt(facilities.length - 1)), null))
+		}
     }
-    
+
 }

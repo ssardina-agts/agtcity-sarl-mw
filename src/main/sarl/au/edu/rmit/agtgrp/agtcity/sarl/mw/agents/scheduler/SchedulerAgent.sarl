@@ -109,6 +109,7 @@ agent SchedulerAgent {
 		if (MT_registerPlayersFromConfig()) { // this is where players authenticate to server to play
 			agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
 
+		// Spawn one dummy agent per game player
 		MT_getPlayersNames().forEach [ playerName : String |
 				spawn(DummyAgent, playerName) // Spawn a dummy agent called playerName
 				agent_says("Dummy agent spawn for managing player {0}", playerName)
@@ -259,10 +260,6 @@ agent SchedulerAgent {
 			for (e : resourcePercepts) {
 				emit(e)
 			}
-
-			
-			
-			
 			
 			// Emit SARL events about JOBS
 			var regularJobPercepts = aggregator.regularJobPercepts
