@@ -78,7 +78,7 @@ event GiveAgentItem extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction 
 	 */
-	new(name : String, ^agent : String, item : String, amount : int, constraints : JSONObject) {
+	new(playerName : String, ^agent : String, item : String, amount : int, constraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(^agent))
         pList.add(new Identifier(item))
@@ -98,7 +98,7 @@ event ReceiveItem extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, constraints : JSONObject) {
+	new(playerName : String, constraints : JSONObject) {
         super.action = new Action("receive")
         super.constraints = constraints
         super.playerName = playerName
@@ -114,7 +114,7 @@ event StoreItem extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, item : String, amount : int, constraints : JSONObject) {
+	new(playerName : String, item : String, amount : int, constraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -137,7 +137,7 @@ event RetrieveFromStorage extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, item : String, amount : int, contraints : JSONObject) {
+	new(playerName : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -161,7 +161,7 @@ event RetrieveFromSpecialStorage extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, item : String, amount : int, contraints : JSONObject) {
+	new(playerName : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -181,7 +181,7 @@ event AssembleItem extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, item : String, contraints : JSONObject) {
+	new(playerName : String, item : String, contraints : JSONObject) {
         super.action = new Action("assemble", new Identifier(item))
         super.constraints = constraints
         super.playerName = playerName
@@ -197,7 +197,7 @@ event AssistAssembly extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, agentToAssist : String, contraints : JSONObject) {
+	new(playerName : String, agentToAssist : String, contraints : JSONObject) {
         super.action = new Action("assist_assemble", new Identifier(agentToAssist))
         super.constraints = constraints
         super.playerName = playerName
@@ -213,7 +213,7 @@ event BuyItem extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, item : String, amount : int, contraints : JSONObject) {
+	new(playerName : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -233,7 +233,7 @@ event DeliverJob extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction 
 	 */
-	new(name : String, job : String, contraints : JSONObject) {
+	new(playerName : String, job : String, contraints : JSONObject) {
         super.action = new Action("deliver_job", new Identifier(job))
         super.constraints = constraints
         super.playerName = playerName
@@ -249,7 +249,7 @@ event BidForJob extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, job : String, bid : int, contraints : JSONObject) {
+	new(playerName : String, job : String, bid : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(job))
         pList.add(new Identifier(bid.toString))
@@ -271,7 +271,7 @@ event PostJob extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, reward : int, duration : int, storage : String, itemAndCount : Map<String, Integer>,
+	new(playerName : String, reward : int, duration : int, storage : String, itemAndCount : Map<String, Integer>,
         contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(reward.toString))
@@ -296,7 +296,7 @@ event DumpItem extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, item : String, amount : int, contraints : JSONObject) {
+	new(playerName : String, item : String, amount : int, contraints : JSONObject) {
         var pList : ParameterList
         pList.add(new Identifier(item))
         pList.add(new Identifier(amount.toString))
@@ -313,7 +313,7 @@ event ChargeFromStation extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, contraints : JSONObject) {
+	new(playerName : String, contraints : JSONObject) {
         super.action = new Action("charge")
         super.constraints = constraints
         super.playerName = playerName
@@ -326,7 +326,7 @@ event ChargeFromSolar extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, contraints : JSONObject) {
+	new(playerName : String, contraints : JSONObject) {
         super.action = new Action("recharge")
         super.constraints = constraints
         super.playerName = playerName
@@ -345,7 +345,7 @@ event ContinueOnRoute extends E_AgentAction {
 	 * @see E_AgentAction
 	 * 
 	 */
-	new(name : String, contraints : JSONObject) {
+	new(playerName : String, contraints : JSONObject) {
         super.action = new Action("continue")
         super.constraints = constraints
         super.playerName = playerName
@@ -358,7 +358,7 @@ event Skip extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, contraints : JSONObject) {
+	new(playerName : String, contraints : JSONObject) {
         super.action = new Action("skip")
         super.constraints = constraints
         super.playerName = playerName
@@ -371,7 +371,7 @@ event AbortRoute extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, contraints : JSONObject) {
+	new(playerName : String, contraints : JSONObject) {
         super.action = new Action("Abort")
         super.constraints = constraints
         super.playerName = playerName
@@ -384,7 +384,7 @@ event GatherResources extends E_AgentAction {
 	 * @param contraints A JSONObject for any constraints that need to be confirmed before the agent can take the action 
 	 * @see E_AgentAction
 	 */
-	new(name : String, contraints : JSONObject) {
+	new(playerName : String, contraints : JSONObject) {
         super.action = new Action("gather")
         super.constraints = constraints
         super.playerName = playerName
