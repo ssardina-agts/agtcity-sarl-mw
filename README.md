@@ -6,6 +6,8 @@ You can see the infrastructure working by [watching this demo video](https://you
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.7.2 is version 1.3 for SARL 0.7.2.
 
+Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release verisons.
+
 This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
 
 
@@ -24,6 +26,7 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 * The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim): to run the game.
 	* Version: `massim-2017-1.7`
 
+
 ## DEVELOP THE MIDDLEWARE FURTHER
 
 Clone this repo and refer to the the [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
@@ -39,7 +42,7 @@ First the `pom.xml` of your SARL controller application using the this middlewar
 
 	    <properties>
 	        <!-- SARL Agt City MW version -->
-	        <sarl-agtcity-mw.version>1.1.${sarl.version}</sarl-agtcity-mw.version>
+	        <sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity-mw.version>
 	
 			...
 		</properties>
@@ -56,8 +59,8 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
-		mvn install:install-file -Dfile=sarl-agtcity-mw-1.1.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
-			-DartifactId=sarl-agtcity-mw -Dversion=1.1.0.7.2 -Dpackaging=jar
+		mvn install:install-file -Dfile=sarl-agtcity-mw-1.2.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
+			-DartifactId=sarl-agtcity-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
 
 	This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
 
@@ -73,9 +76,6 @@ There are then two ways to install the corresponding JAR file for the middleware
 	With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
 
 
-
-
-
 ## RUN DEMO
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
@@ -86,7 +86,7 @@ There are then two ways to install the corresponding JAR file for the middleware
 	
 	In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
 
-2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)).
+2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)). See below under examples for how to run the examples built-in in this package.
 3. Start the MASSIM Simulation by just hitting *ENTER* in the Game Server console
 	* The web GUI should start displaying/monitoring the simulation.
 4. Enjoy! You should start seeing the agent reporting things in the console. 
@@ -138,19 +138,31 @@ A special one is **PlayerState** which is used to keep track of each player curr
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server.
 
 
+
 ## EXAMPLE AGENTS 
 
 This package comes with two minimal examples
 
 ### SuperSingleAgent ###
 
-This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense and print some status information.
+This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense and print some status information. Run it as follows:
+
+		java -cp target/sarl-agtcity-mw-1.2.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+
+or since `io.janusproject.Boot` is the main class of the JAR file, just:
+		
+		java -jar target/sarl-agtcity-mw-1.2.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+
 
 ### Demo Scheduler
 
 This is the demo agent developed by Bob and Keiran to test the infrastructure and based on the Java-based demo that came with the server. 
 
-The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game.
+The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
+
+		java -jar target/sarl-agtcity-mw-1.2.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
+
+and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
 
 **Scheduler** agent reads all percepts from all players, "aggregates" them all (because there is a lot of redundancy in the percepts; all agents receive a lot of the same information, and then emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
 
