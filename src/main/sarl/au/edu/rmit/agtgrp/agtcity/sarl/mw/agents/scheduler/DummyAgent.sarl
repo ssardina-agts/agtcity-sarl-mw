@@ -34,7 +34,6 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking17
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SpawnAgent
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ContinueOnRoute
 
 /** 
@@ -59,7 +58,6 @@ agent DummyAgent {
         // Event to signal my existance
         // Emitted before the agent begin to live or to be used.
         // You should put all the initialization statements in this block of code.
-		emit(new E_SpawnAgent(this.playerName))
 		setSkill(new S_ConsoleReporting(this.playerName), C_Reporting)
 		agent_shouts("I am a alive!")
     }

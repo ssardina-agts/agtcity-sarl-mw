@@ -89,11 +89,12 @@ agent SingleRandomAgent {
 			setSkill(new S_ConsoleReporting("Super-Single-Agent"), C_Reporting)
 			setLogLevel(4)
 
-			agent_says("PHASE 1: REGISTERING MASSIM TALKING SKILL VIA CONFIGURATION FILES {0} AND {1}",
+			agent_says("PHASE 1: INITIALIZING MASSIM-TALKING SKILL WITH CONFIG FILES: {0} AND {1}",
 				eiMassimConfigFile, eiMassimAuthConfigFile)
 			if (args.length != 0)
 				eiConfigDir = args.get(0) as String
 			else {
+				agent_says("PHASE 1.2: CHOOSE CONFIGURATION")
 				eiConfigDir = ConfHandler.getConfDir()
 			}
 			// Give agent ability to talk to MASSIM server
@@ -102,15 +103,20 @@ agent SingleRandomAgent {
 
 			agent_says("PHASE 2: INITIALIZING ENVIRONMENT INTERFACE USING CONFIGURATION FILE {0} ", eiMassimConfigFile)
 			if (MT_initialize()) {
-				agent_says("I have initialized the EI successfully!")
+				agent_says("The EI is now initialized")
 			} else {
-				agent_says("Something wrong when registering the game server, I am finished...")
+				agent_shouts("Something wrong when initializing the EI, I am finished...")
 				killMe
 			}
 
 			agent_says("PHASE 3: REGISTERING AGENTS INTO ENVIRONMENT (GAME ENGINE) VIA FILE {0}",
 				eiMassimAuthConfigFile)
-			MT_registerPlayersFromConfig()
+			if (MT_registerPlayersFromConfig()) { // this is where players authenticate to server to play
+				agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
+			} else {
+				agent_shouts("Something wrong when authenticating the players, I am finished...")
+				killMe
+			}
 
 			agent_shouts("I am now alive! Will start working now (sending and acting!)...")
 

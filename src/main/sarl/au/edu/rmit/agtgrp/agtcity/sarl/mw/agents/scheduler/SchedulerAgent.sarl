@@ -53,7 +53,6 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking17
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SpawnComplete
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_AgentAction
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
@@ -62,29 +61,43 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PlayerStateBuilder
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.SimStartBuffer
 import eis.iilang.IILVisitor
+import io.sarl.core.AgentSpawned
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SenseEnvironment
+import java.util.HashMap
+import java.util.UUID
+import java.util.Set
+import java.util.HashSet
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
  */
 agent SchedulerAgent {
-    uses Logging, Lifecycle, DefaultContextInteractions, Schedules
+    uses Logging, DefaultContextInteractions
+	uses Lifecycle, Schedules
+
 	uses C_Reporting, C_MassimTalking
 
+    var ei : EnvironmentInterfaceStandard // the handler to the interface
 
-	val eiMassimConfigFile = "eismassimconfig.json"
-	val eiAgentConfigFile = "agentsconfig.json"
-	
-    var ei : EnvironmentInterfaceStandard	// the handler to the interface
-	var agents : List<String> = new ArrayList<String>() // list of all SARL agents in the system
+	var agents : Map<String, UUID> = new HashMap<String, UUID>() // map game player --> UUID of SARL agent
+	var agentsToComplete : Set<UUID> = new HashSet<UUID>() 	// set of all SARL agents in the system
+
+	// To keep track of agents spawned succesfully
+	var noSpawn  : int = 0 // number of agents already spawn successfully and alive!
+	val noSpawn_lock : Object = new Object()
 
     on Initialize {
-        var args = newArrayList(occurrence.parameters)
+		val eiMassimConfigFile = "eismassimconfig.json"
+		val eiAgentConfigFile = "agentsconfig.json"
+
+		var args = newArrayList(occurrence.parameters)
         var eiConfigDir : String = ""
 
 		// Give reporting skill via console
 		setSkill(new S_ConsoleReporting("Scheduler Agent"), C_Reporting)
-		
+		// 4 - debug, 3 - INFO, 2 - WARNING
+		setLogLevel(3)
 		
 		info("PHASE 1: INSTANTIATING SKILL TO COMMUNICATE WITH GAME SERVER")
         // get the directory for the config files (server + players) if not part of the parameters
@@ -98,23 +111,27 @@ agent SchedulerAgent {
 		// Give agent ability to talk to MASSIM server
 		setSkill(
 			new S_MassimTalking17(Paths.get(eiConfigDir, eiMassimConfigFile),
-				Paths.get(eiConfigDir, eiAgentConfigFile )), C_MassimTalking)
+				Paths.get(eiConfigDir, eiAgentConfigFile)), C_MassimTalking)
+
+		info("PHASE 2: INITIALIZING ENVIRONMENT INTERFACE USING CONFIGURATION FILE {0} ", eiMassimConfigFile)
 		if (MT_initialize()) { // this does not authenticate players, it just establishes the connection to server
-			agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
+			agent_says("The EI is now initialized")
 		} else {
-			agent_says("Something wrong when registering the game server!")
-        }
+			agent_says("Something wrong when initializing the EI")
+			killMe
+		}
 
-		info("PHASE 2: SPAWINING ONE AGENT PER GAME PLAYER")
+		info("PHASE 3: SPAWINING ONE AGENT PER GAME PLAYER")
 		if (MT_registerPlayersFromConfig()) { // this is where players authenticate to server to play
-			agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
+			agent_shouts("I have registered the following players successfully: {0}", MT_getPlayersNames())
 
-		// Spawn one dummy agent per game player
-		MT_getPlayersNames().forEach [ playerName : String |
-				spawn(DummyAgent, playerName) // Spawn a dummy agent called playerName
-				agent_says("Dummy agent spawn for managing player {0}", playerName)
-				agents.add(playerName);
-			]
+			// Spawn one dummy agent per game player
+			MT_getPlayersNames().forEach [ playerName : String |
+					val UUID = spawn(DummyAgent, playerName) // Spawn a dummy agent called playerName
+					agent_says("A SARL agent {0} has been SPAWN to control game player {1}", UUID.toString, playerName)
+					agents.put(playerName, UUID);
+					agentsToComplete.add(UUID) 
+				]
 
 //			connectedPlayers().forEach([ playerName : String, playerState : PlayerState |
 //				switch playerState.role {
@@ -126,19 +143,42 @@ agent SchedulerAgent {
 //                	}
 //                }
 //			])
+		} else {
+				agent_shouts("Something wrong when authenticating the players, I am finished...")
+				killMe
 		}
-
-		info("PHASE 3: ALL INITIALIZED, READY TO GO!!!!!!!!!")
-
-        // Signal that all SARL agents have been created - Communicator will start working!        
-        emit(new E_SpawnComplete)
-        
-        // I am done, I leave it to Communicator and Game Agents bye bye...
-//        killMe
 	} // INITIALIZE
 
 
-	on E_SpawnComplete {
+	// Report that a dummy agent (not myself!) has born
+	// Be careful: occurrence.fromMe is true IFF I was the one show spawned the agent (not emmitted the event!)
+	// check issue bug: https://github.com/sarl/sarl/issues/849
+	on AgentSpawned [!(occurrence.agentIdentifiers.get(0) == this.ID)] {
+		val agent_UUID = occurrence.agentIdentifiers.get(0)
+		val agent_type = occurrence.agentType
+
+		debug("An Agent {0} (of type: {1}) has spawn", agent_UUID, agent_type)
+
+		synchronized (agentsToComplete) {
+			if (agentsToComplete.remove(agent_UUID)) {
+				noSpawn = noSpawn + 1
+				agent_says("Agent {0} (no. {1}; type: {2}) has been created successfully and is now alive!", agent_UUID,
+					noSpawn, agent_type)
+				// no more to agents to wait, start sensing!
+				if (agentsToComplete.empty) {
+					agent_shouts("All {0} agent-players have been created, now starting to sense and act....", noSpawn)
+					info("PHASE 4: ALL INITIALIZED, READY TO GO!!!!!!!!!")
+					emit(new E_SenseEnvironment())
+				} 
+			} else {
+				agent_says("Strange, an agent {0} has spawned but I was not waiting for it....", agent_UUID, agent_type)
+			}
+		
+		}
+	}
+
+
+	on E_SenseEnvironment {
 		// Initializes three static data buffers for entities, sim-start and
 		Util.initDataBuffers();
 
@@ -147,7 +187,7 @@ agent SchedulerAgent {
 			var aggregator = new PerceptAggregator(); // collect all the percepts from all agents
 			// ////////////////////////////////////////////////////////////////////////
             // First all sensing is aggregated into *aggregator* object for removing redundant sensing across agents
-            agents.forEach([ playerName: String |
+            agents.keySet.forEach([ playerName: String |
 				try {
 					// First get the percepts of playerName
 					// https://github.com/agentcontest/massim/blob/master/docs/scenario.md#percepts
@@ -196,7 +236,7 @@ agent SchedulerAgent {
 					// JOBS: Aggregate all jobs (job, auction, mission, or posted)
 					aggregator.addJobs(percepts)
 				} catch (e : Exception) {
-					error(e)
+					error("Something bad has happened during perception: {0}", e.toString)
 				}
             ])
 
@@ -326,5 +366,6 @@ agent SchedulerAgent {
 				info("Could not perform action " + action + " for " + playerName);
 		}
 	}
+
 
 }
