@@ -15,7 +15,6 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine 
 	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.7.2`
-	* Version tested: 0.6.1, 0.7.2
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
 * The [EISMASSim](https://github.com/eishub/massim) environment interface.
 	* A Java library using the [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server that can be used with platforms which support the EIS.
@@ -57,8 +56,8 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
-		mvn install:install-file -Dfile=sarl-agtcity-mw-1.0.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
-			-DartifactId=sarl-agtcity-mw -Dversion=1.0.0.7.2 -Dpackaging=jar
+		mvn install:install-file -Dfile=sarl-agtcity-mw-1.1.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
+			-DartifactId=sarl-agtcity-mw -Dversion=1.1.0.7.2 -Dpackaging=jar
 
 	This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
 
@@ -81,14 +80,15 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
 
-```
-java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
-```
+		java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
 
-	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuraition file.
+	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
+	
+	In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
 
 2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)).
 3. Start the MASSIM Simulation by just hitting *ENTER* in the Game Server console
+	* The web GUI should start displaying/monitoring the simulation.
 4. Enjoy! You should start seeing the agent reporting things in the console. 
     * You can see the simulation on the web browser.
 
@@ -154,7 +154,7 @@ The system is run by running the **SchedulerAgent** who spawns one **DummyAgent*
 
 **Scheduler** agent reads all percepts from all players, "aggregates" them all (because there is a lot of redundancy in the percepts; all agents receive a lot of the same information, and then emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
 
-All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corrending player being managed by the **DummyAgent**.
+All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corresponding player being managed by the **DummyAgent**.
 
 This system does not do much at the current time, but a lot of infrastructure is provided to store information as Java data (see `helpers/` and `entities/` subdirs).
 
@@ -165,7 +165,7 @@ For general links check [here](https://bitbucket.org/snippets/ssardina/6eybMg#ma
 
 * The Multi Agent Agents in City 2017 contest:
 	* Multi-Agent Contest Home Page: https://multiagentcontest.org/
-	* Main git repository: https://github.com/agentcontest/massim
+	* Main GIT repository: https://github.com/agentcontest/massim
 	* Documentation: https://github.com/agentcontest/massim/tree/master/docs
 	* EISMASSim Documentation (the interface provided to communicate with game server): https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
 		* Web page of the Environment Interface Standard (EIS): https://github.com/eishub/
