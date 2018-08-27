@@ -134,10 +134,7 @@ agent SingleRandomAgent {
 
 		// Initializes three static data buffers for entities, teams and sim-start
 		// Util is provided by the MW as part of the aggregator package
-		if (Util.initDataBuffers()) {
-		} else {
-			warning("For some reason I was not able to initialize the data buffers")
-		}
+		if (Util.initDataBuffers()) {}
 
 		// While the environment is running, wait for new percepts (read percepts for each player registered/connnected)
 		while (MT_getStatus() == EnvironmentState.RUNNING) {

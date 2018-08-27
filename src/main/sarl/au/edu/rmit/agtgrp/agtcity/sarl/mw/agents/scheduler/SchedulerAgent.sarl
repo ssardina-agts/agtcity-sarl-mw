@@ -174,8 +174,8 @@ agent SchedulerAgent {
 
 	on E_SenseEnvironment {
 		// Initializes three static data buffers for entities, sim-start and
-		Util.initDataBuffers();
-
+		if (Util.initDataBuffers()) {}
+		
 		// This is done every 1000ms
 		every(1000)[
 			var aggregator = new PerceptAggregator(); // collect all the percepts from all agents
@@ -224,8 +224,8 @@ agent SchedulerAgent {
                     
 					// Populate general data (entity, team, simstart) static buffers
 //					debug(percepts)
-					Util.populateDataBuffers(percepts)
-					
+					if (Util.populateDataBuffers(percepts)) {}
+				 	
 					// SELF:
 					//	Add the action results of playerName(self) to percept aggregator
 					//	Add an the agent state for the playerNamein the aggregator (contains location, items holding, etc)
