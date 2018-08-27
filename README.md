@@ -24,7 +24,7 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 	* Comes with the game server. Using version `3.4` that comes with server `massim-2017-1.7` (Sept 2017). Check [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7).
 	* Uses the [eishub/EIS](https://github.com/eishub/eis) version `0.5` (sources also under `extras/`).
 * The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim): to run the game.
-	* Version: `massim-2017-1.7`
+	* Server version `2017-0.7` that comes with massim package distribution `massim-2017-1.7` (check  release [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7))
 
 
 ## DEVELOP THE MIDDLEWARE FURTHER
