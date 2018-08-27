@@ -68,7 +68,7 @@ class PerceptAggregator {
 	var actionResults : HashMap<String, ActionResult>
 	var auctionJobs : HashMap<String, AuctionJob>
 	var missionJobs : HashMap<String, MissionJob>
-	var chargingStations : HashMap<String, ChargingStation>
+	public var chargingStations : HashMap<String, ChargingStation>
 	var dumps : HashMap<String, Dump>
 	var regularJobs : HashMap<String, RegularJob>
 	var teamJobs : HashMap<String, TeamJob>
@@ -81,7 +81,7 @@ class PerceptAggregator {
 	var money : double
 	
 	/**
-	 * Constructor that initialises all of the HashMaps
+	 * Constructor that initializes all of the HashMaps
 	 */
 	new() {
 		this.actionResults = new HashMap();
@@ -99,6 +99,9 @@ class PerceptAggregator {
 		this.entities = new HashMap();
 		this.money = 0;
 	}
+	
+	
+	
 	
 	/**
 	 * Function used to add the information relating to team members to the team member hashmap.
@@ -133,7 +136,7 @@ class PerceptAggregator {
 	 * Function used to parse all of the percepts and populate the specialised Facilities. 
 	 * @param perepts - the collection of percepts received from MASSIM
 	 */
-	public def addFacilities(percepts : Collection<Percept>){
+	public def addFacilities(percepts : Collection<Percept>) {
 		for(p : percepts){
 			switch(p.name){
 				case "chargingStation" : {
@@ -236,10 +239,10 @@ class PerceptAggregator {
 	
 	/**
 	 * Function called by the communicator to get all Team Member events
-	 * @return an arraylist of events containing teamMemberpercepts
+	 * @return an set of events containing teamMemberpercepts
 	 */
-	public def getTeamMemberPercepts() : ArrayList<TeamMemberPercept> {
-		var events = new ArrayList<TeamMemberPercept>()
+	public def getTeamMemberPercepts() : Set<EntityPercept> {
+		var events = new HashSet<EntityPercept>()
 
 		for (agentName : PlayerStates.keySet) {
 			var sources = new HashSet<String>()
@@ -251,10 +254,10 @@ class PerceptAggregator {
 
 	/**
 	 * Function called by the communicator to get all entity events.
-	 * @return an arraylist of events containing observed entities.
+	 * @return an set of events containing observed entities.
 	 */
-	public def getGameEntityPercepts() : List<EntityPercept> {
-		var events = new ArrayList<EntityPercept>()
+	public def getGameEntityPercepts() : Set<EntityPercept> {
+		var events = new HashSet<EntityPercept>()
 
 		for (entityName : entities.keySet) {
 			var ep = new EntityPercept(PlayerStates.keySet, entities.get(entityName))

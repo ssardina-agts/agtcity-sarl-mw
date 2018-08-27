@@ -135,23 +135,28 @@ A special one is **PlayerState** which is used to keep track of each player curr
 
 ### Aggregators
 
-A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server.
+A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server. 
 
+So, the idea is to sense all players and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
 
 ## EXAMPLE AGENTS 
 
-This package comes with two minimal examples
+This package comes with two minimal examples that basically show how to sense the environment, report some information, and move players around randomly.
+
+They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
 
 ### SuperSingleAgent ###
 
-This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense and print some status information. Run it as follows:
+This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
-		java -cp target/sarl-agtcity-mw-1.2.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+		java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
 
 or since `io.janusproject.Boot` is the main class of the JAR file, just:
 		
-		java -jar target/sarl-agtcity-mw-1.2.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+		java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+
+and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
 
 
 ### Demo Scheduler
@@ -160,15 +165,15 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
-		java -jar target/sarl-agtcity-mw-1.2.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
+		java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
 
-and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
+and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
 
 **Scheduler** agent reads all percepts from all players, "aggregates" them all (because there is a lot of redundancy in the percepts; all agents receive a lot of the same information, and then emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
 
 All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corresponding player being managed by the **DummyAgent**.
 
-This system does not do much at the current time, but a lot of infrastructure is provided to store information as Java data (see `helpers/` and `entities/` subdirs).
+
 
 
 ## LINKS

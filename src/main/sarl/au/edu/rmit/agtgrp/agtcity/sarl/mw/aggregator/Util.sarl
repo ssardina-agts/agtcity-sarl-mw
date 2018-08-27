@@ -63,11 +63,16 @@ class Util {
 		return percepts.size;
 	}
 
+
+	// The set of percepts will generally contain simStart always, even if it is not the initial percept
+	// This was done probably to have the initial configuration always available for agents to re-connect if required at any point	
 	public static def getTypePercept(percepts : Collection<Percept>) : String {
+		var seen_simStart = false
+		
 		for (p : percepts) {
 			switch (p.name) {
 				case "simStart": {
-					return p.name
+					seen_simStart = true
 				}
 				case "requestAction": {
 					return p.name
@@ -80,7 +85,7 @@ class Util {
 				}
 			}
 		}
-		return "unknown"
+		if (seen_simStart) return "simStart" else return "unknown"
 	}
 
 	public static def getLastActionResult(percepts : Collection<Percept>) : String {

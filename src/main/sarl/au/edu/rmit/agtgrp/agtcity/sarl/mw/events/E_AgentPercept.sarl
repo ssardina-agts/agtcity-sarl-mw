@@ -42,42 +42,13 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ActionResult
  * @param sources : a set of originating agents for a given percept 
  */
 event E_AgentPercept {
-	var sources : Set<String>
+	var sources : Set<String>	// the source of the percept
 
 	new(sources : Set<String>) {
 		this.sources = sources;
 	}
 }
 
-/** 
- * EntityPercept emitted once per tick per observed entity. 
- * @param entity, the observed entity. 
- */
-event EntityPercept extends E_AgentPercept {
-
-	var entity : GameEntity
-
-	new(source : Set<String>, entity : GameEntity) {
-		super(source);
-		this.entity = entity;
-
-	}
-}
-
-/** 
- * TeamMemberPercept emitted once per tick per observed teammate. 
- * @param PlayerState, the observed entity. 
- */
-event TeamMemberPercept extends EntityPercept {
-
-	var PlayerState : PlayerState
-
-	new(sources : HashSet<String>, PlayerState : PlayerState) {
-		super(sources, PlayerState)
-		this.PlayerState = PlayerState
-	}
-
-}
 
 /** 
  * TeamPercept emitted once per tick to notify all entities of current team status. 
@@ -91,6 +62,8 @@ event TeamPercept extends E_AgentPercept {
 		this.money = money;
 	}
 }
+
+
 /** 
  * ActionStatusPercept emitted once per tick to notify an agent of it's action result from the previous tick. 
  * @param actionResult, object containing data relating to the previous action and it's result. 
@@ -103,205 +76,4 @@ event ActionStatusPercept extends E_AgentPercept {
 		this.actionResult = actionResult
 	}
 }
-/** 
- * FacilitySensedPercept emitted once for every facility that was observed each tick. If multiple agents observe the same facility, only 1 is emitted. 
- * This is also the super class for all percepts of specific facilities. 
- * @param facility - the facility that was observed.
- */
-event FacilitySensedPercept extends E_AgentPercept {
-	var facility : Facility
-
-	new(sources : Set<String>, facility : Facility) {
-		super(sources);
-		this.facility = facility;
-	}
-}
-
-/**
- * Inherited from FacilitySensedPercept, emitted once for every shop that was observed each tick. 
- * @param shop The shop object
- */
-event ShopSensedPercept extends FacilitySensedPercept {
-	var shop : Shop
-
-	new(sources : Set<String>, shop : Shop) {
-		super(sources, shop)
-		this.shop = shop;
-	}
-}
-
-/** 
- * currently not implemented
- */
-event ShopUpdatePercept extends ShopSensedPercept {
-	var items : ItemContainer
-
-	new(sources : Set<String>, shop : Shop, items : ItemContainer) {
-		super(sources, shop)
-		this.items = items;
-	}
-}
-
-/** 
- * WorkshopSensedPercept, emitted once per tick for every observed workshop.
- * @param workshop - The workshop entity that was observed.
- */
-event WorkshopSensedPercept extends FacilitySensedPercept {
-	var workshop : Workshop
-
-	new(sources : Set<String>, workshop : Workshop) {
-		super(sources, workshop)
-		this.workshop = workshop
-	}
-}
-
-/** 
- * ChargingStationPercept, emitted once per tick for every observed charging station.
- * @param chargingStation- The charging entity that was observed.
- */
-event ChargingStationSensedPercept extends FacilitySensedPercept {
-	var chargingStation : ChargingStation
-
-	new(sources : Set<String>, chargingStation : ChargingStation) {
-		super(sources, chargingStation)
-		this.chargingStation = chargingStation
-	}
-}
-
-/** 
- * DumpSensedPercept, emitted once per tick for every observed dump.
- * @param dump - The dump entity that was observed.
- */
-event DumpSensedPercept extends FacilitySensedPercept {
-	var dump : Dump
-
-	new(sources : Set<String>, dump : Dump) {
-		super(sources, dump)
-		this.dump = dump
-	}
-}
-/** 
- * StorageSensedPercept, emitted once per tick for every observed storage.
- * @param storage - The storage entity that was observed.
- */
-event StorageSensedPercept extends FacilitySensedPercept {
-	var storage : Storage
-
-	new(sources : Set<String>, storage : Storage) {
-		super(sources, storage)
-		this.storage = storage
-	}
-}
-
-/** 
- * NOT IMPLEMENTED, 
- */
-event StorageUsedUpdatedPercept extends FacilitySensedPercept {
-	// TODO COMPLETE ME> update the storage used if the other team has dropped or collected things
-}
-
-/** 
- * NOT IMPLEMENTED
- */
-event StorageItemStoredPercept extends FacilitySensedPercept {
-	var items : ItemContainer
-
-	new(sources : Set<String>, storage : Storage, items : ItemContainer) {
-		super(sources, storage)
-		this.items = items
-	}
-}
-
-/** 
- * NOT IMPLEMENTED
- */
-event StorageDeliveredUpdatedPercept extends FacilitySensedPercept {
-	var items : ItemContainer
-
-	new(sources : Set<String>, storage : Storage, items : ItemContainer) {
-		super(sources, storage)
-		this.items = items
-	}
-}
-
-/** 
- * ResourceSensedPercept emitted once per resource per tick
- * @param resouce - The resource patch that was observed.
- */
-event ResourceSensedPercept extends FacilitySensedPercept {
-	var resource : Resource
-
-	new(sources : Set<String>, resource : Resource) {
-		super(sources, resource)
-		this.resource = resource
-	}
-}
-
-/** 
- * JobPercept, emitted once per tick for every observed job. Superclass to all jobs
- * @param job - The job entity that was observed.
- */
-event JobPercept extends E_AgentPercept {
-	var job : Job
-
-	new(sources : Set<String>, job : Job) {
-		super(sources)
-		this.job = job
-	}
-}
-
-/** 
- * RegularJob, emitted once per tick for every observed Regular Job, inherited from Job.
- * @param regularJob - The RegularJob entity that was observed.
- */
-event RegularJobPercept extends JobPercept {
-	var regularJob : RegularJob
-
-	new(sources : Set<String>, job : RegularJob) {
-		super(sources, job)
-		this.regularJob = job
-	}
-}
-
-/** 
- * TeamJobPercept, emitted once per tick for every observed job posted by a team member..
- * @param teamJob - The teamJob entity that was observed.
- */
-event TeamJobPercept extends JobPercept {
-	var teamJob : TeamJob
-
-	new(sources : Set<String>, job : TeamJob) {
-		super(sources, job)
-		this.teamJob = job
-	}
-}
-
-/** 
- * ActionJobPercept, emitted once per tick for every observed Auction.
- * @param auctionJob - The auction job entity that was observed.
- */
-event AuctionJobPercept extends JobPercept {
-	var auctionJob : AuctionJob
-
-	new(sources : Set<String>, job : AuctionJob) {
-		super(sources, job)
-		this.auctionJob = auctionJob
-	}
-
-}
-
-/** 
- * MissionJobPercept, emitted once per tick for every observed mission posting.
- * @param missionJob - The MissionJob entity that was observed.
- */
-event MissionJobPercept extends JobPercept {
-	var missionJob : MissionJob 
-
-	new(sources : Set<String>, missionJob : MissionJob) {
-		super(sources, missionJob)
-		this.missionJob = missionJob
-	}
-
-}
-
 

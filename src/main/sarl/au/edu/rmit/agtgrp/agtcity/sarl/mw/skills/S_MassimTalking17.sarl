@@ -69,9 +69,9 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	// Server connection information
-	var eiMassimConfigFile : Path			// Configuration of ei connectivity and connection configuration
-	var eiMassimAuthConfigFile : Path // Authentication details for the agents
-	var detailsCompleted : boolean = false // are all the details ready/filled?
+	var eiMassimSeverConfigFile : Path			// Configuration of ei connectivity and connection configuration
+	var eiMassimPlayerAgentsConfigFile : Path 		// Authentication details for the agents
+	var detailsCompleted : boolean = false 	// are all the details ready/filled?
 	var connected : boolean = false
 
 
@@ -102,14 +102,14 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 	new (eiMassimConfigFile : Path, eiMassimAuthConfigFile : Path) {
 		super() // Call the super's constructor
-		this.eiMassimConfigFile = eiMassimConfigFile
-		this.eiMassimAuthConfigFile = eiMassimAuthConfigFile
+		this.eiMassimSeverConfigFile = eiMassimConfigFile
+		this.eiMassimPlayerAgentsConfigFile = eiMassimAuthConfigFile
 		detailsCompleted = true
 	}
 
 	new (eiMassimConfigFile : Path) {
 		super() // Call the super's constructor
-		this.eiMassimConfigFile = eiMassimConfigFile
+		this.eiMassimSeverConfigFile = eiMassimConfigFile
 		detailsCompleted = false
 	}
 
@@ -118,10 +118,10 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/* 
-	 * Sets the file containing the authentication details for players
+	 * Sets the configuration file containing the configuration of players in the game
 	 */
-	def MT_setAuthenticationFile(eiMassimAuthConfigFile : Path) {
-		this.eiMassimAuthConfigFile = eiMassimAuthConfigFile
+	def MT_setPlayerAgentsConfig(eiMassimPlayerAgentsConfigFile : Path) {
+		this.eiMassimPlayerAgentsConfigFile = eiMassimPlayerAgentsConfigFile
 		detailsCompleted = true
 	}
 
@@ -130,14 +130,17 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	 * Initialize and start the Environment Interface
 	 */
 	def MT_initialize() : boolean {
-		if (eiMassimConfigFile === null) {
+		if (eiMassimSeverConfigFile === null) {
 			warning("Trying to register the game server, but no information about it is registered! :-(")
 			return false
 		}
 
 		// TODO: if this fails (e.g., file is not there) it keeps going, does not throw exception!
-        ei = new EnvironmentInterface(eiMassimConfigFile.toString)
+        ei = new EnvironmentInterface(eiMassimSeverConfigFile.toString)
         try {
+				// This is where the EI is started and connections are established to server for entities
+				// Each entity is authenticated to server, and they are re-connected if they drop.       		
+				// Check method run() in EnvironmentInterface
 				ei.start()
 				connected = true
 			} catch (e : ManagementException) {
@@ -149,7 +152,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 
 
 	/*
-	 * Registers players in the interface using configuration file eiMassimAuthConfigFile
+	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
 	 * 
 	 * Players will be associated with entities in the simulation and connection will happen per agent
 	 */
@@ -159,10 +162,11 @@ skill S_MassimTalking17 implements C_MassimTalking {
 				// Read from config file which agents will participate in the simulation
 				// Agents will be of a certain type entity (define in the EIS)
 	            var config : JSONObject = new JSONObject(
-					new String(Files.readAllBytes(eiMassimAuthConfigFile)))
+					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
 				var players : JSONObject = config.optJSONObject("agents")
 	
 				if (players !== null) { // There are agents!
+					// register each player into the server					
 					for (agName : players.keySet) {
 	                    // Not sure if need all of these but better safe than sorry.
 						var agConf : JSONObject = players.getJSONObject(agName)
@@ -212,7 +216,9 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	 * For each player's entity, a collection of percepts is returned
 	 * (generally, a player is of just one entity)
 	 */
-	def MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>> {
+	def MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>> {
+
+		// This is where the sensing form the server happens via the EI
 		var allPercepts = ei.getAllPercepts(playerName)
 		
 		// update player state with the first collection (only works if player is linked to just one entity)	
@@ -220,6 +226,16 @@ skill S_MassimTalking17 implements C_MassimTalking {
 		
 		return allPercepts 
 	}
+
+	/**
+	 * This yields the percept of the first entity the player is of. 
+	 * In this game, players are of one entity so this is enough
+	 */		
+	def MT_sensePlayerPercepts(playerName : String) : Collection<Percept> {
+		return MT_senseAllPlayerPercepts(playerName).values().get(0)
+	}
+
+
 	/* 
 	 * Make a player execute an action in the game server
 	 */

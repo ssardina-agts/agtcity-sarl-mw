@@ -48,9 +48,9 @@ capacity C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/* 
-	 * Sets the file containing the authentication details for players
+	 * Sets the configuration file containing the configuration of players in the game
 	 */
-	def MT_setAuthenticationFile(eiMassimAuthConfigFile : Path)
+	def MT_setPlayerAgentsConfig(eiMassimPlayerAgentsConfigFile : Path)
 
 	/*
 	 * Initialize and start the Environment Interface
@@ -58,7 +58,7 @@ capacity C_MassimTalking {
 	def MT_initialize() : boolean
 
 	/* 
-	 * Registers players in the interface using configuration file eiMassimAuthConfigFile
+	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
 	 */
 	def MT_registerPlayersFromConfig() : boolean
 
@@ -73,7 +73,8 @@ capacity C_MassimTalking {
 	 * For each player's entity, a collection of percepts is returned
 	 * (generally, a player is of just one entity)
 	 */
-	def MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>>
+	def MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>>
+	def MT_sensePlayerPercepts(playerName : String) : Collection<Percept>
 
 
 

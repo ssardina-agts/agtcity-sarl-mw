@@ -23,18 +23,16 @@ import java.util.Random
 
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Initialize
-import io.sarl.core.Logging
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_AgentPercept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.EntityPercept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.FacilitySensedPercept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.GotoFacility
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.TeamMemberPercept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking17
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ContinueOnRoute
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ChargingStationSensedPercept
 
 /** 
  * @author keiran
@@ -68,15 +66,22 @@ agent DummyAgent {
      */
     on EntityPercept {
     	// Code to react to entities.
-    }
-    
-    on FacilitySensedPercept {
-    	//Build an internal list of facilities
-    	if(!facilities.contains(occurrence.facility.name))
-    	{
+//    	System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	}
+
+	// This will be fired for every facility observed
+	// Observe the same event will be received (and acted upon) by each dummy agent
+	on FacilitySensedPercept {
+    	// Build an internal list of facilities
+    	if (!facilities.contains(occurrence.facility.name)) {
     		facilities.add(occurrence.facility.name)
     	}
     }
+
+	// This will be fired for every charging station seen	
+	// Observe the same event will be received (and acted upon) by each dummy agent
+	on ChargingStationSensedPercept {
+	}
 
 	//	Follow some route to some random place
     on TeamMemberPercept [occurrence.PlayerState.name == this.playerName && facilities.length > 0] { 
