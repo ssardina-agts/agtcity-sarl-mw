@@ -176,7 +176,7 @@ agent SingleRandomAgent {
 			])
 
 			agent_shouts(
-				"Fnished sensing the environment for all the players. I will instruct action for step {0}!",
+				"Finished sensing the environment for all the players. I will instruct action for step {0}!",
 				last_step)
 
 			// 1 - Report some information per agent
