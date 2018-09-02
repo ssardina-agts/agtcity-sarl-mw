@@ -71,6 +71,7 @@ import eis.exceptions.PerceiveException
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.EntityPercept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.FacilitySensedPercept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.JobPercept
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.WorkshopSensedPercept
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -298,11 +299,12 @@ agent SchedulerAgent {
 			emit(e);
 		}
 
-		// Emit SARL events for all perception about FACILITIES (charging stations, dumps, shops, storage, resources)
+		// Emit SARL events for all perception about FACILITIES (shops, charging stations, workshops, dumps, storage, resources)
 		var allFacilityPercepts = new ArrayList<FacilitySensedPercept>()
-		allFacilityPercepts.addAll(aggregator.chargingStationSensedPercepts)
-		allFacilityPercepts.addAll(aggregator.dumpSensedPercepts)
 		allFacilityPercepts.addAll(aggregator.shopSensedPercepts)
+		allFacilityPercepts.addAll(aggregator.chargingStationSensedPercepts)
+		allFacilityPercepts.addAll(aggregator.workshopSensedPercepts)
+		allFacilityPercepts.addAll(aggregator.dumpSensedPercepts)
 		allFacilityPercepts.addAll(aggregator.storageSensedPercepts)
 		allFacilityPercepts.addAll(aggregator.resourceSensedPercepts)
 		agent_says("Emitting {0} event percepts about {1}", allFacilityPercepts.length, "FACILITIES")
@@ -352,6 +354,12 @@ agent SchedulerAgent {
 				warning("Could not perform action " + action + " for " + playerName);
 		}
 	}
+
+	on WorkshopSensedPercept {
+		agent_says("I have seen a workshop named {0}", occurrence.workshop.name)
+	}
+
+
 
 
 }

@@ -33,6 +33,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ContinueOnRoute
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ChargingStationSensedPercept
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.WorkshopSensedPercept
 
 /** 
  * @author keiran
@@ -82,6 +83,8 @@ agent DummyAgent {
 	// Observe the same event will be received (and acted upon) by each dummy agent
 	on ChargingStationSensedPercept {
 	}
+	
+	
 
 	//	Follow some route to some random place
     on TeamMemberPercept [occurrence.PlayerState.name == this.playerName && facilities.length > 0] { 

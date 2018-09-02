@@ -6,7 +6,7 @@ You can see the infrastructure working by [watching this demo video](https://you
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.7.2 is version 1.3 for SARL 0.7.2.
 
-Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release verisons.
+Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release versions.
 
 This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
 
@@ -24,7 +24,7 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 	* Comes with the game server. Using version `3.4` that comes with server `massim-2017-1.7` (Sept 2017). Check [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7).
 	* Uses the [eishub/EIS](https://github.com/eishub/eis) version `0.5` (sources also under `extras/`).
 * The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim): to run the game.
-	* Server version `2017-0.7` that comes with massim package distribution `massim-2017-1.7` (check  release [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7))
+	* Server version `2017-0.7` that comes with massim package distribution `massim-2017-1.7` (check  release [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7) and tree/doc for that version [here](https://github.com/agentcontest/massim/tree/massim-2017-1.7).)
 
 
 ## DEVELOP THE MIDDLEWARE FURTHER
@@ -150,11 +150,15 @@ They also showcase the infrastructure provided to use the MW and store informati
 
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
-		java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```
+java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```
 
 or since `io.janusproject.Boot` is the main class of the JAR file, just:
 		
-		java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```
+java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
 
@@ -165,7 +169,9 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
-		java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
+```
+java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
+```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
 
