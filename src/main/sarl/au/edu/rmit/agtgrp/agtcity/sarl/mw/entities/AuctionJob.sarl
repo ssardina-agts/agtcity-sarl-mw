@@ -39,8 +39,21 @@ class AuctionJob extends Job {
 	/**
 	 * Constructor for building an AuctionJob from the AuctionJob Percept
 	 * @Param p MASSIM Percept describing an Auction Job
+	 * 
+	 * * <auction auctionTime="7" end="150" fine="4655" id="job3" reward="7054" start="18" storage="storage1">
+	 * <required amount="1" name="item11"/>
+	 * <required amount="1" name="item14"/>
+	 * <required amount="1" name="item9"/>
+	 * </auction>
+	 * 
+	 * Format of p: 
+	 *  auction(job3,storage1,7054,18,150,4655,0,7,[required(item11,1),required(item14,1),required(item9,1)])
+	 * 
+	 * p.name = auction
+	 * p.parameters = [job3, storage1, 7054, 18, 150, 4655, 0, 7, [required(item11,1),required(item14,1),required(item9,1)]]
+	 * 
 	 */
-	new(p : Percept, storage : Storage){
+	new(p : Percept, storage : Storage) {
 		super(p, storage)
 		this.fine = Util.extractDouble(p.parameters.get(5))
 		this.lowestBid = Util.extractDouble(p.parameters.get(6))

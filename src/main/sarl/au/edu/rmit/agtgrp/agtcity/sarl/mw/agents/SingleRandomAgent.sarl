@@ -52,6 +52,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
 
 import eis.iilang.PrologVisitor
 import eis.iilang.IILVisitor
+import io.sarl.core.Schedules
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com
@@ -62,6 +63,7 @@ import eis.iilang.IILVisitor
 agent SingleRandomAgent {
 	uses Logging, Lifecycle, DefaultContextInteractions
 	uses C_Reporting, C_MassimTalking
+	uses Schedules
 
 	val agentLogLevel = 3 // debug = 4
 
@@ -121,7 +123,8 @@ agent SingleRandomAgent {
 			agent_shouts("I am now alive! Will start working now (sending and acting!)...")
 
 			// We are ready, now start the cycle for sensing the environment (and thus acting)!
-			emit(new E_SenseEnvironment())
+			// Wait 2 seconds to allow everyone to authenticate to server
+			in(2000)[emit(new E_SenseEnvironment())]
 		}
 	}
 
@@ -154,12 +157,13 @@ agent SingleRandomAgent {
 
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
-					if (Util.populateDataBuffers(percepts)) {
-					} else {
-						warning("For some reason I was not able to populate the data buffers with the percepts")
-					}
+					if (Util.populateDataBuffers(percepts)) {}
+					
 					aggregator.addFacilities(percepts)
 					facilities = aggregator.getFacilitiesNames()
+
+					// JOBS: Aggregate all jobs (job, auction, mission, or posted)
+					aggregator.addJobs(percepts)
 
 					// update the last step if the percept just processed has a higher step number
 					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step
@@ -169,6 +173,8 @@ agent SingleRandomAgent {
 						MT_getPlayerState(playerName).step, playerName)
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
+				} catch (e : Exception) {
+					error("Something bad has happened during perception for player {0}: {1}", playerName, e.toString)
 				}
 			])
 

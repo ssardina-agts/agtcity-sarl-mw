@@ -49,15 +49,33 @@ abstract class Job {
     
     /**
      * Constructor to build a job from percepts
+     * 
+	 * <job end="228" id="job1" reward="922" start="12" storage="storage6">
+	 * <required amount="1" name="item11"/>
+	 * <required amount="1" name="item9"/>
+	 * </job>
+	 * <auction auctionTime="7" end="150" fine="4655" id="job3" reward="7054" start="18" storage="storage1">
+	 * <required amount="1" name="item11"/>
+	 * <required amount="1" name="item14"/>
+	 * <required amount="1" name="item9"/>
+	 * </auction>
+     * 
+	 * Format of p:
+	 * 	Regular job: job(job1,storage6,922,12,228,[required(item11,1),required(item9,1)])
+	 *  Auction job: auction(job3,storage1,7054,18,150,4655,0,7,[required(item11,1),required(item14,1),required(item9,1)])
+	 * 
+	 * p.name = job / auction
+	 * p.parameters = [job1, storage6, 922, 12, 228, [required(item11,1),required(item9,1)]]
+	 * p.parameters = [job3, storage1, 7054, 18, 150, 4655, 0, 7, [required(item11,1),required(item14,1),required(item9,1)]]
      */
     new(p : Percept, storage : Storage) {
-
 		this.id = Util.extractString(p.parameters.get(0))
 		this.reward = Util.extractDouble(p.parameters.get(2))
 		this.startTime = Util.extractDouble(p.parameters.get(3))
 		this.endTime = Util.extractDouble(p.parameters.get(4))
 		
-		var requireds = p.parameters.get(5) as ParameterList
+		// The required items are always at the end of the structure as the last argument		
+		var requireds = p.parameters.last as ParameterList
 		var requiredItems = new ItemContainer()
 
 		for (r : requireds) {
