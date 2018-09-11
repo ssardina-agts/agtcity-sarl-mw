@@ -1,6 +1,9 @@
 /** 
  * Class to boot up an agent controller
  */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw
+
+
 import io.janusproject.Boot
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
 

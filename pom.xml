@@ -174,9 +174,7 @@
                             <manifest>
                                 <addClasspath>true</addClasspath>
                                 <mainClass>io.janusproject.Boot</mainClass>
-                                <!-- 
-                                <mainClass>BootMAS</mainClass>
-                                 -->
+                                <mainClass>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</mainClass>
                             </manifest>
                         </archive>
                         <descriptorRefs>
