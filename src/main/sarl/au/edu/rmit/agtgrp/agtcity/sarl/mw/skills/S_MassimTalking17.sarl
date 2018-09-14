@@ -174,6 +174,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 						if (agName.equals(playerName)) {
 							// Not sure if need all of these but better safe than sorry.
 							registerPlayer( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
+							break
 						}
 					}
 				}
