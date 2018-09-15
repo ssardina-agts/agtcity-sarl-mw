@@ -157,7 +157,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	 *
 	 * Player will be associated with the entity in the simulation and connection will happen for a single agent
 	 */
-	def MT_registerPlayerFromConfig(playerName : String) : boolean {
+	def MT_registerPlayerByName(playerName : String) : boolean {
 		if (detailsCompleted) {
 			try {
 				// Read from config file which agents will participate in the simulation
@@ -199,7 +199,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	 *
 	 * Players will be associated with entities in the simulation and connection will happen per agent
 	 */
-	def MT_registerPlayersFromConfig(playerRole : String) : boolean {
+	def MT_registerPlayersByRole(playerRole : String) : boolean {
 		if (detailsCompleted) {
 			try {
 				// Read from config file which agents will participate in the simulation
