@@ -108,7 +108,12 @@ The main component of this infrastructure are the two capabilities provided with
 
 The main tools provided by the **C_MassimTalking** capability are:
 
-* `MT_initialize()` and `MT_registerPlayersFromConfig()`: initialize the Massim Talking infrastructure and register players using the configuration file already loaded.
+* For setup:
+	* When you create the skill, you need to pass the directory where the server and agent JSON config files are, the name of the server config file (e.g., `eismassimconfig.json`) and the player agent config file (e.g., `agentsconfig.json`).
+	* `MT_initialize()`: will create and start the Environment Interface (to talk to Massim server).
+	* `MT_registerPlayersFromConfig()`: will register all the players using the player agents configuration file.
+	* `MT_registerPlayerByName(playerName : String)`: will register only a given player (must exist in config file).
+	* `MT_registerPlayersByRole(playerRole : String)`: register ALL the players of a given role.
 * `MT_sensePlayerPercepts(playerName : String)`: sense the percepts for a player; blocking.
 * `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
 
