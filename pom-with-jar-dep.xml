@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bitbucket.ssardina-research</groupId>
     <artifactId>sarl-agtcity-mw</artifactId>
-    <version>1.5.${sarl.version}</version>
+    <version>1.4.${sarl.version}</version>
 
 	<name>SARL Agents in City Middleware</name>
     <description>
@@ -121,7 +121,6 @@
           </resources>
     
     
-		<!--  PLUGINS FOR BUILDING -->
         <plugins>
             <plugin>
                 <!-- SARL Maven compiler plugin -->
@@ -152,33 +151,48 @@
             </plugin>
 -->
 
-	       <plugin>  <!-- Create sources.jar -->
-	              <groupId>org.apache.maven.plugins</groupId>
-	              <artifactId>maven-source-plugin</artifactId>
-	              <executions>
-	                    <execution>
-	                          <id>attach-sources</id>
-	                           <goals>
-	                               <goal>jar</goal>
-	                           </goals>
-	                    </execution>
-	              </executions>
-	       </plugin>
-    
-			<!--  Class to execute via maven exec:java 
-			https://www.mojohaus.org/exec-maven-plugin/
+       <plugin>  <!-- Create sources.jar -->
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                    <execution>
+                          <id>attach-sources</id>
+                           <goals>
+                               <goal>jar</goal>
+                           </goals>
+                    </execution>
+              </executions>
+       </plugin>
+       
+			<!--  Aggregate project into a JAR package
+			https://maven.apache.org/plugins/maven-assembly-plugin/
 			-->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <configuration>
-	                <addClasspath>true</addClasspath>
-	                <!-- 
-                    <mainClass>io.janusproject.Boot</mainClass>
-	                 -->
-	                <mainClass>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</mainClass>
-                </configuration>
-            </plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+          		    <version>3.1.0</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>io.janusproject.Boot</mainClass>
+                                <mainClass>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-my-jar-with-dependencies</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+              </plugin>
+    
 
         </plugins>
     </build>

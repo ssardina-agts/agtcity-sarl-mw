@@ -86,7 +86,7 @@ agent SchedulerAgent {
     var ei : EnvironmentInterfaceStandard // the handler to the interface
 
 	var agents : Map<String, UUID> = new HashMap<String, UUID>() // map game player --> UUID of SARL agent
-	var agentsToComplete : Set<UUID> = new HashSet<UUID>() 	// set of all SARL agents in the system
+	var agentsPendingToInitialize : Set<UUID> = new HashSet<UUID>() 	// set of all SARL agents in the system
 
 	// To keep track of agents spawned succesfully
 	var noSpawn  : int = 0 // number of agents already spawn successfully and alive!
@@ -136,7 +136,7 @@ agent SchedulerAgent {
 					val UUID = spawn(DummyAgent, playerName) // Spawn a dummy agent called playerName
 					agent_says("A SARL agent {0} has been SPAWN to control game player {1}", UUID.toString, playerName)
 					agents.put(playerName, UUID);
-					agentsToComplete.add(UUID) 
+					agentsPendingToInitialize.add(UUID) 
 				]
 		} else {
 				agent_shouts("Something wrong when authenticating the players, I am finished...")
@@ -154,13 +154,13 @@ agent SchedulerAgent {
 
 		debug("An Agent {0} (of type: {1}) has spawn", agent_UUID, agent_type)
 
-		synchronized (agentsToComplete) {
-			if (agentsToComplete.remove(agent_UUID)) {
+		synchronized (agentsPendingToInitialize) {
+			if (agentsPendingToInitialize.remove(agent_UUID)) {
 				noSpawn = noSpawn + 1
 				agent_says("Agent {0} (no. {1}; type: {2}) has been created successfully and is now alive!", agent_UUID,
 					noSpawn, agent_type)
 				// no more to agents to wait, start sensing!
-				if (agentsToComplete.empty) {
+				if (agentsPendingToInitialize.empty) {
 					agent_shouts("All {0} agent-players have been created, now starting to sense and act....", noSpawn)
 					info("PHASE 4: ALL INITIALIZED, READY TO GO!!!!!!!!!")
 					emit(new E_SenseEnvironment())

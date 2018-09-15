@@ -48,7 +48,7 @@ class BootMAS {
 	
 		
 		// now get agent class for fullQualifiedAgent and boot it
-		System.out.println(String.format("Loading SARL controller agent %s", agentToLaunch))
+		System.out.println(String.format("Loading SARL controller agent ***%s***", agentToLaunch))
 		val type = Class.forName(fullyQualifiedAgent)
 		var SARLagent : Class<? extends Agent>
 		SARLagent = type.asSubclass(Agent)

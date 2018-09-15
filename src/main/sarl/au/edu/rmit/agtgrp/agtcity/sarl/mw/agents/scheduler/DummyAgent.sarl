@@ -67,7 +67,6 @@ agent DummyAgent {
      */
     on EntityPercept {
     	// Code to react to entities.
-//    	System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 	}
 
 	// This will be fired for every facility observed
