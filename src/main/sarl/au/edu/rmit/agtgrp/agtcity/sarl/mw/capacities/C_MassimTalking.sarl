@@ -60,6 +60,8 @@ capacity C_MassimTalking {
 	/* 
 	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
 	 */
+	def MT_registerPlayerByName(playerName : String) : boolean
+	def MT_registerPlayersByRole(playerRole : String) : boolean
 	def MT_registerPlayersFromConfig() : boolean
 
 	/* 

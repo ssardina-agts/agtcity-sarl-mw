@@ -150,6 +150,87 @@ skill S_MassimTalking17 implements C_MassimTalking {
 		return connected
 	}
 
+	/*
+	 * Register a single player in the interface using configuration file eiMassimPlayerAgentsConfigFile
+	 *
+	 * This is most useful when each SARL agent is responsible for a single player in the game
+	 *
+	 * Player will be associated with the entity in the simulation and connection will happen for a single agent
+	 */
+	def MT_registerPlayerByName(playerName : String) : boolean {
+		if (detailsCompleted) {
+			try {
+				// Read from config file which agents will participate in the simulation
+				// Agents will be of a certain type entity (define in the EIS)
+				var config : JSONObject = new JSONObject(
+					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
+				var players : JSONObject = config.optJSONObject("agents")
+
+				if (players !== null) { // There are agents!
+					// register each player into the server
+					for (agName : players.keySet) {
+						var agConf : JSONObject = players.getJSONObject(agName)
+						// Only register the player given in the function params
+						if (agName.equals(playerName)) {
+							// Not sure if need all of these but better safe than sorry.
+							registerPlayer( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
+							break
+						}
+					}
+				}
+				return true
+			} catch (e : IOException) {
+				e.printStackTrace()
+				return false
+			}
+		} else
+		{
+			error("Sorry, authentication details are not yet loaded...")
+			return false
+		}
+	}
+
+	/*
+	 * Register players with a particular role in the interface using configuration file eiMassimPlayerAgentsConfigFile
+	 * The role is specified in the 'class' attribute within the configuration file
+	 *
+	 * This is most useful when utilising a 'team manager' agent approach, where an particular SARL agent is
+	 * responsible for a subset of players in the game
+	 *
+	 * Players will be associated with entities in the simulation and connection will happen per agent
+	 */
+	def MT_registerPlayersByRole(playerRole : String) : boolean {
+		if (detailsCompleted) {
+			try {
+				// Read from config file which agents will participate in the simulation
+				// Agents will be of a certain type entity (define in the EIS)
+				var config : JSONObject = new JSONObject(
+					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
+				var players : JSONObject = config.optJSONObject("agents")
+
+				if (players !== null) { // There are agents!
+					// register each player into the server
+					for (agName : players.keySet) {
+						var agConf : JSONObject = players.getJSONObject(agName)
+						var playerClass = agConf.getString("class")
+						// Only register the players with role given in the function params
+						if (playerClass.equals(playerRole)) {
+							// Not sure if need all of these but better safe than sorry.
+							registerPlayer( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
+						}
+					}
+				}
+				return true
+			} catch (e : IOException) {
+				e.printStackTrace()
+				return false
+			}
+		} else
+		{
+			error("Sorry, authentication details are not yet loaded...")
+			return false
+		}
+	}
 
 	/*
 	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
@@ -170,32 +251,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 					for (agName : players.keySet) {
 	                    // Not sure if need all of these but better safe than sorry.
 						var agConf : JSONObject = players.getJSONObject(agName)
-						var playerName: String = agName
-						var playerEntity : String = agConf.getString("entity")
-						var playerTeam : String = agConf.getString("team")
-	                    var playerClass : String = agConf.getString("class")
-
-						try {
-							ei.registerAgent(playerName)
-	                    } catch (e : AgentException) {
-							e.printStackTrace()
-						}
-						try {
-	                        ei.associateEntity(playerName, playerEntity);
-						} catch (e : RelationException) {
-							e.printStackTrace()
-						}
-						
-						// TODO: how to check if the agent did really connect to the server? seems that even if the server is down
-						// the ei system register the agent
-						if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
-							debug("Agent {0} has been successfully associated with entity *{1}*", playerName,
-								playerEntity)
-							this.players.put(playerName, new PlayerState(playerName, playerClass, playerTeam))
-						} else {
-							warning("Unsuccessful association of agent {0} with entity *{1}*", playerName,
-								playerEntity)
-						}
+						registerPlayer( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
 					}
 				}
 				return true
@@ -207,6 +263,35 @@ skill S_MassimTalking17 implements C_MassimTalking {
 		{
 			error("Sorry, authentication details are not yet loaded...")
 			return false
+		}
+	}
+
+	/* Register a player with the MASSIM server
+	 *
+	 *
+	 */
+	def registerPlayer( playerName : String, playerEntity : String, playerTeam : String, playerClass : String ) {
+
+		try {
+			ei.registerAgent(playerName)
+		} catch (e : AgentException) {
+			e.printStackTrace()
+		}
+		try {
+			ei.associateEntity(playerName, playerEntity);
+		} catch (e : RelationException) {
+			e.printStackTrace()
+		}
+
+		// TODO: how to check if the agent did really connect to the server? seems that even if the server is down
+		// the ei system register the agent
+		if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
+			debug("Agent {0} has been successfully associated with entity *{1}*", playerName,
+				playerEntity)
+			this.players.put(playerName, new PlayerState(playerName, playerClass, playerTeam))
+		} else {
+			warning("Unsuccessful association of agent {0} with entity *{1}*", playerName,
+				playerEntity)
 		}
 	}
 
