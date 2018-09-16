@@ -170,7 +170,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 		// The EIS agent name will be called AGT_<entity name> (that is, the agent controlling the entity)
 		if (connected) {
 			myEntities.forEach( [entity : String | 
-				registerEIAgent(String.format("AGT_%s", entity), entity, "MY-TEAM", "SARL")
+				registerEIAgent(String.format("agt%s", entity), entity, "A", "SARL")
 			])
 		}
 

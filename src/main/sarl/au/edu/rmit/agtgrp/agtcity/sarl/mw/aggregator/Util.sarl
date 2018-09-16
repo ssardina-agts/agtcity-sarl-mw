@@ -42,7 +42,7 @@ class Util {
        	SimStartBuffer.init();
     }
 
-    public static def populateDataBuffers(percepts : Collection<Percept>) {
+    public static def populateDataBuffers(playerName : String, percepts : Collection<Percept>) {
         EntityBuffer.populate(percepts);
         TeamBuffer.populate(percepts);
 		if (!SimStartBuffer.filled) SimStartBuffer.populate(percepts)	// only update once if not filled
@@ -92,6 +92,19 @@ class Util {
 		if (seen_simStart) return "simStart" else return "unknown"
 	}
 
+	public static def getAgentName(percepts : Collection<Percept>) : String {
+		for (p : percepts) {
+			switch (p.name) {
+				case "name": {
+					return Util.extractString(p.parameters.get(0))
+				}
+			}
+		}
+		return "unknown"
+	}
+
+	
+	
 	public static def getLastActionResult(percepts : Collection<Percept>) : String {
 
 		var action : String

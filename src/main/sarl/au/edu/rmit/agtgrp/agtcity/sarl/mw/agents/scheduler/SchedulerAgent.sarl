@@ -191,7 +191,7 @@ agent SchedulerAgent {
 
 
 	on E_SenseEnvironment {
-		// Initializes three static data buffers for entities, sim-start and
+		// Initializes to empty three static data buffers for entities, sim-start and
 		if (Util.initDataBuffers()) {}
 		
 		// This is done every 1000ms
@@ -205,7 +205,7 @@ agent SchedulerAgent {
 					// https://github.com/agentcontest/massim/blob/master/docs/scenario.md#percepts
 					// https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
 					//
-					debug("Getting percepts (blocking) for agent {0}", playerName)
+					agent_says("Getting percepts (blocking) for player *{0}*", playerName)
 
 					// PLAYER SENSING EXAMPLE GETTING ALL PERCEPTS FOR ALL PLAYER TYPE OF ENTITY (USUALLY JUST 1):
 					//
@@ -236,19 +236,20 @@ agent SchedulerAgent {
 					// The percepts will also include all the simStart information, even if we are on requestAction message
 					// I think the EIS was done to do that, so agents can re-start if necessary and have all sim info in next percept
 					val percepts : Collection<Percept> = MT_sensePlayerPercepts(playerName) // This is blocking!
+					val myServerName = Util.getAgentName(percepts)
 			
-					info("Player agent {0} has RECEIVED {1} PERCEPTS (type: {2})", 
-						playerName, Util.getNoOfPercepts(percepts), Util.getTypePercept(percepts))
+					info("EI Player {0} (game entity name {3}) has RECEIVED {1} PERCEPTS (type: {2})", 
+						playerName, Util.getNoOfPercepts(percepts), Util.getTypePercept(percepts), myServerName)
                     
-					// Populate general data (entity, team, simstart) static buffers
-//					debug(percepts)
-					if (Util.populateDataBuffers(percepts)) {}
+					// Populate general data (all entities, team, simstart) static buffers
+					if (Util.populateDataBuffers(playerName, percepts)) {}
 				 	
 					// SELF:
 					//	Add the action results of playerName(self) to percept aggregator
 					//	Add an the agent state for the playerNamein the aggregator (contains location, items holding, etc)
 					aggregator.addActionResults(playerName, percepts)
-					var PlayerState = PlayerStateBuilder.build(playerName, percepts) // build a new agent state from percept
+					
+					var PlayerState = PlayerStateBuilder.build(myServerName, percepts) // build a new agent state from percept
 					aggregator.addTeamMember(playerName, PlayerState) // Fill the aggregator with this agent state for playerName
 					
 					// OTHER ENTITIES: 

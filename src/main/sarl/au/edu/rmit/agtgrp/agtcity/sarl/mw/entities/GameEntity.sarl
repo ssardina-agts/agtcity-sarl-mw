@@ -38,13 +38,13 @@ class GameEntity extends Position {
 		this.role = role
 		this.team = team
 	}
-	def getName() : String{
+	def getName() : String {
 		return name
 	}
-	def getRole() : String{
+	def getRole() : String {
 		return role	
 	}
-	def getTeam() : String{
+	def getTeam() : String {
 		return team
 	}
 

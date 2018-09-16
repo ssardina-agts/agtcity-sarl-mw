@@ -76,7 +76,6 @@ agent SingleRandomAgent {
 	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
 
 	// These are the connection players we will control
-//	var myConnections = #["connectionA1", "connectionA2", "connectionA3"]
 	var myConnections  = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5", "connectionA6"]
 
 	/* 
@@ -169,7 +168,7 @@ agent SingleRandomAgent {
 
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
-					if (Util.populateDataBuffers(percepts)) {}
+					if (Util.populateDataBuffers(playerName, percepts)) {}
 					
 					aggregator.addFacilities(percepts)
 					facilities = aggregator.getFacilitiesNames()

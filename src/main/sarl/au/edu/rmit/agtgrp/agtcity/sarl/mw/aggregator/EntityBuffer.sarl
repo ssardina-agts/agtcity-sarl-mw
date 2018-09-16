@@ -40,7 +40,7 @@ class EntityBuffer {
     public static def populate(percepts : Collection<Percept>) {
         for (p : percepts) {
             if (p.name.equals("entity")) {
-                var name = Util.extractString(p.parameters.get(0));
+                var name = Util.extractString(p.parameters.get(0));	// name of the entity of the server, as per xml (not of the EI!)
                 var team = Util.extractString(p.parameters.get(1));
                 var lat = Util.extractDouble(p.parameters.get(2));
                 var lon = Util.extractDouble(p.parameters.get(3));
