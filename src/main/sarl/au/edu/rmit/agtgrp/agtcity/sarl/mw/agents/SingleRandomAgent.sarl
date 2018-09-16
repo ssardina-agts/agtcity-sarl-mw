@@ -103,7 +103,7 @@ agent SingleRandomAgent {
 			if (args.length != 0)
 				eiConfigDir = args.get(0) as String
 			else {
-				agent_says("\t PHASE 1.2: CHOOSE CONFIGURATION")
+				// Ask the user which subdirectory in conf/ we need to use to find the server config JSON file
 				eiConfigDir = ConfHandler.getConfDir()
 			}
 			debug("Configuration settings: 
@@ -120,11 +120,11 @@ agent SingleRandomAgent {
 
 			/*
 			 * Next, we initialize the Environment Interface (EIS)
-			 * This involves connecting to game server and authenticating all entities in server config file eiMassimConfigFile
+			 * This involves connecting to game server, authenticating entities, and registering players in EI
 			 */
 			agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile, myConnections.toString)
-			myConnections.forEach( [player : String | MT_addPlayerByName(player) ] )	// entities to control
-			if (MT_initialize()) {
+			if (myConnections !== null) myConnections.forEach( [player : String|MT_addPlayerByName(player)]) // entities to control
+				if (MT_initialize()) {
 				agent_says("The EI is now initialized, entities are being authenticated...")
 			} else {
 				agent_shouts("Something wrong when initializing the EI, I am finished...")
@@ -168,7 +168,7 @@ agent SingleRandomAgent {
 
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
-					if (Util.populateDataBuffers(playerName, percepts)) {}
+					if (Util.populateDataBuffers(percepts)) {}
 					
 					aggregator.addFacilities(percepts)
 					facilities = aggregator.getFacilitiesNames()

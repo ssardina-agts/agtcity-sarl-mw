@@ -42,7 +42,7 @@ class Util {
        	SimStartBuffer.init();
     }
 
-    public static def populateDataBuffers(playerName : String, percepts : Collection<Percept>) {
+    public static def populateDataBuffers(percepts : Collection<Percept>) {
         EntityBuffer.populate(percepts);
         TeamBuffer.populate(percepts);
 		if (!SimStartBuffer.filled) SimStartBuffer.populate(percepts)	// only update once if not filled

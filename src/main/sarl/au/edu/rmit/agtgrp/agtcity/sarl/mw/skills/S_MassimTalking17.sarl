@@ -139,7 +139,7 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	/*
 	 * Initialize and start the Environment Interface. 
 	 * 
-	 * Creates the EI, connects all entities to game server, and register appropiate EI agents to control them
+	 * Creates the EI, connects all entities to game server, and register appropriate EI agents to control them
 	 */
 	def MT_initialize() : boolean {
 		if (eiMassimSeverConfigFile === null) {
@@ -166,10 +166,10 @@ skill S_MassimTalking17 implements C_MassimTalking {
 				connected = false
 			}
 
-		// If we are connected, register a relevant agent player for each entity connection of interest
+		// If we are connected, register all connected entities to receive information from them
 		// The EIS agent name will be called AGT_<entity name> (that is, the agent controlling the entity)
-		if (connected) {
-			myEntities.forEach( [entity : String | 
+		if (connected)	{
+			ei.entities.forEach( [ entity : String | 
 				registerEIAgent(String.format("agt%s", entity), entity, "A", "SARL")
 			])
 		}

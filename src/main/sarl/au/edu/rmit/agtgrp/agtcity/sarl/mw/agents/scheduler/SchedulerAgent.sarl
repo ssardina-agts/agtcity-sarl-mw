@@ -130,7 +130,7 @@ agent SchedulerAgent {
 
 		agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile,
 			myConnections.toString)
-		myConnections.forEach( [player : String|MT_addPlayerByName(player)]) // entities to control
+		if (myConnections !== null) myConnections.forEach( [player : String|MT_addPlayerByName(player)]) // entities to control
 		// this creates the EI and starts it, and authenticates all entities to server (may take time)
 		if (MT_initialize()) { 
 			agent_says("The EI is now initialized, entities are being authenticated...")
@@ -242,7 +242,7 @@ agent SchedulerAgent {
 						playerName, Util.getNoOfPercepts(percepts), Util.getTypePercept(percepts), myServerName)
                     
 					// Populate general data (all entities, team, simstart) static buffers
-					if (Util.populateDataBuffers(playerName, percepts)) {}
+					if (Util.populateDataBuffers(percepts)) {}
 				 	
 					// SELF:
 					//	Add the action results of playerName(self) to percept aggregator
