@@ -76,8 +76,8 @@ agent SingleRandomAgent {
 	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
 
 	// These are the connection players we will control
-	var myConnections = #["connectionA1", "connectionA2", "connectionA3"]
-//	var myConnections  = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5", "connectionA6"]
+//	var myConnections = #["connectionA1", "connectionA2", "connectionA3"]
+	var myConnections  = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5", "connectionA6"]
 
 	/* 
 	 * Agent may receive the path directory where the config files for server connection
