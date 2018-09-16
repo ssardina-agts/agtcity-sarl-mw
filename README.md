@@ -151,21 +151,24 @@ This package comes with two minimal examples that basically show how to sense th
 
 They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
 
+The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which takes the agent system to run as argument (defaults to `SingleRandomAgent`) 
+
 ### SuperSingleAgent ###
 
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
-```
-java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
-```
+			mvn exec:java -Dexec.args=SingleRandomAgent
 
-or since `io.janusproject.Boot` is the main class of the JAR file, just:
-		
-```
-java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
-```
+If packaged with all dependencies one can use:
 
-and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
+		java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  SingleRandomAgent
+
+Alternatively, one can rely on the Janus booting class as follows:
+
+		java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+
+
+One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
 
 
 ### Demo Scheduler
@@ -174,9 +177,7 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
-```
-java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
-```
+			mvn exec:java -Dexec.args=SchedulerAgent
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
 

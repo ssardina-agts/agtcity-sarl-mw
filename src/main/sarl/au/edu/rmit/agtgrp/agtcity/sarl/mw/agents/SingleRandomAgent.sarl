@@ -65,6 +65,8 @@ agent SingleRandomAgent {
 	uses C_Reporting, C_MassimTalking
 	uses Schedules
 
+
+	val myName = "Single-RANDOM-Agent"
 	val agentLogLevel = 3 // debug = 4
 
 	// Data kept by this single SARL agent: just the step number
@@ -73,6 +75,10 @@ agent SingleRandomAgent {
 	var rand : Random
 	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
 
+	// These are the connection players we will control
+	var myPlayers = #["connectionA1", "connectionA2", "connectionA3"]
+//	var myPlayers = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5", "connectionA6"]
+
 	/* 
 	 * Agent may receive the path directory where the config files for server connection
 	 * and player authentications are located. Otherwise, will query via terminal.
@@ -80,7 +86,7 @@ agent SingleRandomAgent {
 	on Initialize { // Should only be initializing with the EIS as a parameter.
 		{
 			var args = newArrayList(occurrence.parameters) // may receive directory conf directory
-			var eiConfigDir : String = ""
+			var eiConfigDir : String
 			val eiMassimConfigFile = "eismassimconfig.json"
 			val eiMassimPlayerAgentsConfigFile = "agentsconfig.json"
 
@@ -88,9 +94,12 @@ agent SingleRandomAgent {
 
 			aggregator = new PerceptAggregator() // collect all the percepts from all agents
 			// Give reporting skill via console
-			setSkill(new S_ConsoleReporting("Super-Single-Agent"), C_Reporting)
+			setSkill(new S_ConsoleReporting(myName), C_Reporting)
 			setLogLevel(4)
 
+			/*
+			 * First, we collect the directory where the server and player configuration files to be used are
+			 */
 			agent_says("PHASE 1: INITIALIZING MASSIM-TALKING SKILL WITH CONFIG FILES: {0} AND {1}",
 				eiMassimConfigFile, eiMassimPlayerAgentsConfigFile)
 			if (args.length != 0)
@@ -99,11 +108,27 @@ agent SingleRandomAgent {
 				agent_says("\t PHASE 1.2: CHOOSE CONFIGURATION")
 				eiConfigDir = ConfHandler.getConfDir()
 			}
+			debug("Configuration settings: 
+				\t My SARL agent name: {0}
+				\t Directory of configuration files: {1}
+				\t File with team configuration (player lists): {2}
+				\t File containing authentication and sever info: {3}", myName, eiConfigDir, eiMassimConfigFile,
+				eiMassimPlayerAgentsConfigFile)
+
+			/*
+			 * We give the agent the skill to talk to the MASSIM game server. 
+			 * We provide server JSON config file and player JSON config file
+			 */
 			// Give agent ability to talk to MASSIM server
 			setSkill(new S_MassimTalking17(Paths.get(eiConfigDir, eiMassimConfigFile),
 				Paths.get(eiConfigDir, eiMassimPlayerAgentsConfigFile)), C_MassimTalking)
 
-			agent_says("PHASE 2: INITIALIZING ENVIRONMENT INTERFACE USING CONFIGURATION FILE {0} ", eiMassimConfigFile)
+			/*
+			 * Next, we initialize the Environment Interface (EIS)
+			 * This involves connecting to game server and authenticating all entities in server config file eiMassimConfigFile
+			 */
+			agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile, myPlayers.toString)
+			myPlayers.forEach( [player : String | MT_addPlayerByName(player) ] )
 			if (MT_initialize()) {
 				agent_says("The EI is now initialized, entities are being authenticated...")
 			} else {
@@ -111,14 +136,20 @@ agent SingleRandomAgent {
 				killMe
 			}
 
-			agent_says("PHASE 3: REGISTERING AGENTS INTO ENVIRONMENT (GAME ENGINE) VIA FILE {0}",
-				eiMassimPlayerAgentsConfigFile)
-			if (MT_registerPlayersFromConfig()) { // this is where players authenticate to server to play
-				agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
-			} else {
-				agent_shouts("Something wrong when authenticating the players, I am finished...")
-				killMe
-			}
+//			/*
+//			 * Now we tell the EIS all player entities we are interested in (sensing and controlling)
+//			 */
+//			agent_says("PHASE 3: REGISTERING AGENTS INTO ENVIRONMENT (GAME ENGINE) VIA FILE {0}",
+//				eiMassimPlayerAgentsConfigFile)
+//
+//			MT_registerPlayerByName("agentA1")	// only register this player
+//			if (MT_registerPlayersFromConfig()) { // this is where players authenticate to server to play
+//				agent_says("I have registered the following players successfully: {0}", MT_getPlayersNames())
+//			} else {
+//				agent_shouts("Something wrong when authenticating the players, I am finished...")
+//				killMe
+//			}
+
 
 			agent_shouts("I am now alive! Will start working now (sending and acting!)...")
 

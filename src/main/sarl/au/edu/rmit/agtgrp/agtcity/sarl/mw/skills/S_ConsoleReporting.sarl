@@ -50,12 +50,12 @@ skill S_ConsoleReporting implements C_Reporting {
 	//	Check Varidic (varargs in java) arguments in SARL: http://www.sarl.io/docs/official/reference/general/FuncDecls.html
 	private def info_with_agent(message : String, params : Object*) {
 
-		// Extend params with the agent name
+		// Extend params with the agent name (last argument)
 		var params2 : List<Object> = new ArrayList<Object>(params.size + 1)
 		params2.addAll(params)
 		params2.add(agentName)
 
-		info("**{" + params.size + "}**: " + message, params2.toArray())
+		info(String.format("**{%d}**: %s", params2.size-1, message), params2.toArray())
 	}
 
 
