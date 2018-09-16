@@ -97,6 +97,7 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 So, what is provided by this package?
 
+
 ### Capabilities and Skills
 
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
@@ -109,15 +110,24 @@ The main component of this infrastructure are the two capabilities provided with
 The main tools provided by the **C_MassimTalking** capability are:
 
 * For setup:
-	* When you create the skill, you need to pass the directory where the server and agent JSON config files are, the name of the server config file (e.g., `eismassimconfig.json`) and the player agent config file (e.g., `agentsconfig.json`).
-	* `MT_initialize()`: will create and start the Environment Interface (to talk to Massim server).
-	* `MT_registerPlayersFromConfig()`: will register all the players using the player agents configuration file.
-	* `MT_registerPlayerByName(playerName : String)`: will register only a given player (must exist in config file).
-	* `MT_registerPlayersByRole(playerRole : String)`: register ALL the players of a given role.
+	* When you create the skill, you need to pass the directory where the server JSON config file is located (e.g., `eismassimconfig.json`).
+		* This file has the details of the game server (e.g., IP, port) as well as all the entity connections to the server (e.g., `connectionA1`).
+	* `MT_addPlayerByName(entityConnection : String)`: will register interest in controlling a given entity connection. If none is added, then it will be assumed that we will control all the connections in the server configuration file. This is useful if we do not want to control all the entity connections listed in the server configuration file, but only some of them.
+	* `MT_initialize()`: will create all network connection to game server for the entities of relevance and will register all the relevant players to be controlled that were added via `MT_addPlayerByName` (if none, then register all available connections).
+	* **NOTE:** there is no need to "register" players explicitely; they are all done automatically in the initialization phase.
 * `MT_sensePlayerPercepts(playerName : String)`: sense the percepts for a player; blocking.
 * `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
 
 The **S_MassimTalking17** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+
+
+### Entities, Agents, and Players
+
+Because the framework involves the MASSIM game server, an Environment Interface, and the SARL agents, there are different entities and identifications. Overall
+
+1. There is an **entity connection**, which is the connection to the game server, with a username and password. For example `connectionA1'.
+2. Then one can register a **player agent** in the Environment Interface and link it to an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity>`.
+3. Finally, a connection is linked to a real **game agent entity** in the game simulator. This will have a name that will be transmitted in its percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
 
 
 ### Events
