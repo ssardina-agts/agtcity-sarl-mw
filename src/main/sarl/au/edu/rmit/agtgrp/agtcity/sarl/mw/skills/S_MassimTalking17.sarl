@@ -135,15 +135,19 @@ skill S_MassimTalking17 implements C_MassimTalking {
 	/**
 	 * Register the entity named playerName to control
 	 */
-	def MT_addEntityByName(entityName : String) {
+	def MT_registerEntityByName(entityName : String) {
 		myEntities.add(entityName)
 	}
 
 	
 	@Deprecated
 	def MT_addPlayerByName(playerName : String) {
-		MT_addEntityByName(playerName)
+		MT_registerEntityByName(playerName)
 	}
+
+
+
+
 
 
 	/*

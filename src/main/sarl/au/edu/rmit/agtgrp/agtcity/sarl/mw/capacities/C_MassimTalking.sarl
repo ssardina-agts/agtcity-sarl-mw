@@ -57,10 +57,13 @@ capacity C_MassimTalking {
 	 */
 	def MT_initialize() : boolean
 
+	/** 
+	 * Register the entity named entityName to be controlled
+	 */
 	@Deprecated
-	def MT_addPlayerByName(playerName : String) : boolean
+	def MT_addPlayerByName(playerName : String) 
 
-	def MT_addEntityByName(entityName : String) : boolean
+	def MT_registerEntityByName(entityName : String) 
 
 	/* 
 	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
