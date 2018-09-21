@@ -8,6 +8,7 @@ import io.janusproject.Boot
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
 
 import io.sarl.lang.core.Agent
+import java.util.Scanner
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -17,43 +18,59 @@ class BootMAS {
 	// Code adapted from example how to boot from name string: 	http://tinyurl.com/ycolmey5
 	def static main(args : String[]) : void {
 		Boot.offline = true
-		Boot.verboseLevel = 7 //ALL
-		var fullyQualifiedAgent : String
+		Boot.verboseLevel = 7 // ALL
 		val basePackage = "au.edu.rmit.agtgrp.agtcity.sarl.mw.agents"
-
 		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent", "SchedulerAgent"]
-		val DEFAULT_CONTROLLER : String = "SingleRandomAgent"
 
 		// Boot a specific one and that' s it
 		// Boot.startJanus(typeof(DummyMultiCarController))
-		var agentToLaunch : String 
-		if (args.length == 0) {	// if not agent given in CLI argument, use default
-			System.out.println(
-				String.format("No controller specified from the available ones %s. Using controller \"%s\"",
-				AGENTS_AVAILABLE.toString, DEFAULT_CONTROLLER))
-			agentToLaunch = DEFAULT_CONTROLLER
-		} 
-		else {
-			agentToLaunch = args.get(0)	// get the agent name from CLI first argument
+		var agentToLaunch : String
+		if (args.length == 0) { // if not agent given in CLI argument, list the available ones and ask user for one
+			agentToLaunch = getSelectionFromuser("Choose the controller to run: ", AGENTS_AVAILABLE)
+		} else {
+			agentToLaunch = args.get(0) 	// get the agent name from CLI first argument
 		}
 
+		System.out.println(String.format("Running controller: \"%s\"", agentToLaunch))
+		var fullyQualifiedAgent : String
 		switch agentToLaunch {
+			case 'default':
+				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
 			case 'SingleRandomAgent':
 				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
 			case 'SchedulerAgent':
-				fullyQualifiedAgent = basePackage + ".scheduler.SchedulerAgent" 
+				fullyQualifiedAgent = basePackage + ".scheduler.SchedulerAgent"
 			default:
-			    throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
-   		}
-	
-		
+				throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
+		}
+
 		// now get agent class for fullQualifiedAgent and boot it
-		System.out.println(String.format("Loading SARL controller agent ***%s***", agentToLaunch))
+		System.out.println(String.format("Loading SARL controller agent %s (%s)", fullyQualifiedAgent, agentToLaunch))
 		val type = Class.forName(fullyQualifiedAgent)
 		var SARLagent : Class<? extends Agent>
 		SARLagent = type.asSubclass(Agent)
-		assert SARLagent !== null;
+		assert SARLagent != null;
 		Boot.startJanus(SARLagent)
 	}
-	
+
+	static def getSelectionFromuser(message : String, options : String[]) : String {
+		System.out.println(message);
+		for (var i = 0; i < options.size; i++) {
+			System.out.println(String.format("%d. %s", i + 1, options.get(i)))
+		}
+		val in : Scanner = new Scanner(System.in)
+		var confNum : Integer = null
+		while (confNum === null) {
+			try {
+				confNum = Integer.parseInt(in.next())
+				if (confNum < 1 || confNum > options.size) {
+					System.out.println("No option for that number, try again:")
+			                confNum = null
+				}
+			} catch (e : Exception) {
+				System.out.println("Invalid number, try again:")
+			}
+		}
+		return options.get(confNum.intValue - 1)
+	}
 }

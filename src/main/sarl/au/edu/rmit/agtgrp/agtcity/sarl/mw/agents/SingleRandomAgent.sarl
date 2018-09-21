@@ -87,7 +87,6 @@ agent SingleRandomAgent {
 			var args = newArrayList(occurrence.parameters) // may receive directory conf directory
 			var eiConfigDir : String
 			val eiMassimConfigFile = "eismassimconfig.json"
-			val eiMassimPlayerAgentsConfigFile = "agentsconfig.json"
 
 			rand = new Random()
 
@@ -122,9 +121,12 @@ agent SingleRandomAgent {
 			 * Next, we initialize the Environment Interface (EIS)
 			 * This involves connecting to game server, authenticating entities, and registering players in EI
 			 */
-			agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile, myConnections.toString)
-			if (myConnections !== null) myConnections.forEach( [player : String|MT_addPlayerByName(player)]) // entities to control
-				if (MT_initialize()) {
+			agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile,
+				myConnections.toString)
+			if (myConnections !== null) myConnections.forEach [ player : String |
+				MT_registerEntityByName(player) // entities to control
+			] 
+			if (MT_initialize()) {
 				agent_says("The EI is now initialized, entities are being authenticated...")
 			} else {
 				agent_shouts("Something wrong when initializing the EI, I am finished...")
@@ -164,8 +166,10 @@ agent SingleRandomAgent {
 
 					// Process the percepts by updating the PlayerState of the player in question
 					// The skill S_MassimTalking17 maintains a PlayerState object per player
-					MT_getPlayerState(playerName).update(percepts) // update the agent data
-
+					// ATTENTION: THis is already done by the MT once data is sensed!!!
+//					MT_getPlayerState(playerName).update(percepts) // update the agent data
+					info(MT_getPlayerState(playerName).reportState)
+					
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
 					if (Util.populateDataBuffers(percepts)) {}
@@ -185,7 +189,7 @@ agent SingleRandomAgent {
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
 				} catch (e : Exception) {
-					error("Something bad has happened during perception for player {0}: {1}", playerName, e.toString)
+					error("Something bad has happened during perception for player **{0}**: {1}", playerName, e.toString)
 				}
 			])
 
@@ -201,14 +205,14 @@ agent SingleRandomAgent {
 			// 2 - Travel to some random facility
 			MT_getPlayersNames.forEach([ playerName : String |
 				if (MT_getPlayerState(playerName).routeLength > 0) {
-					agent_says("Seems player {0} is already travelling: {1} steps to go!", playerName,
+					agent_says("Seems player **{0}** is already travelling: {1} steps to go!", playerName,
 						MT_getPlayerState(playerName).routeLength)
 					performAction(playerName, new Action("continue"))
 				} else if (facilities != null && facilities.length > 0) {
 					// Pick some random facility and go!
 					val destination = facilities.get(rand.nextInt(facilities.length - 1))
 					performAction(playerName, new Action("goto", new Identifier(destination)))
-					agent_says("I will send player {1} to location {0}", destination, playerName)
+					agent_says("I will send player **{1}** to location {0}", destination, playerName)
 				} else {
 					agent_shouts("I just don't know any facility to go yet, sorry...!")
 				}
@@ -224,13 +228,13 @@ agent SingleRandomAgent {
 	 * If sending fails, the exception is caught and logged. 
 	 */
 	def performAction(playerName : String, action : Action) {
-		agent_says("Performing action {1} for player {0}", playerName, action.toProlog())
+		agent_says("Performing action **{1}** for player **{0}**", playerName, action.toProlog())
 		try {
 			// perform the action by agentName in the EIS
 			MT_executeAction(playerName, action)
 		} catch (e : ActException) {
 			if (action !== null)
-				warning("Could not perform action {0} for player {1}", action, playerName)
+				warning("Could not perform action {0} for player **{1}**", action, playerName)
 		}
 	}
 

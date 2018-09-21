@@ -103,9 +103,12 @@ class PlayerState extends GameEntity {
 	 */
 	def reportState() : String {
 		
-		var message : String = String.format("State of player %s: at (%f, %f) with battery level %f and load %f", 
-                   this.name, 
-                   this.lat, this.lon, 
+		var message : String = String.format("State of player %s (%s - %s): at (%f, %f) with battery level %f and load %f", 
+                   this.name,
+                   this.userName, 
+                   this.role,
+                   this.lat, 
+                   this.lon, 
                    this.charge,
                    this.load)
 		
