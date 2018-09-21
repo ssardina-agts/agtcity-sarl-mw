@@ -22,9 +22,9 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
  * 
  */
 class GameEntity extends Position {
-	var name : String
-	var role : String
-	var team : String
+	protected var name : String
+	protected var role : String
+	protected var team : String
 	/** 
 	 * @param name The name of the gameEntity
 	 * @param role The role of the entity

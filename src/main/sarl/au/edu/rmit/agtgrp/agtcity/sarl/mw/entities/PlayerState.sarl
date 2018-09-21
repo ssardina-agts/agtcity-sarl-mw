@@ -49,6 +49,7 @@ class PlayerState extends GameEntity {
 	public var percepts : Collection<Percept> 
 	public var lastActioResult : String
 	public var step : int
+	public var userName : String
 
 	// CONSTRUCTOR
     new(
@@ -73,6 +74,7 @@ class PlayerState extends GameEntity {
         this.facilityName = facilityName        
         this.percepts = new Vector<Percept>
         this.step = 0
+        this.userName = null
     }
 
 	
@@ -148,8 +150,17 @@ class PlayerState extends GameEntity {
 						var itemQty = Util.extractDouble(p.parameters.get(1))
 						this.items.put(itemName, itemQty)
 					}
+					case "role": {
+						role  = Util.extractString(p.parameters.get(0))
+					}
+					case "team": {
+						team = Util.extractString(p.parameters.get(0))
+						}
+					case "name": {
+						userName = Util.extractString(p.parameters.get(0))
+					}
 					case "route": {
-						var params = p.parameters.get(0);
+							var params = p.parameters.get(0);
 						var wps = params as ParameterList
 						for (w : wps) {
 							var f = w as Function
