@@ -120,14 +120,13 @@ The main tools provided by the **C_MassimTalking** capability are:
 
 The **S_MassimTalking17** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
 
-
-### Entities, Agents, and Players
+### Entities, EI Players, Game User Agent 
 
 Because the framework involves the MASSIM game server, an Environment Interface, and the SARL agents, there are different entities and identifications. Overall
 
 1. There is an **entity connection**, which is the connection to the game server, with a username and password. For example `connectionA1'.
 2. Then one can register a **player agent** in the Environment Interface and link it to an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity>`.
-3. Finally, a connection is linked to a real **game agent entity** in the game simulator. This will have a name that will be transmitted in its percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
+3. Finally, a connection is linked to a real game **user agent** in the game simulator (as per `username` entry in the JSON configuration file). This will have a name that will be transmitted in its percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
 
 
 ### Events
