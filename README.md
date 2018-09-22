@@ -13,7 +13,7 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 -----------------------------
 ## TABLE OF CONTENTS
 
-[TOC}
+[TOC]
 
 -----------------------------
 ## PREREQUISITES
