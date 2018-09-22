@@ -10,7 +10,12 @@ Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-
 
 This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
 
+-----------------------------
+## TABLE OF CONTENTS
 
+[TOC}
+
+-----------------------------
 ## PREREQUISITES
 
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (Sun version recommended)
@@ -27,12 +32,8 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 	* Server version `2017-0.7` that comes with massim package distribution `massim-2017-1.7` (check  release [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7) and tree/doc for that version [here](https://github.com/agentcontest/massim/tree/massim-2017-1.7).)
 
 
-## DEVELOP THE MIDDLEWARE FURTHER
-
-Clone this repo and refer to the the [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
-
-
-## USE and INSTALL MIDDLEWARE
+-----------------------------
+## USE/INSTALL AND DEVELP THE MIDDLEWARE
 
 Most of the times one would just use this middleware out-of-the-box to develop SARL Agents in City controller. 
 
@@ -76,6 +77,11 @@ There are then two ways to install the corresponding JAR file for the middleware
 	With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
 
 
+### DEVELOP THE MIDDLEWARE FURTHER
+
+Clone this repo and refer to the the [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
+
+----------------------------
 ## RUN DEMO
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
@@ -92,11 +98,10 @@ There are then two ways to install the corresponding JAR file for the middleware
 4. Enjoy! You should start seeing the agent reporting things in the console. 
     * You can see the simulation on the web browser.
 
-
+----------------------------
 ## INFRASTRUCTURED PROVIDED
 
 So, what is provided by this package?
-
 
 ### Capabilities and Skills
 
@@ -112,11 +117,18 @@ The main tools provided by the **C_MassimTalking** capability are:
 * For setup:
 	* When you create the skill, you need to pass the directory where the server JSON config file is located (e.g., `eismassimconfig.json`).
 		* This file has the details of the game server (e.g., IP, port) as well as all the entity connections to the server (e.g., `connectionA1`).
-	* `MT_addPlayerByName(entityConnection : String)`: will register interest in controlling a given entity connection. If none is added, then it will be assumed that we will control all the connections in the server configuration file. This is useful if we do not want to control all the entity connections listed in the server configuration file, but only some of them.
+	* `MT_registerEntityByName(entityName : String)`: register interest in controlling a given entity connection. If none is added, then it will be assumed that we will control all the connections in the server configuration file. This is useful if we do not want to control all the entity connections listed in the server configuration file, but only some of them.
 	* `MT_initialize()`: will create all network connection to game server for the entities of relevance and will register all the relevant players to be controlled that were added via `MT_addPlayerByName` (if none, then register all available connections).
 	* **NOTE:** there is no need to "register" players explicitely; they are all done automatically in the initialization phase.
-* `MT_sensePlayerPercepts(playerName : String)`: sense the percepts for a player; blocking.
-* `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
+* For interaction with the game server:
+	*`MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>>`: sense the percepts for a player; blocking.
+	* `MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>>` sense the pecepts of all the players; blocking.
+	* `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
+* Getters:
+	* `MT_getPlayersNames() : Set<String>`: list of player connections registered in the MW.
+	* `MT_getAllPlayerStates() : Map<String, PlayerState>`: get the `PlayerState` of each registered player.
+	* `MT_getPlayerState(playerName : String) : PlayerState`: get the `PlayerState` of a given registered player.
+	* `MT_getStatus() : EnvironmentState`: get the state of the EI.
 
 The **S_MassimTalking17** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
 
@@ -129,7 +141,7 @@ Because the framework involves the MASSIM game server, an Environment Interface,
 3. Finally, a connection is linked to a real game **user agent** in the game simulator (as per `username` entry in the JSON configuration file). This will have a name that will be transmitted in its percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
 
 
-### Events
+### Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
 
 The main set of events are:
 
@@ -141,13 +153,13 @@ Both are used by the demo **SchedulerAgent** to inform the dummy agents of the p
 
 There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
 
-### Entities
+### Entities (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.entities`)
 
 A set of classes representing entities/artifacts (e.g., facilities, jobs, storages, etc.) in the simulation are provided.
 
 A special one is **PlayerState** which is used to keep track of each player current state, as per the last percept received.
 
-### Aggregators
+### Aggregators (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator`)
 
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server. 
 
@@ -197,6 +209,7 @@ All **DummyAgents** can catch those events and emit events that are subclasses o
 
 
 
+----------------------------
 ## LINKS
 
 For general links check [here](https://bitbucket.org/snippets/ssardina/6eybMg#markdown-header-1-software-prerequisites-and-links).
