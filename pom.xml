@@ -18,7 +18,7 @@
 	-->
 	<groupId>com.github.ssardina-research</groupId>
     <artifactId>sarl-agtcity-mw</artifactId>
-    <version>2.1.${sarl.version}</version>
+    <version>2.2.${sarl.version}</version>
 
 	<name>SARL Agents in City Middleware</name>
     <description>
