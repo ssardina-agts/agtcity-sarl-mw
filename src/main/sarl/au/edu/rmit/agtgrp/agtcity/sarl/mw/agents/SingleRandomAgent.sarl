@@ -30,7 +30,6 @@ import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
 
 // General Java tools
-import java.util.*;
 import java.nio.file.Paths
 
 import eis.exceptions.PerceiveException
@@ -39,20 +38,20 @@ import eis.iilang.Identifier
 
 // Import project content
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.PlayerState
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.*
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking17
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.SimStartBuffer
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
 
-import eis.iilang.PrologVisitor
-import eis.iilang.IILVisitor
 import io.sarl.core.Schedules
+import java.util.Collection
+import java.util.Map
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SenseEnvironment
+import java.util.Random
+import java.util.Set
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com
@@ -60,6 +59,7 @@ import io.sarl.core.Schedules
  * This is a monolithic SARL agent that uses the S_MassimTalking17 skill 
  * to manage ALL the players in the  game simulation.
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 agent SingleRandomAgent {
 	uses Logging, Lifecycle, DefaultContextInteractions
 	uses C_Reporting, C_MassimTalking
@@ -83,7 +83,6 @@ agent SingleRandomAgent {
 	 * and player authentications are located. Otherwise, will query via terminal.
 	 */
 	on Initialize { // Should only be initializing with the EIS as a parameter.
-		{
 			var args = newArrayList(occurrence.parameters) // may receive directory conf directory
 			var eiConfigDir : String
 			val eiMassimConfigFile = "eismassimconfig.json"
@@ -138,7 +137,6 @@ agent SingleRandomAgent {
 			// We are ready, now start the cycle for sensing the environment (and thus acting)!
 			// Wait 2 seconds to allow everyone to authenticate to server
 			in(2000)[emit(new E_SenseEnvironment())]
-		}
 	}
 
 	/* 
@@ -208,7 +206,7 @@ agent SingleRandomAgent {
 					agent_says("Seems player **{0}** is already travelling: {1} steps to go!", playerName,
 						MT_getPlayerState(playerName).routeLength)
 					performAction(playerName, new Action("continue"))
-				} else if (facilities != null && facilities.length > 0) {
+				} else if (facilities !== null && facilities.length > 0) {
 					// Pick some random facility and go!
 					val destination = facilities.get(rand.nextInt(facilities.length - 1))
 					performAction(playerName, new Action("goto", new Identifier(destination)))

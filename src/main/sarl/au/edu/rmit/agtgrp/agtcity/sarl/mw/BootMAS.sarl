@@ -5,7 +5,6 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw
 
 
 import io.janusproject.Boot
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
 
 import io.sarl.lang.core.Agent
 import java.util.Scanner
@@ -14,6 +13,7 @@ import java.util.Scanner
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 class BootMAS {
 	// Code adapted from example how to boot from name string: 	http://tinyurl.com/ycolmey5
 	def static main(args : String[]) : void {
