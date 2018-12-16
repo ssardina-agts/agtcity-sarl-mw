@@ -182,7 +182,6 @@ agent SingleRandomAgent {
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
 					Util.populateDataBuffers(percepts)
-					System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 					
 					
 					aggregator.addFacilities(percepts)
@@ -190,6 +189,7 @@ agent SingleRandomAgent {
 
 					// JOBS: Aggregate all jobs (job, auction, mission, or posted)
 					aggregator.addJobs(percepts)
+
 
 					// update the last step if the percept just processed has a higher step number
 					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step
