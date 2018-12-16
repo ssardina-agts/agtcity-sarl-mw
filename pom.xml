@@ -17,7 +17,7 @@
     <groupId>org.bitbucket.ssardina-research</groupId>
 	-->
 	<groupId>com.github.ssardina-research</groupId>
-    <artifactId>sarl-agtcity-mw</artifactId>
+    <artifactId>sarl-agtcity18-mw</artifactId>
     <version>2.5.${sarl.version}</version>
 
     <!-- ##################################################################
