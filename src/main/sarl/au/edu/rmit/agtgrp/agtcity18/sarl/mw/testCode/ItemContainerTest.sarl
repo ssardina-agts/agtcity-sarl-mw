@@ -1,0 +1,94 @@
+package au.edu.rmit.agtgrp.agtcity18.sarl.mw.testCode
+
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Item
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ItemBundle
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ItemContainer
+
+agent ItemContainerTest {
+    uses Logging
+
+    var hammer1 : Item = new Item("Hammer", 1)
+    var hammer2 : Item = new Item("Hammer", 1)
+    var hammer3 : Item = new Item("Hammer", 1)
+    var hammer4 : Item = new Item("Hammer", 1)
+    var hammer5 : Item = new Item("Hammer", 1)
+    var nail1 : Item = new Item("Nail", 1)
+    var nail2 : Item = new Item("Nail", 1)
+    var nail3 : Item = new Item("Nail", 1)
+
+    on Initialize {
+        var hammerBundle : ItemBundle = new ItemBundle(new Item("Hammer", 1))
+        // Testing add
+        hammerBundle.addToBundle(hammer1)
+        info(hammerBundle.getAmount.toString)
+        hammerBundle.addToBundle(hammer2)
+        info(hammerBundle.getAmount.toString)
+        hammerBundle.addToBundle(hammer3)
+        info(hammerBundle.getAmount.toString)
+        hammerBundle.addToBundle(hammer4)
+        info(hammerBundle.getAmount.toString)
+        hammerBundle.addToBundle(hammer5)
+        info(hammerBundle.getAmount.toString)
+
+        var hammerBundle2 : ItemBundle = new ItemBundle(new Item("Hammer", 1))
+        hammerBundle2.addToBundle(hammer1)
+        info(hammerBundle2.getAmount.toString)
+        hammerBundle2.addToBundle(hammer2)
+        info(hammerBundle2.getAmount.toString)
+
+        // Testing package
+        hammerBundle.packageBundle(hammerBundle2)
+        info(hammerBundle.amount)
+
+        // Testing unpack
+        var btemp = hammerBundle.unpackBundle(3)
+        if (btemp === null)
+            info("NULL")
+        else
+            info(btemp.amount)
+
+        info(hammerBundle.amount)
+        // Testing adding non valid item
+        hammerBundle.addToBundle(nail1)
+        info(hammerBundle.amount)
+
+        var nailBundle : ItemBundle = new ItemBundle(new Item("Nail", 1))
+        nailBundle.addToBundle(nail1)
+        nailBundle.addToBundle(nail2)
+        nailBundle.addToBundle(nail3)
+
+        // Testing adding two incompatible bundles
+        info(hammerBundle.amount)
+        hammerBundle.packageBundle(nailBundle)
+        info(hammerBundle.amount)
+
+        // Testing item container
+        var container : ItemContainer = new ItemContainer
+        container.add(hammerBundle)
+        container.add(nailBundle)
+        container.add(btemp)
+        for (bundle : container.container) {
+            info(bundle.name + "\t" + bundle.amount)
+        }
+
+        // testing item consolidation
+        container.consolidate
+        for (bundle : container.container) {
+            info(bundle.name + "\t" + bundle.amount)
+        }
+
+        // Testing failed extraction of items from container
+        info(container.container.get(1).name + container.container.get(1).amount)
+        var temp = container.takeFromContainer(new ItemBundle(hammer1,10))
+        if(temp === null){
+            info("Test Passed")
+        }
+        info("hammer quantity " + container.getQuantityOfItem(hammer1))
+        container.takeBundleFromContainer(hammer1, 6)
+        info("hammer quantity " + container.getQuantityOfItem(hammer1))
+        
+    }
+
+}

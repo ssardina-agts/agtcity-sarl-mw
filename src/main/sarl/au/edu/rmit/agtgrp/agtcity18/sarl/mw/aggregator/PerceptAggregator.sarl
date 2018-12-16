@@ -1,0 +1,486 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator
+
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ActionResult
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.GameEntity
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Shop
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.PlayerState
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Workshop
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.EntityPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.TeamMemberPercept
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.HashSet
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.AuctionJob
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ChargingStation
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Dump
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.RegularJob
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Resource
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Storage
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ItemBundle
+import java.util.Collection
+import eis.iilang.Percept
+import eis.iilang.Function
+import eis.iilang.ParameterList
+
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ShopItem
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.StorageItem
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.ItemContainer
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.Item
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.TeamJob
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities.MissionJob
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.ActionStatusPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.ShopSensedPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.ChargingStationSensedPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.DumpSensedPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.StorageSensedPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.ResourceSensedPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.RegularJobPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.AuctionJobPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.TeamJobPercept
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.MissionJobPercept
+import java.util.List
+import java.util.Set
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.events.WorkshopSensedPercept
+
+/** 
+ * @author boblo
+ * Class used to collect all of the percepts from all of the agents in MASSIM to minimise event emission.
+ */
+class PerceptAggregator {
+
+	var actionResults : HashMap<String, ActionResult>
+	var auctionJobs : HashMap<String, AuctionJob>
+	var missionJobs : HashMap<String, MissionJob>
+	public var chargingStations : HashMap<String, ChargingStation>
+	var dumps : HashMap<String, Dump>
+	var regularJobs : HashMap<String, RegularJob>
+	var teamJobs : HashMap<String, TeamJob>
+	var resources : HashMap<String, Resource>
+	var shops : HashMap<String, Shop>
+	var storages : HashMap<String, Storage>
+	var PlayerStates : HashMap<String, PlayerState>
+	var workshops : HashMap<String, Workshop>
+	var entities : HashMap<String, GameEntity>
+	var money : double
+	
+	/**
+	 * Constructor that initializes all of the HashMaps
+	 */
+	new() {
+		this.actionResults = new HashMap();
+		this.auctionJobs = new HashMap();
+		this.missionJobs = new HashMap();
+		this.chargingStations = new HashMap();
+		this.dumps = new HashMap();
+		this.regularJobs = new HashMap();
+		this.teamJobs = new HashMap();
+		this.resources = new HashMap();
+		this.shops = new HashMap();
+		this.storages = new HashMap();
+		this.PlayerStates = new HashMap();
+		this.workshops = new HashMap();
+		this.entities = new HashMap();
+		this.money = 0;
+	}
+	
+	
+	
+	
+	/**
+	 * Function used to add the information relating to team members to the team member hashmap.
+	 * @param source - list of agents that received this percept from MASSIM. 
+	 * @param PlayerState - the observed entity
+	 */
+	public def addTeamMember(source : String, PlayerState : PlayerState) {
+		PlayerStates.put(source, PlayerState)
+	}
+
+	/**
+	 * Function used to populate the Entity HashMap
+	 * automatically gets the entities from the EntityBuffer
+	 */
+	public def addEntities() {
+		for (e : EntityBuffer.entities.keySet) {
+			if (!this.PlayerStates.keySet.contains(e)) { // add only if they are not agents of the team
+				this.entities.put(e, (EntityBuffer.entities.get(e)))
+			}
+		}
+	}
+
+	/**
+	 * Function used to add the current amount of Money the team has.
+	 * @param money, double the amount of money perceived our team to have.
+	 */
+	public def addMoneyPercept(money : double) {
+		this.money = money
+	}
+	
+	/**
+	 * Function used to parse all of the percepts and populate the specialised Facilities. 
+	 * @param perepts - the collection of percepts received from MASSIM
+	 */
+	public def addFacilities(percepts : Collection<Percept>) {
+		for(p : percepts){
+			switch(p.name){
+				case "chargingStation" : {
+					var cs = new ChargingStation(p)
+					this.chargingStations.put(cs.name, cs)
+				}
+				
+				case "dump": {
+					var dp = new Dump(p)
+					this.dumps.put(dp.name, dp)
+				}
+				
+				case "shop": {
+					var sp = new Shop(p)
+					this.shops.put(sp.name, sp)					
+				}
+				
+				case "storage": {
+					var st = new Storage(p)
+					this.storages.put(st.name, st)
+				}
+				
+				case "workshop": {
+					var ws = new Workshop(p)
+					this.workshops.put(ws.name, ws)
+				}
+				
+				case "resourceNode" : {
+					var rn = new Resource(p)
+					this.resources.put(rn.name, rn)
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * Function used to populate the hashmaps keeping track of all of the jobs.
+	 * @param percepts - the collection of jobs
+	 */	
+	public def addJobs(percepts : Collection<Percept>){
+		for (p : percepts){
+			switch (p.name) {
+				case "job" : {
+					var storage = Util.extractString(p.parameters.get(1))
+					var storageFacility = this.storages.get(storage)
+					var rj = new RegularJob(p, storageFacility)
+					this.regularJobs.put(rj.id, rj)					
+				}
+				case "posted": {
+					var storage = Util.extractString(p.parameters.get(1))
+					var storageFacility = this.storages.get(storage)
+					var tj = new TeamJob(p, storageFacility)
+					this.teamJobs.put(tj.id, tj)
+					
+				}
+				case "auction": {
+					var storage = Util.extractString(p.parameters.get(1))
+					var storageFacility = this.storages.get(storage)
+					var aj = new AuctionJob(p, storageFacility)
+					this.auctionJobs.put(aj.id, aj)					
+				}
+				case "mission": {
+					var storage = Util.extractString(p.parameters.get(1))
+					var storageFacility = this.storages.get(storage)
+					var mj = new MissionJob(p, storageFacility)
+					this.missionJobs.put(mj.id, mj)
+				}
+			}
+		}
+		
+		
+	}
+	
+	/**
+	 * Function to get the action results of each agent. 
+	 * #param source - The source of the percept is refering to. 
+	 * @percepts - the collection of percepts from MASSIM for the source agent. 
+	 */
+	public def addActionResults(source : String, percepts : Collection<Percept>){
+		
+		var action : String
+		var success : String
+		
+		
+		for(p : percepts){
+			switch(p.name){
+				case "lastAction" : {
+					action = Util.extractString(p.parameters.get(0))
+				}
+				case "lastActionResult" : {
+					success = Util.extractString(p.parameters.get(0))
+				}
+			}
+		}
+		
+		this.actionResults.put(source, new ActionResult(action, success))
+		
+	}
+	
+	/**
+	 * Function called by the communicator to get all Team Member events
+	 * @return an set of events containing teamMemberpercepts
+	 */
+	public def getTeamMemberPercepts() : Set<EntityPercept> {
+		var events = new HashSet<EntityPercept>()
+
+		for (agentName : PlayerStates.keySet) {
+			var sources = new HashSet<String>()
+			sources.add(agentName)
+			events.add(new TeamMemberPercept(sources, PlayerStates.get(agentName)))
+		}
+		return events
+	}
+
+	/**
+	 * Function called by the communicator to get all entity events.
+	 * @return an set of events containing observed entities.
+	 */
+	public def getGameEntityPercepts() : Set<EntityPercept> {
+		var events = new HashSet<EntityPercept>()
+
+		for (entityName : entities.keySet) {
+			var ep = new EntityPercept(PlayerStates.keySet, entities.get(entityName))
+			events.add(ep);
+		}
+		return events
+
+	}
+	
+	/**
+	 * Function use to get all of the percepts relating friendly entity actions.
+	 * @return ArrayList of events each containing an action status and the source agent its from.
+	 */
+	public def getActionPercepts() : List<ActionStatusPercept>{
+		var events = new ArrayList<ActionStatusPercept>
+		
+		for (agentName : actionResults.keySet){
+			var nameSet = new HashSet<String>()
+			nameSet.add(agentName)
+			
+			var ap = new ActionStatusPercept(nameSet, actionResults.get(agentName))
+			events.add(ap)
+		}
+		return events
+		
+	}
+	
+	
+	/**
+	 * Tools to get FACILITIES
+	 * 	shops
+	 *  charging station
+	 *  workshops
+	 *  dumps
+	 *  storage
+	 *  resource nodes
+	 * 
+	 * https://github.com/agentcontest/massim/blob/massim-2017-1.7/docs/scenario.md#facilities
+	 */
+
+	/** 
+	 * Function used to get all Shops
+	 * @return a list of events containing shops.
+	 */
+	public def getShopSensedPercepts() : List<ShopSensedPercept> {
+		var events = new ArrayList<ShopSensedPercept>
+
+		for (facilityname : shops.keySet) {
+			var ssp = new ShopSensedPercept(PlayerStates.keySet, shops.get(facilityname));
+			events.add(ssp)
+		}
+		return events
+	}
+	
+	
+	/**
+	 * Function used to get all charging stations.
+	 * @returns a list of events containing charging stations.
+	 */
+	public def getChargingStationSensedPercepts() : List<ChargingStationSensedPercept>{
+		var events = new ArrayList<ChargingStationSensedPercept>
+		
+		for (stationName : chargingStations.keySet){
+			var cssp = new ChargingStationSensedPercept(PlayerStates.keySet, chargingStations.get(stationName));
+			events.add(cssp)
+		}
+		return events
+	}
+
+	/** 
+	 * Function used to get all Workshops
+	 * @return a list of events containing workshops.
+	 */
+	public def getWorkshopSensedPercepts() : List<WorkshopSensedPercept> {
+		var events = new ArrayList<WorkshopSensedPercept>
+
+		for (facilityname : workshops.keySet) {
+			var ssp = new WorkshopSensedPercept(PlayerStates.keySet, workshops.get(facilityname));
+			events.add(ssp)
+		}
+		return events
+	}
+
+
+	
+	/**
+	 * Function used to get all Dumps
+	 * @returns a list of events containing dumps
+	 */
+	public def getDumpSensedPercepts() : List<DumpSensedPercept>{
+
+		var events = new ArrayList<DumpSensedPercept>
+
+		for (facilityname : dumps.keySet) {
+			var dsp = new DumpSensedPercept(PlayerStates.keySet, dumps.get(facilityname));
+			events.add(dsp)
+		}
+		return events
+	}
+	
+
+	/**
+	 * Function used to get all storages
+	 * @returns a list of events containing storages
+	 */
+	public def getStorageSensedPercepts() : List<StorageSensedPercept> {
+		var events = new ArrayList<StorageSensedPercept>
+
+		for (facilityname : storages.keySet) {
+			var ssp = new StorageSensedPercept(PlayerStates.keySet, storages.get(facilityname));
+			events.add(ssp)
+		}
+		return events 
+	}
+
+	
+	/**
+	 * Function used to get all Resources
+	 * @returns a list of events containing resources
+	 */
+	public def getResourceSensedPercepts() : List<ResourceSensedPercept> { 
+		var events = new ArrayList<ResourceSensedPercept>
+
+		for (resourceName : resources.keySet) {
+			var rsp = new ResourceSensedPercept(PlayerStates.keySet, resources.get(resourceName));
+			events.add(rsp)
+		}
+		return events 
+	}
+	
+	
+	
+	/**
+	 * GET functions for JOBS:
+	 * https://github.com/agentcontest/massim/blob/massim-2017-1.7/docs/scenario.md#job
+	 * 
+	 *  regular jobs
+	 *  auction jobs
+	 *  mission (mandatory job or fine!)
+	 *  
+	 */
+
+	/**
+	 * Function used to get all Auction Jobs
+	 * @returns a list of events each containing an auction event.
+	 */
+	public def getAuctionJobPercepts() : List<AuctionJobPercept> {
+		var events = new ArrayList<AuctionJobPercept>
+
+		for (jobId : auctionJobs.keySet) {
+			var ajp = new AuctionJobPercept(PlayerStates.keySet, auctionJobs.get(jobId));
+			events.add(ajp)
+		}
+		return events
+	}
+	
+	
+	
+	/**
+	 * Function used to get all regular jobs
+	 * @returns a list of events each containing a regular job (Posted of opponent team).
+	 */
+	public def getRegularJobPercepts() : List<RegularJobPercept> {
+		var events = new ArrayList<RegularJobPercept>
+
+		for (jobId : regularJobs.keySet) {
+			var rjp = new RegularJobPercept(PlayerStates.keySet, regularJobs.get(jobId));
+			events.add(rjp)
+		}
+		return events 
+	}
+
+	/** 
+	 * Function used to get all Mission Jobs
+	 * @returns a list of events each containing a mission event.
+	 */
+	public def getMissionJobPercepts() : List<MissionJobPercept> {
+		var events = new ArrayList<MissionJobPercept>
+
+		for (jobId : missionJobs.keySet) {
+			var mjp = new MissionJobPercept(PlayerStates.keySet, missionJobs.get(jobId));
+			events.add(mjp)
+		}
+		return events
+	}
+
+	
+	/**
+	 * Function used to get all team jobs
+	 * @returns a list of events each containing a team job.
+	 */
+	public def getTeamJobPercepts() : List<TeamJobPercept> {
+		var events = new ArrayList<TeamJobPercept>
+
+		for (jobId : teamJobs.keySet) {
+			var tjp = new TeamJobPercept(PlayerStates.keySet, teamJobs.get(jobId));
+			events.add(tjp)
+		}
+		return events 
+	}
+	
+	
+	
+
+
+	/*
+	 * Methods to extract individual information from percepts
+	 */
+
+
+
+	/** 
+	 * Function used to get all storages
+	 * @returns a list of events containing storages
+	 */
+	public def getShopsNames() : Set<String> {
+		return shops.keySet()
+	}
+
+	public def getFacilitiesNames() : Set<String> {
+		return shops.union(storages).union(chargingStations).union(dumps).union(workshops).
+			union(resources).keySet() 
+	}
+
+}

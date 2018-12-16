@@ -1,0 +1,128 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator
+
+import eis.iilang.Identifier
+import eis.iilang.Numeral
+import eis.iilang.Parameter
+import eis.iilang.ParameterList
+import eis.iilang.Percept
+import java.util.Collection
+import massim.protocol.messagecontent.SimStart
+
+/** 
+ * @author boblo
+ * 
+ */
+class Util {
+	// Three static data structures to store information:
+	// EntityBuffer: information about entities (e.g., agents) storing type, role, location
+	//								entity(agentA2,A,19.41915,-99.06416,drone)
+    // TeamBuffer: information about the team: name and money
+    // SimStartBuffer: information about the simulation: map name, simulation id, seed capital team name
+    public static def initDataBuffers {
+        EntityBuffer.init();
+        TeamBuffer.init();
+       	SimStartBuffer.init();
+    }
+
+    public static def populateDataBuffers(percepts : Collection<Percept>) {
+        EntityBuffer.populate(percepts);
+        TeamBuffer.populate(percepts);
+		if (!SimStartBuffer.filled) SimStartBuffer.populate(percepts)	// only update once if not filled
+	}
+
+	public static def extractDouble(param : Parameter) : double {
+        var p = param as Numeral
+        return p.value.doubleValue
+    }
+
+    public static def extractInt(param : Parameter) : int {
+        var p = param as Numeral
+        return p.value.intValue
+    }
+
+    public static def extractString(param : Parameter) : String {
+        var p = param as Identifier
+        return p.value
+    }
+
+	public static def getNoOfPercepts(percepts : Collection<Percept>) : int {
+		return percepts.size;
+	}
+
+
+	// The set of percepts will generally contain simStart always, even if it is not the initial percept
+	// This was done probably to have the initial configuration always available for agents to re-connect if required at any point	
+	public static def getTypePercept(percepts : Collection<Percept>) : String {
+		var seen_simStart = false
+		
+		for (p : percepts) {
+			switch (p.name) {
+				case "simStart": {
+					seen_simStart = true
+				}
+				case "requestAction": {
+					return p.name
+				}
+				case "simEnd": {
+					return p.name
+				}
+				case "bye": {
+					return p.name
+				}
+			}
+		}
+		if (seen_simStart) return "simStart" else return "unknown"
+	}
+
+	public static def getAgentName(percepts : Collection<Percept>) : String {
+		for (p : percepts) {
+			switch (p.name) {
+				case "name": {
+					return Util.extractString(p.parameters.get(0))
+				}
+			}
+		}
+		return "unknown"
+	}
+
+	
+	
+	public static def getLastActionResult(percepts : Collection<Percept>) : String {
+
+		var action : String
+
+		for (p : percepts) {
+			switch (p.name) {
+				case "lastAction": {
+					action = Util.extractString(p.parameters.get(0))
+				}
+				case "lastActionResult": {
+					return Util.extractString(p.parameters.get(0))
+				}
+			}
+		}
+		return "unknown"
+	}
+
+
+
+
+}

@@ -1,0 +1,135 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities
+
+import eis.iilang.Percept
+import eis.iilang.ParameterList
+import eis.iilang.Function
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator.Util
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator.PerceptAggregator
+import au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator.SimStartBuffer
+
+/** 
+ * @Author Keiran
+ */
+ 
+ /**
+  * Defines the details of a basic Job in the EISMASSim world
+  * @param startTime The time step the job was posted 
+  * @param endTime The time step the job has to be completed by
+  * @param id The id for the Job
+  * @param reward The reward the team will receive for successfully completing the job
+  * @param dropoff The storage facility where the required items are to be dropped off too
+  * @param required The items and quantities that are required to complete the job
+  */
+abstract class Job {
+	var startTime : double
+	var endTime : double
+	var id : String
+	var reward : double
+	var dropoff : Storage
+	var required : ItemContainer
+    
+    
+    /**
+     * Constructor to build a job from percepts
+     * 
+	 * <job end="228" id="job1" reward="922" start="12" storage="storage6">
+	 * <required amount="1" name="item11"/>
+	 * <required amount="1" name="item9"/>
+	 * </job>
+	 * <auction auctionTime="7" end="150" fine="4655" id="job3" reward="7054" start="18" storage="storage1">
+	 * <required amount="1" name="item11"/>
+	 * <required amount="1" name="item14"/>
+	 * <required amount="1" name="item9"/>
+	 * </auction>
+     * 
+	 * Format of p:
+	 * 	Regular job: job(job1,storage6,922,12,228,[required(item11,1),required(item9,1)])
+	 *  Auction job: auction(job3,storage1,7054,18,150,4655,0,7,[required(item11,1),required(item14,1),required(item9,1)])
+	 * 
+	 * p.name = job / auction
+	 * p.parameters = [job1, storage6, 922, 12, 228, [required(item11,1),required(item9,1)]]
+	 * p.parameters = [job3, storage1, 7054, 18, 150, 4655, 0, 7, [required(item11,1),required(item14,1),required(item9,1)]]
+     */
+    new(p : Percept, storage : Storage) {
+		this.id = Util.extractString(p.parameters.get(0))
+		this.reward = Util.extractDouble(p.parameters.get(2))
+		this.startTime = Util.extractDouble(p.parameters.get(3))
+		this.endTime = Util.extractDouble(p.parameters.get(4))
+		
+		// The required items are always at the end of the structure as the last argument		
+		var requireds = p.parameters.last as ParameterList
+		this.required = new ItemContainer()
+
+		for (r : requireds) {
+			var required = r as Function
+			var requiredItemName = Util.extractString(required.parameters.get(0))
+			var requiredQty = Util.extractDouble(required.parameters.get(1))
+			var itemVolume = SimStartBuffer.getItem(requiredItemName).volume
+			var requiredItem = new Item(requiredItemName, itemVolume)
+			this.required.add(new ItemBundle(requiredItem, requiredQty))
+		}
+    }
+    /**
+     * @return The start time of the job
+     */
+	def getStartTime() : double {
+		return startTime
+	}
+
+    /**
+     * @return The end time for completing the job by
+     */
+	def getEndTime() : double {
+		return endTime
+	}
+
+    /**
+     * @return The id of the job
+     */
+	def getId() : String {
+		return id
+	}
+
+    /**
+     * @return The reward the player will get for completing the job.
+     */
+	def getReward() : double {
+		return reward
+	}
+	
+	/**
+	 * @return The storage facility for where the required items are to be dropped off
+	 * @see Storage
+	 */
+	def getDropoff(): Storage{
+		return dropoff
+	}
+	
+	/**
+     * @return An ItemContainer containing all the items and quantities required
+     * to complete the job
+     * @see ItemContainer
+	 */
+	def getRequired(): ItemContainer{
+		return required
+	}
+
+}

@@ -141,7 +141,7 @@ Because the framework involves the MASSIM game server, an Environment Interface,
 3. Finally, a connection is linked to a real game **user agent** in the game simulator (as per `username` entry in the JSON configuration file). This will have a name that will be transmitted in its percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
 
 
-### Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
+### Events (package `au.edu.rmit.agtgrp.agtcity18.sarl.mw.events`)
 
 The main set of events are:
 
@@ -153,13 +153,13 @@ Both are used by the demo **SchedulerAgent** to inform the dummy agents of the p
 
 There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
 
-### Entities (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.entities`)
+### Entities (package `au.edu.rmit.agtgrp.agtcity18.sarl.mw.entities`)
 
 A set of classes representing entities/artifacts (e.g., facilities, jobs, storages, etc.) in the simulation are provided.
 
 A special one is **PlayerState** which is used to keep track of each player current state, as per the last percept received.
 
-### Aggregators (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator`)
+### Aggregators (package `au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator`)
 
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server. 
 
@@ -172,7 +172,7 @@ This package comes with two minimal examples that basically show how to sense th
 
 They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
 
-The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which takes the agent system to run as argument (defaults to `SingleRandomAgent`) 
+The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity18.sarl.mw.BootMAS` which takes the agent system to run as argument (defaults to `SingleRandomAgent`) 
 
 ### SuperSingleAgent ###
 
@@ -186,7 +186,7 @@ If packaged with all dependencies one can use:
 
 Alternatively, one can rely on the Janus booting class as follows:
 
-		java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+		java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity18.sarl.mw.agents.SingleRandomAgent
 
 
 One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.

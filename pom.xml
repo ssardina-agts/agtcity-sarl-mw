@@ -188,7 +188,7 @@
 	                <!-- 
                     <mainClass>io.janusproject.Boot</mainClass>
 	                 -->
-	                <mainClass>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</mainClass>
+	                <mainClass>au.edu.rmit.agtgrp.agtcity18.sarl.mw.BootMAS</mainClass>
                 </configuration>
             </plugin>
 
