@@ -24,51 +24,54 @@ import eis.iilang.Percept
 import au.edu.rmit.agtgrp.agtcity18.sarl.mw.aggregator.Util
 import eis.iilang.Function
 import eis.iilang.ParameterList
+import java.util.Set
+import java.util.HashSet
 
-/** 
- * @author keiran, Bob
- */
- /**
+/**
  * An Item Object which contains details about a particular item
- * @param name The name of the item
- * @param volume The volume the item takes up in a storage location
+ * 
+ * Documentation for messages/percepts: https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md
  */
 class Item {
 	public var name : String
 	public var volume : double
-	public var roles : Map<String, Role>
-	public var parts : Map<Item, Integer>
+	public var roles : Set<String>	// In 2018, we just store the names of the roles, not their objects in aggregator
+	public var parts : Set<String> // In 2018, we just store the names of the parts, not their objects in aggregator
     /**
      * Constructs a new instance of an item. 
      */
     new(name : String, volume : double) {
 		//    Example: item(item44,9,roles([drone,car]),parts([item32,item2,item18,item10,item4]))
-		// No tools now, but roles that can help assamble?
+		// No tools now, but roles that can help assemble?
 		
         this.name = name
         this.volume = volume
-        this.roles = new HashMap;
-        this.parts = new HashMap;
+        this.roles = new HashSet;
+        this.parts = new HashSet;
     }
     
     new(percept : Percept) {
-		this.roles= new HashMap;
-    	this.parts = new HashMap;
+		this.roles = new HashSet;
+    	this.parts = new HashSet;
     	this.name = Util.extractString(percept.parameters.get(0))
     	this.volume = Util.extractDouble(percept.parameters.get(1))
     	
-//    	var roleFunc = percept.parameters.get(2) as Function
-//    	var roleList = roleFunc.parameters.get(0) as ParameterList
-//    	
-//    	for (r : roleList){
-//    		var roleName = Util.extractString(r)
-//    		addRole(null)
-//    	}
+    	// Populate the roles required for this item (to be assembled)
+    	val roleFunc = percept.parameters.get(2) as Function
+    	val roleList = roleFunc.parameters.get(0) as ParameterList
+    	for (r : roleList){
+    		val roleName = Util.extractString(r)
+    		this.roles.add(roleName)
+    	}
 
-		// We do not fill the parts because these are themselves Items which may be objects already created elsewhere.
-		// Better to then add them one by one.
-		// CHECK SimStartBuffer.sarl where this is done globally...
-    }
+		// Populate the part items required for this item (to be built)
+    	val partsFunc = percept.parameters.get(3) as Function
+		val partsList = partsFunc.parameters.get(0) as ParameterList
+		for (p : partsList) {
+			var partName = Util.extractString(p)
+			this.parts.add(partName)
+		}
+	}
     
     /**
      * @return The name of an Item
@@ -88,18 +91,21 @@ class Item {
 		return this.tools
 	}
 
-	def getParts() : Map<Item, Integer> {
+	def getParts() : Set<String> {
 		return this.parts
 	}
-	
+
+	def getRoles() : Set<String> {
+		return this.roles
+	}
 	
 
-	def addRole(role : Role) : void {
-    	this.roles.put(role.name, role)
+	def addRole(roleName : String) : void {
+    	this.roles.add(roleName)
     }
     
-    def addPart(part : Item, qty : int) : void {
-    	this.parts.put(part, qty)
+    def addPart(partName : String) : void {
+    	this.parts.add(partName)
     }
 
 

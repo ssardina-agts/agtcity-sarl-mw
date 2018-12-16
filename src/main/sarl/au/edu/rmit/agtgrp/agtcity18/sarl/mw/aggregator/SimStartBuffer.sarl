@@ -61,11 +61,9 @@ class SimStartBuffer {
 	 * @param percepts, a collection of percepts used to update this structure.
 	 */	
 	public static def populate(percepts : Collection<Percept>) {
-		
-//		roleMap = new HashMap
-//		itemMap = new HashMap
-//		
-		//First Cycle to create all the master data
+		// Here is the doc of messages: https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md
+
+		// First Cycle to create all the master data
 		for (p : percepts) {
 			switch p.name {
 				case "id" :{
@@ -100,36 +98,54 @@ class SimStartBuffer {
 			}
 		}
 		
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-		// Now add the parts of each item (as all items have now been created, so parts can be filled)
-		for (p : percepts) {
-			if(p.name == "item"){
-				var itemName = Util.extractString(p.parameters.get(0))
-				var item = itemMap.get(itemName)
-				var partFunc = p.parameters.get(3) as Function
-				var partList = partFunc.parameters.get(0) as ParameterList
-
-				// 2018 version where item parts do not have quantity
-				for (partInfo : partList) {
-					var pname = Util.extractString(partInfo)
-					var pQty = 1
-					var pItem = itemMap.get(pname)
-					item.addPart(pItem, pQty)
-				}
-			
-				// // Old 2017 version where parts came with quantity
-				// for (partInfo : partList) {
-//					System.out.println(partInfo)
-//					var pl = partInfo as ParameterList
-//					var pname = Util.extractString(pl.get(0))
-//					var pQty = Util.extractInt(pl.get(1))
+		// #TODO: TO BE DELETED EVENTUALLY
+		//
+		// WE USED TO DO ANOTHER LOOP ON PERCEPTS TO LINK ITEMS WITH ITS PARTS AND ROLES
+		// HOWEVER, WE MAY NOW KNOW ALL THE ROLES YET. 
+		// SO WE CHANGED THE AGGREGATOR TO STORE THE NAME OF THE PARTS AND ROLES, BUT NOT THEIR ACTUAL OBJECTS
+		// IN THE AGGREGATOR
+		//
+		// SECOND loop on percepts to put link items with item parts needed and roles required to assemble
+//		for (p : percepts) {
+//			if (p.name == "item") {
+//				// This is the item to be modified, by linking it to corresponding roles and parts
+//				val itemName = Util.extractString(p.parameters.get(0))
+//				val item = itemMap.get(itemName)	
+//
+//				// Get the parts list in item, find part item objects and link them into item
+//				val partFunc = p.parameters.get(3) as Function
+//				val partList = partFunc.parameters.get(0) as ParameterList
+//
+//				// For each part, get the corresponding item (representing that part) and add it to item
+//				for (partInfo : partList) {
+//					// 2018 version where item parts do not have quantity per required part, just the name
+//					var pname = Util.extractString(partInfo)
+//					// var pl = partInfo as ParameterList
+//					// var pname = Util.extractString(pl.get(0))
+//					
+//					var pQty = 1	// no quantity per item, take 1
 //					var pItem = itemMap.get(pname)
-//					item.addPart(pItem, pQty)			
+//					item.addPart(pItem, pQty)
 //				}
-				
-				
-			}
-		}
+//				// Get the require roles list in item, find role objects, and link them into item
+//				val roleFunc = p.parameters.get(2) as Function
+//				val roleList = roleFunc.parameters.get(0) as ParameterList
+//				System.out.println(p)
+//				System.out.println(roleList)
+//
+//				// For each part, get the corresponding item (representing that part) and add it to item
+//				// 2018 version where item parts do not have quantity
+//				for (r : roleList) {
+//					System.out.println(r)
+//					var rname = Util.extractString(r)
+//					var role = roleMap.get(rname)
+//					item.addRole(role)
+//					System.out.println(r)
+//				}
+//			}
+//		}
+
+
 		filled = true
 	}
 	

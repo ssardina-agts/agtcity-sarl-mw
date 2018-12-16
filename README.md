@@ -1,14 +1,14 @@
 # SARL Agent Middleware Framework for MAC Agents in the City 2018 
 
-This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/) 
+This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/).  
 
 You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
 
-Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release versions.
+Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity18-mw/commits/all) for various release versions.
 
-This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
+This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw18 by adding the corresponding dependency and repository on the `pom.xml`.
 
 -----------------------------
 ## TABLE OF CONTENTS
@@ -28,8 +28,9 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 	* Provides a more high-level access to the game sever than low-level JSON messages.
 	* Comes with the game server. Using server release `massim-2018-1.2` (Sept 2018). Check [here](https://github.com/agentcontest/massim/tree/massim-2018-1.2).
 	* Uses the [eishub/EIS](https://github.com/eishub/eis) version `0.5` (sources also under `extras/`).
-* The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim): to run the game.
+* The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim), version `massim-2018-1.2`, to run the game.
 	* Server version that comes with massim package distribution [`massim-2018-1.2`](https://github.com/agentcontest/massim/releases/tag/massim-2018-1.2).
+	* The doc of the protocol and messages [here](https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md)
 
 
 -----------------------------
@@ -43,7 +44,7 @@ First the `pom.xml` of your SARL controller application using the this middlewar
 
 	    <properties>
 	        <!-- SARL Agt City MW version -->
-	        <sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity-mw.version>
+	        <sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity18-mw.version>
 	
 			...
 		</properties>
@@ -52,8 +53,8 @@ First the `pom.xml` of your SARL controller application using the this middlewar
         <!--  SARL Agent City Interface  -->
 		<dependency>
 		    <groupId>org.bitbucket.ssardina-research</groupId>
-		    <artifactId>sarl-agtcity-mw</artifactId>
-	    	<version>${sarl-agtcity-mw.version}</version>
+		    <artifactId>sarl-agtcity18-mw</artifactId>
+	    	<version>${sarl-agtcity18-mw.version}</version>
 		</dependency>
 
 There are then two ways to install the corresponding JAR file for the middleware:

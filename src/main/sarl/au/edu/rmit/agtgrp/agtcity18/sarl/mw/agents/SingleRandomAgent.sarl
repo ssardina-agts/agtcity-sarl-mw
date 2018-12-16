@@ -182,7 +182,7 @@ agent SingleRandomAgent {
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
 					Util.populateDataBuffers(percepts)
-					System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx")
+					System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 					
 					
 					aggregator.addFacilities(percepts)
