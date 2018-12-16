@@ -26,10 +26,10 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 * The [EISMASSim](https://github.com/eishub/massim) environment interface.
 	* A Java library using the [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server that can be used with platforms which support the EIS.
 	* Provides a more high-level access to the game sever than low-level JSON messages.
-	* Comes with the game server. Using version `3.4` that comes with server `massim-2017-1.7` (Sept 2017). Check [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7).
+	* Comes with the game server. Using server release `massim-2018-1.2` (Sept 2018). Check [here](https://github.com/agentcontest/massim/tree/massim-2018-1.2).
 	* Uses the [eishub/EIS](https://github.com/eishub/eis) version `0.5` (sources also under `extras/`).
 * The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim): to run the game.
-	* Server version `2017-0.7` that comes with massim package distribution `massim-2017-1.7` (check  release [here](https://github.com/agentcontest/massim/releases/tag/massim-2017-1.7) and tree/doc for that version [here](https://github.com/agentcontest/massim/tree/massim-2017-1.7).)
+	* Server version that comes with massim package distribution [`massim-2018-1.2`](https://github.com/agentcontest/massim/releases/tag/massim-2018-1.2).
 
 
 -----------------------------
