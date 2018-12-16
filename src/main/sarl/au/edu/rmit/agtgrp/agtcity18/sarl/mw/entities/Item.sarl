@@ -57,13 +57,13 @@ class Item {
     	this.name = Util.extractString(percept.parameters.get(0))
     	this.volume = Util.extractDouble(percept.parameters.get(1))
     	
-    	var roleFunc = percept.parameters.get(2) as Function
-    	var roleList = roleFunc.parameters.get(0) as ParameterList
-    	
-    	for (r : roleList){
-    		var roleName = Util.extractString(r)
-    		addRole(null)
-    	}
+//    	var roleFunc = percept.parameters.get(2) as Function
+//    	var roleList = roleFunc.parameters.get(0) as ParameterList
+//    	
+//    	for (r : roleList){
+//    		var roleName = Util.extractString(r)
+//    		addRole(null)
+//    	}
 
 		// We do not fill the parts because these are themselves Items which may be objects already created elsewhere.
 		// Better to then add them one by one.

@@ -105,25 +105,32 @@ class SimStartBuffer {
 		for (p : percepts) {
 			if(p.name == "item"){
 				var itemName = Util.extractString(p.parameters.get(0))
-				
 				var item = itemMap.get(itemName)
-				
 				var partFunc = p.parameters.get(3) as Function
 				var partList = partFunc.parameters.get(0) as ParameterList
-				
-				for(partInfo : partList){
-					var pl = partInfo as ParameterList
-					var pname = Util.extractString(pl.get(0))
-					var pQty = Util.extractInt(pl.get(1))
+
+				// 2018 version where item parts do not have quantity
+				for (partInfo : partList) {
+					var pname = Util.extractString(partInfo)
+					var pQty = 1
 					var pItem = itemMap.get(pname)
-					item.addPart(pItem, pQty)			
+					item.addPart(pItem, pQty)
 				}
+			
+				// // Old 2017 version where parts came with quantity
+				// for (partInfo : partList) {
+//					System.out.println(partInfo)
+//					var pl = partInfo as ParameterList
+//					var pname = Util.extractString(pl.get(0))
+//					var pQty = Util.extractInt(pl.get(1))
+//					var pItem = itemMap.get(pname)
+//					item.addPart(pItem, pQty)			
+//				}
 				
 				
 			}
 		}
 		filled = true
-		
 	}
 	
 	/**
