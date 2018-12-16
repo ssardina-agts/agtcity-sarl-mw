@@ -1,10 +1,10 @@
-# SARL Agent Middleware Framework for MAC Agents in the City 2017 
+# SARL Agent Middleware Framework for MAC Agents in the City 2018 
 
-This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
+This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/) 
 
 You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
 
-**Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.7.2 is version 1.3 for SARL 0.7.2.
+**Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
 
 Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release versions.
 
@@ -21,7 +21,7 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (Sun version recommended)
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine 
-	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.7.2`
+	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.8.6`
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
 * The [EISMASSim](https://github.com/eishub/massim) environment interface.
 	* A Java library using the [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server that can be used with platforms which support the EIS.
