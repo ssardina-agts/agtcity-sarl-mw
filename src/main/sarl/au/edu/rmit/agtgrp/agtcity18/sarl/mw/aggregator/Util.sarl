@@ -43,9 +43,11 @@ class Util {
     }
 
     public static def populateDataBuffers(percepts : Collection<Percept>) {
-        EntityBuffer.populate(percepts);
-        TeamBuffer.populate(percepts);
-		if (!SimStartBuffer.filled) SimStartBuffer.populate(percepts)	// only update once if not filled
+        EntityBuffer.populate(percepts)
+		TeamBuffer.populate(percepts)
+		if(!SimStartBuffer.filled) {
+			SimStartBuffer.populate(percepts) // only update once if not filled
+		}
 	}
 
 	public static def extractDouble(param : Parameter) : double {

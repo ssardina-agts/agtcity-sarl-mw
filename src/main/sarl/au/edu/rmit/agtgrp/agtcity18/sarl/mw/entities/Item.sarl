@@ -36,30 +36,33 @@ import eis.iilang.ParameterList
 class Item {
 	public var name : String
 	public var volume : double
-	public var tools : Map<String, Tool>
+	public var roles : Map<String, Role>
 	public var parts : Map<Item, Integer>
     /**
      * Constructs a new instance of an item. 
      */
     new(name : String, volume : double) {
+		//    Example: item(item44,9,roles([drone,car]),parts([item32,item2,item18,item10,item4]))
+		// No tools now, but roles that can help assamble?
+		
         this.name = name
         this.volume = volume
-        this.tools = new HashMap;
+        this.roles = new HashMap;
         this.parts = new HashMap;
     }
     
     new(percept : Percept) {
-		this.tools = new HashMap;
+		this.roles= new HashMap;
     	this.parts = new HashMap;
     	this.name = Util.extractString(percept.parameters.get(0))
     	this.volume = Util.extractDouble(percept.parameters.get(1))
     	
-    	var toolFunc = percept.parameters.get(2) as Function
-    	var toolList = toolFunc.parameters.get(0) as ParameterList
+    	var roleFunc = percept.parameters.get(2) as Function
+    	var roleList = roleFunc.parameters.get(0) as ParameterList
     	
-    	for (t : toolList){
-    		var toolName = Util.extractString(t)
-    		addTool(new Tool(toolName))
+    	for (r : roleList){
+    		var roleName = Util.extractString(r)
+    		addRole(null)
     	}
 
 		// We do not fill the parts because these are themselves Items which may be objects already created elsewhere.
@@ -91,8 +94,8 @@ class Item {
 	
 	
 
-	def addTool(tool : Tool) : void {
-    	this.tools.put(tool.name, tool)
+	def addRole(role : Role) : void {
+    	this.roles.put(role.name, role)
     }
     
     def addPart(part : Item, qty : int) : void {

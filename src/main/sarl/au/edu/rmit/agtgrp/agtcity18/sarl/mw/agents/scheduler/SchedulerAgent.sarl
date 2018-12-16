@@ -234,8 +234,7 @@ agent SchedulerAgent {
 						playerName, Util.getNoOfPercepts(percepts), Util.getTypePercept(percepts), myServerName)
                     
 					// Populate general data (all entities, team, simstart) static buffers
-					if (Util.populateDataBuffers(percepts)) {}
-				 	
+					Util.populateDataBuffers(percepts)				 	
 					// SELF:
 					//	Add the action results of playerName(self) to percept aggregator
 					//	Add an the agent state for the playerNamein the aggregator (contains location, items holding, etc)
