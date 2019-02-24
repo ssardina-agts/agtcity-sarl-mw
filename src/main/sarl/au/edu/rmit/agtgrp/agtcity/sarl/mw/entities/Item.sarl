@@ -49,12 +49,18 @@ class Item {
     }
     
     new(percept : Percept) {
-		this.tools = new HashMap;
+    	/**
+    	 * The percept will have this structure:
+		 * 		item(name, volume, tools([tool1, ...]), parts([[item1, qty1], ...]))
+		 * 
+    	 */
     	this.parts = new HashMap;
+    	
     	this.name = Util.extractString(percept.parameters.get(0))
     	this.volume = Util.extractDouble(percept.parameters.get(1))
-    	
-    	var toolFunc = percept.parameters.get(2) as Function
+
+		this.tools = new HashMap;
+		var toolFunc = percept.parameters.get(2) as Function
     	var toolList = toolFunc.parameters.get(0) as ParameterList
     	
     	for (t : toolList){
@@ -62,6 +68,7 @@ class Item {
     		addTool(new Tool(toolName))
     	}
 
+		// An item may be composed/built from parts, which themselves are items.
 		// We do not fill the parts because these are themselves Items which may be objects already created elsewhere.
 		// Better to then add them one by one.
 		// CHECK SimStartBuffer.sarl where this is done globally...

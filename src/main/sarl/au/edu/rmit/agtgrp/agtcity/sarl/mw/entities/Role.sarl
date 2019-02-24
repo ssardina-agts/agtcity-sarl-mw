@@ -29,6 +29,14 @@ import eis.iilang.ParameterList
  * 
  */
 class Role {
+	// From 2017 server configuration conf/roles/roles.json
+	//"drone" : {
+	//    "speed" : 5,
+	//    "load" : 100,
+	//    "battery" : 250,
+	//    "roads" : ["air"]
+	//  },
+	//	
 	var name : String
 	var speed : double
 	var load : double
@@ -41,6 +49,11 @@ class Role {
 		this.speed = Util.extractDouble(percept.parameters.get(1))
 		this.load = Util.extractDouble(percept.parameters.get(2))
 		this.battery = Util.extractDouble(percept.parameters.get(3))
+		
+		// TODO: this is strange as the index 4 is mean to be the roads, not the tools
+		// However, it is true that the spec says "Each tool is only usable by a subset of all agent roles."
+		// but not sure how is that stated, which roles can handle which tools.
+		// This object does not store that info		
 		this.toolCapacities = new HashMap;
 		var tools = percept.parameters.get(4) as ParameterList
 		for (t : tools){
