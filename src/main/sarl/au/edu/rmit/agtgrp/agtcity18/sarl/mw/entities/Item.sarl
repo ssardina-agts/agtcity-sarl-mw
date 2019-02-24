@@ -42,7 +42,7 @@ class Item {
      */
     new(name : String, volume : double) {
 		//    Example: item(item44,9,roles([drone,car]),parts([item32,item2,item18,item10,item4]))
-		// No tools now, but roles that can help assemble?
+		// No tools as in 2017, but the roles that can help assemble the item
 		
         this.name = name
         this.volume = volume
@@ -68,7 +68,7 @@ class Item {
     	val partsFunc = percept.parameters.get(3) as Function
 		val partsList = partsFunc.parameters.get(0) as ParameterList
 		for (p : partsList) {
-			var partName = Util.extractString(p)
+			var partName : String = Util.extractString(p)
 			this.parts.add(partName)
 		}
 	}
