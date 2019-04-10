@@ -8,7 +8,7 @@ You can see the infrastructure working by [watching this demo video](https://you
 
 Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity18-mw/commits/all) for various release versions.
 
-This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw18 by adding the corresponding dependency and repository on the `pom.xml`.
+This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
 
 -----------------------------
 ## TABLE OF CONTENTS
