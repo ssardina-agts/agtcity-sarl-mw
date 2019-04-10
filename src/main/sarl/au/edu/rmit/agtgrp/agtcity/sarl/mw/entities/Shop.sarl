@@ -25,12 +25,9 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import eis.iilang.Percept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.SimStartBuffer
 
-/** 
- * @author boblo
- * 
- */
  /**
   * Shop describes an instance of a shop in the world
+  * 
   * @param p the MASSIM Percept that is used to create the shop
   */
  
@@ -41,20 +38,29 @@ class Shop extends Facility {
     /**
      * Constructs a new Shop object. 
      */
-    new(p : Percept) {
+    new(p : Percept) { 
+    	// p can be simple with just location: shop(shop0,48.84111,2.27167)
+    	// 	or it can have more complex structure with restock and items being sold there
     	super(p)
-		this.restock = Util.extractDouble(p.parameters.get(3))
-
-		this.shopItems = new HashMap<String, ShopItem>
-		var items = p.parameters.get(4) as ParameterList
-		for (item : items) {
-			var f = item as Function
-			var itemName = Util.extractString(f.parameters.get(0))
-			var itemObj = SimStartBuffer.getItem(itemName)
-			var itemPrice = Util.extractDouble(f.parameters.get(1))
-			var itemQty = Util.extractDouble(f.parameters.get(2))
-			shopItems.put(itemName, new ShopItem(itemObj, itemPrice, itemQty))
-		} 
+    	
+    	
+		// Now we check if it has restock and list of items being sold,may or may not have that info
+    	if (p.parameters.length >= 4) {
+			this.restock = Util.extractDouble(p.parameters.get(3))
+		}
+		
+    	if (p.parameters.length >= 5) {
+			this.shopItems = new HashMap<String, ShopItem>
+			var items = p.parameters.get(4) as ParameterList
+			for (item : items) {
+				var f = item as Function
+				var itemName = Util.extractString(f.parameters.get(0))
+				var itemObj = SimStartBuffer.getItem(itemName)
+				var itemPrice = Util.extractDouble(f.parameters.get(1))
+				var itemQty = Util.extractDouble(f.parameters.get(2))
+				shopItems.put(itemName, new ShopItem(itemObj, itemPrice, itemQty))
+			} 
+		}
     }
     def getShopItems(): HashMap<String, ShopItem>{
     	return shopItems

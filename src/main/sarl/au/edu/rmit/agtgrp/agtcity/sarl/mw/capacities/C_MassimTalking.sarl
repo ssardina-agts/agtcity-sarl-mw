@@ -32,7 +32,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.PlayerState
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
- * Capacity to communicate with MAC 2017 game server.
+ * Capacity to communicate with MAC 2018 game server.
  * 
  * - connect to game server (using configuration files)
  * - register players (using configuration files for credentials)

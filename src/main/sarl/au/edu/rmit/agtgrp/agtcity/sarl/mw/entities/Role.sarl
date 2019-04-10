@@ -18,50 +18,77 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
 
-import java.util.Map
 import eis.iilang.Percept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
-import java.util.HashMap
 import eis.iilang.ParameterList
+import java.util.Set
+import java.util.HashSet
 
 /** 
  * @author bob
  * 
  */
 class Role {
-	// From 2017 server configuration conf/roles/roles.json
-	//"drone" : {
-	//    "speed" : 5,
-	//    "load" : 100,
-	//    "battery" : 250,
-	//    "roads" : ["air"]
-	//  },
-	//	
+	// From 2018 server configuration /roles/roles.json
+	//
+	//	"drone" : {
+	//	    "baseSpeed" : 5,
+	//	    "maxSpeed" : 7,
+	//	    "baseLoad" : 15,
+	//	    "maxLoad" : 25,
+	//	    "baseBattery" : 10,
+	//	    "maxBattery" : 25,
+	//	    "baseSkill" : 1,
+	//	    "maxSkill" : 3,
+	//	    "baseVision" : 600,
+	//	    "maxVision" : 1000
+	//  	}
+  
 	var name : String
-	var speed : double
-	var load : double
-	var battery : double
-	var toolCapacities : Map<String, Tool>
-	
-	new(percept : Percept){
+	var baseSpeed : double
+	var maxSpeed : double
 
+	var baseLoad : double
+	var maxLoad : double
+
+	var baseBattery : double
+	var maxBattery : double
+
+	var baseSkill : double
+	var maxSkill : double
+
+	var baseVision : double
+	var maxVision : double
+
+	var roads : Set<String>
+	
+	new(percept : Percept) { // e.g., percept = role(drone,5,7,15,25,1,3,600,1000,20,40)
 		this.name = Util.extractString(percept.parameters.get(0))
-		this.speed = Util.extractDouble(percept.parameters.get(1))
-		this.load = Util.extractDouble(percept.parameters.get(2))
-		this.battery = Util.extractDouble(percept.parameters.get(3))
-		
-		// TODO: this is strange as the index 4 is mean to be the roads, not the tools
-		// However, it is true that the spec says "Each tool is only usable by a subset of all agent roles."
-		// but not sure how is that stated, which roles can handle which tools.
-		// This object does not store that info		
-		this.toolCapacities = new HashMap;
-		var tools = percept.parameters.get(4) as ParameterList
-		for (t : tools){
-			var toolName = Util.extractString(t)
-			var tool = new Tool(toolName)
-			toolCapacities.put(tool.name, tool)
+
+		this.baseSpeed = Util.extractDouble(percept.parameters.get(1))
+		this.maxSpeed = Util.extractDouble(percept.parameters.get(2))
+
+		this.baseLoad = Util.extractDouble(percept.parameters.get(3))
+		this.maxLoad = Util.extractDouble(percept.parameters.get(4))
+
+		this.baseBattery = Util.extractDouble(percept.parameters.get(5))
+		this.maxBattery = Util.extractDouble(percept.parameters.get(6))
+
+		this.baseSkill = Util.extractDouble(percept.parameters.get(7))
+		this.maxSkill = Util.extractDouble(percept.parameters.get(8))
+
+		this.baseVision = Util.extractDouble(percept.parameters.get(9))
+		this.maxVision = Util.extractDouble(percept.parameters.get(10))
+
+		if (percept.parameters.length >= 12) { // there is a roads key
+			this.roads = new HashSet;
+			var roads = percept.parameters.get(11) as ParameterList
+			for (r : roads){
+				this.roads.add(Util.extractString(r))
+			}
 		}
 	}
+	
 	def getName() : String {
 		return this.name
 	}

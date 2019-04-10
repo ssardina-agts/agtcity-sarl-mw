@@ -42,7 +42,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking17
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking18
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
 
@@ -104,39 +104,50 @@ agent SingleRandomAgent {
 				// Ask the user which subdirectory in conf/ we need to use to find the server config JSON file
 				eiConfigDir = ConfHandler.getConfDir()
 			}
-			debug("Configuration settings: 
+			debug("
+				***************************************************
+				Configuration settings: 
 				\t My SARL agent name: {0}
 				\t Directory of configuration files: {1}
-				\t File containing authentication and sever info: {2}", myName, eiConfigDir, eiMassimConfigFile)
+				\t File containing authentication and sever info: {2}
+				***************************************************", myName, eiConfigDir, eiMassimConfigFile)
 
 			/*
 			 * We give the agent the skill to talk to the MASSIM game server. 
 			 * We provide server JSON config file and player JSON config file
 			 */
 			// Give agent ability to talk to MASSIM server
-			setSkill(new S_MassimTalking17(Paths.get(eiConfigDir, eiMassimConfigFile)), C_MassimTalking)
+			try {
+				setSkill(new S_MassimTalking18(Paths.get(eiConfigDir, eiMassimConfigFile)), C_MassimTalking)
 
-			/*
-			 * Next, we initialize the Environment Interface (EIS)
-			 * This involves connecting to game server, authenticating entities, and registering players in EI
-			 */
-			agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile,
-				myConnections.toString)
-			if (myConnections !== null) myConnections.forEach [ player : String |
-				MT_registerEntityByName(player) // entities to control
-			] 
-			if (MT_initialize()) {
-				agent_says("The EI is now initialized, entities are being authenticated...")
-			} else {
-				agent_shouts("Something wrong when initializing the EI, I am finished...")
+				/* 
+				 * Next, we initialize the Environment Interface (EIS)
+				 * This involves connecting to game server, authenticating entities, and registering players in EI
+				 */
+				agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile,
+					myConnections.toString)
+				if (myConnections !== null)
+					myConnections.forEach [ player : String |
+						MT_registerEntityByName(player) // entities to control
+					]
+				if (MT_initialize()) {
+					agent_says("The EI is now initialized, entities are being authenticated...")
+				} else {
+					agent_shouts("Something wrong when initializing the EI, I am finished...")
+					killMe
+				}
+	
+				agent_shouts("I am now alive! Will start working now (sending and acting!)...")
+	
+				// We are ready, now start the cycle for sensing the environment (and thus acting)!
+				// Wait 2 seconds to allow everyone to authenticate to server
+				in(2000)[emit(new E_SenseEnvironment())]
+			} catch (e : Exception) {
+				error("Sorry but I was not able to initialize the skill to talk to server! Message: {0}", e.message)
+				e.printStackTrace()
 				killMe
 			}
-
-			agent_shouts("I am now alive! Will start working now (sending and acting!)...")
-
-			// We are ready, now start the cycle for sensing the environment (and thus acting)!
-			// Wait 2 seconds to allow everyone to authenticate to server
-			in(2000)[emit(new E_SenseEnvironment())]
+			
 	}
 
 	/* 
@@ -150,7 +161,7 @@ agent SingleRandomAgent {
 		// Util is provided by the MW as part of the aggregator package
 		if (Util.initDataBuffers()) {}
 
-		// While the environment is running, wait for new percepts (read percepts for each player registered/connnected)
+		// While the environment is running, wait for new percepts (read percepts for each player registered/connected)
 		while (MT_getStatus() == EnvironmentState.RUNNING) {
 			MT_getPlayersNames().forEach([ playerName : String |
 
@@ -170,13 +181,15 @@ agent SingleRandomAgent {
 					
 					// FACILITIES: Aggregate all facilities information that are the same info for everyone
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
-					if (Util.populateDataBuffers(percepts)) {}
+					Util.populateDataBuffers(percepts)
+					
 					
 					aggregator.addFacilities(percepts)
 					facilities = aggregator.getFacilitiesNames()
 
 					// JOBS: Aggregate all jobs (job, auction, mission, or posted)
 					aggregator.addJobs(percepts)
+
 
 					// update the last step if the percept just processed has a higher step number
 					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step

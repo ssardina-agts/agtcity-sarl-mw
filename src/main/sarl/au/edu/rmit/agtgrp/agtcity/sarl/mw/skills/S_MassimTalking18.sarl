@@ -63,7 +63,7 @@ import java.io.FileWriter
  * NOTE: we call agents to SARL agents; and players to agents in the MASSIM simulation.
  * Hence, a SARL agent, may register and control one more players in the simulation (even all)
  */
-skill S_MassimTalking17 implements C_MassimTalking {
+skill S_MassimTalking18 implements C_MassimTalking {
 	uses Logging
 
 	// /////////////////////////////////////////////////////////////////////////

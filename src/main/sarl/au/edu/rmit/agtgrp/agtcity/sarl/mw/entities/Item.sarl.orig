@@ -51,6 +51,32 @@ class Item {
     }
     
     new(percept : Percept) {
+<<<<<<< HEAD:src/main/sarl/au/edu/rmit/agtgrp/agtcity/sarl/mw/entities/Item.sarl
+    	/**
+    	 * The percept will have this structure:
+		 * 		item(name, volume, tools([tool1, ...]), parts([[item1, qty1], ...]))
+		 * 
+    	 */
+    	this.parts = new HashMap;
+    	
+    	this.name = Util.extractString(percept.parameters.get(0))
+    	this.volume = Util.extractDouble(percept.parameters.get(1))
+
+		this.tools = new HashMap;
+		var toolFunc = percept.parameters.get(2) as Function
+    	var toolList = toolFunc.parameters.get(0) as ParameterList
+    	
+    	for (t : toolList){
+    		var toolName = Util.extractString(t)
+    		addTool(new Tool(toolName))
+    	}
+
+		// An item may be composed/built from parts, which themselves are items.
+		// We do not fill the parts because these are themselves Items which may be objects already created elsewhere.
+		// Better to then add them one by one.
+		// CHECK SimStartBuffer.sarl where this is done globally...
+    }
+=======
 		this.roles = new HashSet;
     	this.parts = new HashSet;
     	this.name = Util.extractString(percept.parameters.get(0))
@@ -72,6 +98,7 @@ class Item {
 			this.parts.add(partName)
 		}
 	}
+>>>>>>> ssardina-research/sarl-agtcity18-mw/master:src/main/sarl/au/edu/rmit/agtgrp/agtcity18/sarl/mw/entities/Item.sarl
     
     /**
      * @return The name of an Item

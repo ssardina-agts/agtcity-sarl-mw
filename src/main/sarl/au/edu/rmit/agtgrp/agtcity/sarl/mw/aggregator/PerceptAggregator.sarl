@@ -138,34 +138,29 @@ class PerceptAggregator {
 	 * @param perepts - the collection of percepts received from MASSIM
 	 */
 	public def addFacilities(percepts : Collection<Percept>) {
-		for(p : percepts){
-			switch(p.name){
-				case "chargingStation" : {
+		for (p : percepts) {
+			switch (p.name) {
+				case "chargingStation": {
 					var cs = new ChargingStation(p)
 					this.chargingStations.put(cs.name, cs)
 				}
-				
 				case "dump": {
 					var dp = new Dump(p)
 					this.dumps.put(dp.name, dp)
 				}
-				
 				case "shop": {
 					var sp = new Shop(p)
-					this.shops.put(sp.name, sp)					
+					this.shops.put(sp.name, sp)
 				}
-				
 				case "storage": {
 					var st = new Storage(p)
 					this.storages.put(st.name, st)
 				}
-				
 				case "workshop": {
 					var ws = new Workshop(p)
 					this.workshops.put(ws.name, ws)
 				}
-				
-				case "resourceNode" : {
+				case "resourceNode": {
 					var rn = new Resource(p)
 					this.resources.put(rn.name, rn)
 				}
