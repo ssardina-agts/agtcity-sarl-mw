@@ -63,7 +63,7 @@ import java.io.FileWriter
  * NOTE: we call agents to SARL agents; and players to agents in the MASSIM simulation.
  * Hence, a SARL agent, may register and control one more players in the simulation (even all)
  */
-skill S_MassimTalking18 implements C_MassimTalking {
+skill S_MassimTalking implements C_MassimTalking {
 	uses Logging
 
 	// /////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ skill S_MassimTalking18 implements C_MassimTalking {
 		// The EIS agent name will be called AGT_<entity name> (that is, the agent controlling the entity)
 		if (connected)	{
 			ei.entities.forEach( [ entity : String | 
-				registerEIAgent(String.format("player_%s", entity), entity, "unknown", "unknown")
+				registerEIAgent(String.format("eismassim_%s", entity), entity, "unknown", "unknown")
 			])
 		}
 

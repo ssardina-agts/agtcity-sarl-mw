@@ -42,7 +42,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking18
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
 
@@ -118,7 +118,7 @@ agent SingleRandomAgent {
 			 */
 			// Give agent ability to talk to MASSIM server
 			try {
-				setSkill(new S_MassimTalking18(Paths.get(eiConfigDir, eiMassimConfigFile)), C_MassimTalking)
+				setSkill(new S_MassimTalking(Paths.get(eiConfigDir, eiMassimConfigFile)), C_MassimTalking)
 
 				/* 
 				 * Next, we initialize the Environment Interface (EIS)
