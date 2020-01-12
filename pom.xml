@@ -192,7 +192,20 @@
                     </executions>
               </plugin>
     
-
+		<!--  Class to execute via maven exec:java 
+			https://www.mojohaus.org/exec-maven-plugin/
+			-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+	                <addClasspath>true</addClasspath>
+	                <!-- 
+                    <mainClass>io.janusproject.Boot</mainClass>
+	                 -->
+	                <mainClass>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

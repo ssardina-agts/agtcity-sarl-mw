@@ -63,6 +63,7 @@ There are then two ways to install the corresponding JAR file for the middleware
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
 ```shell
+
 mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.github.ssardina-agt \
 	-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
 ```
@@ -152,22 +153,36 @@ So, the idea is to sense all players and build an aggregated view (in which repe
 
 ## EXAMPLE AGENTS 
 
-This package comes with two minimal examples that basically show how to sense the environment, report some information, and move players around randomly.
+This package comes with two minimal examples that basically show how to sense the environment, report some information, and move players around randomly. They are providing for basic testing.
 
 They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
+
+You can run the example controllers by executing:
+
+```shell
+
+mvn exec:java
+``` 
+
+or
+
+```shell
+
+java -cp target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar 
+```
+
+Both will run class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which will provide the controllers available for selection. Make sure you then select a configuration file under `conf/` that is compatible with the controller chosen (see below).
+
+You can also provide the controller to run as argument, as explained below.
+
 
 ### SuperSingleAgent ###
 
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
 ```shell
-java -cp target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
-```
 
-or since `io.janusproject.Boot` is the main class of the JAR file, just:
-		
-```
-java -jar target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+java -cp target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar  SingleRandomAgent
 ```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
@@ -180,7 +195,7 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
 ```
-java -jar target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
+java -jar target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar SchedulerAgent
 ```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
