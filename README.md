@@ -62,46 +62,45 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
-```shell
+	```shell
 
-mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.github.ssardina-agt \
-	-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
-```
+	mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.github.ssardina-agt \
+		-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
+	```
 
-This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
+	This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
 
 2. You can specify your application to get it automatically via Maven. To do so, include this repository for the JitPack service:
 
-```xml
-<repositories>
-	<repository>
-		<id>jitpack.io</id>
-		<url>https://jitpack.io</url>
-	</repository>
-</repositories>
-```
+	```xml
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+	```
 
-With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
+	With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
 
 
 ## RUN DEMO
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
 
-```shell
+	```shell
 
-java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
-```
+	java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
+	```
 
-Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
-	
-In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
+	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
+
+	In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
 
 2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)). See below under examples for how to run the examples built-in in this package.
 3. Start the MASSIM Simulation by just hitting **ENTER** in the Game Server console
 	* The web GUI should start displaying/monitoring the simulation.
-4. Enjoy! You should start seeing the agent reporting things in the console. 
-    * You can see the simulation on the web browser.
+4. Enjoy! You should start seeing the agent reporting things in the console.  You should see the simulation on the web browser.
 
 
 ## INFRASTRUCTURED PROVIDED
