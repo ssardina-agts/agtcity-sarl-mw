@@ -1,4 +1,4 @@
-# SARL Agent Middleware Framework for MAC Agents in the City 2017 
+# SARL Middleware for MAC Agents in the City 2017 
 
 This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2017 MAC Agents in City Contest](https://multiagentcontest.org/) 
 
@@ -40,40 +40,47 @@ To do so, you first need to have the JAR file for the middleware installed in yo
 
 First the `pom.xml` of your SARL controller application using the this middleware should have the following dependency to the middleware:
 
-	    <properties>
-	        <!-- SARL Agt City MW version -->
-	        <sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity-mw.version>
-	
-			...
-		</properties>
+```xml
+
+<properties>
+<!-- SARL Agt City MW version -->
+<sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity-mw.version>
+
+	...
+</properties>
 
 
-        <!--  SARL Agent City Interface  -->
-		<dependency>
-		    <groupId>org.bitbucket.ssardina-research</groupId>
-		    <artifactId>sarl-agtcity-mw</artifactId>
-	    	<version>${sarl-agtcity-mw.version}</version>
-		</dependency>
+<!--  SARL Agent City Interface  -->
+<dependency>
+    <groupId>org.bitbucket.ssardina-research</groupId>
+    <artifactId>sarl-agtcity-mw</artifactId>
+<version>${sarl-agtcity-mw.version}</version>
+</dependency>
+```
 
 There are then two ways to install the corresponding JAR file for the middleware:
 
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
-		mvn install:install-file -Dfile=sarl-agtcity-mw-1.2.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
-			-DartifactId=sarl-agtcity-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
+```shell
+mvn install:install-file -Dfile=sarl-agtcity-mw-1.2.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
+	-DartifactId=sarl-agtcity-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
+```
 
-	This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
+This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
 
 2. You can specify your application to get it automatically via Maven. To do so, include this repository for the JitPack service:
 
-		<repositories>
-				<repository>
-					<id>jitpack.io</id>
-					<url>https://jitpack.io</url>
-				</repository>
-		</repositories>
+```xml
+<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+</repositories>
+```
 
-	With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
+With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
 
 
 ## RUN DEMO
@@ -150,14 +157,14 @@ They also showcase the infrastructure provided to use the MW and store informati
 
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
-```
-java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```shell
+java -cp target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
 ```
 
 or since `io.janusproject.Boot` is the main class of the JAR file, just:
 		
 ```
-java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+java -jar target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
 ```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
@@ -170,7 +177,7 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
 ```
-java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
+java -jar target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar  au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.scheduler.SchedulerAgent
 ```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
@@ -188,12 +195,12 @@ For general links check [here](https://bitbucket.org/snippets/ssardina/6eybMg#ma
 
 * The Multi Agent Agents in City 2017 contest:
 	* Multi-Agent Contest Home Page: https://multiagentcontest.org/
-	* Main GIT repository: https://github.com/agentcontest/massim
-	* Documentation: https://github.com/agentcontest/massim/tree/master/docs
-	* EISMASSim Documentation (the interface provided to communicate with game server): https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
+	* Main GIT repository: https://github.com/agentcontest/massim_2018/tree/massim-2017-1.7
+	* Documentation: https://github.com/agentcontest/massim/tree/massim-2017-1.7/docs
+	* EISMASSim Documentation (the interface provided to communicate with game server): https://github.com/agentcontest/massim/blob/massim-2017-1.7/docs/eismassim.md
 		* Web page of the Environment Interface Standard (EIS): https://github.com/eishub/
 
-
+------------------------------
 ## PROJECT LEADER & CONTACT ##
 
 * Sebastian Sardina - ssardina@gmail.com
