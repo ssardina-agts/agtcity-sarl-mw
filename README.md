@@ -44,7 +44,7 @@ First the `pom.xml` of your SARL controller application using the this middlewar
 
 <properties>
 <!-- SARL Agt City MW version -->
-<sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity-mw.version>
+<agtcity-sarl-mw.version>1.2.${sarl.version}</agtcity-sarl-mw.version>
 
 	...
 </properties>
@@ -52,9 +52,9 @@ First the `pom.xml` of your SARL controller application using the this middlewar
 
 <!--  SARL Agent City Interface  -->
 <dependency>
-    <groupId>org.bitbucket.ssardina-research</groupId>
-    <artifactId>sarl-agtcity-mw</artifactId>
-<version>${sarl-agtcity-mw.version}</version>
+    <groupId>com.github.ssardina-agt</groupId>
+    <artifactId>agtcity-sarl-mw</artifactId>
+<version>${agtcity-sarl-mw.version}</version>
 </dependency>
 ```
 
@@ -63,8 +63,8 @@ There are then two ways to install the corresponding JAR file for the middleware
 1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
 
 ```shell
-mvn install:install-file -Dfile=sarl-agtcity-mw-1.2.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
-	-DartifactId=sarl-agtcity-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
+mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.github.ssardina-agt \
+	-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
 ```
 
 This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
@@ -73,10 +73,10 @@ This will install the middleware infrastructure in your local maven repository a
 
 ```xml
 <repositories>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
 </repositories>
 ```
 
@@ -87,14 +87,17 @@ With this, when you build your application, Maven via JitPack will get middlewar
 
 1. Start MAC17 Game Server. For example, from `server/` subdir:
 
-		java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
+```shell
 
-	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
+java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
+```
+
+Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
 	
-	In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
+In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
 
 2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)). See below under examples for how to run the examples built-in in this package.
-3. Start the MASSIM Simulation by just hitting *ENTER* in the Game Server console
+3. Start the MASSIM Simulation by just hitting **ENTER** in the Game Server console
 	* The web GUI should start displaying/monitoring the simulation.
 4. Enjoy! You should start seeing the agent reporting things in the console. 
     * You can see the simulation on the web browser.
