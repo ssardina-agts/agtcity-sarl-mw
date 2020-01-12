@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.ssardina-agts</groupId>
     <artifactId>agtcity-sarl-mw</artifactId>
-    <version>1.4.${sarl.version}</version>
+    <version>1.5.${sarl.version}</version>
 
 	<name>SARL Agents in City Middleware</name>
     <description>

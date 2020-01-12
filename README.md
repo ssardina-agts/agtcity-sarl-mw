@@ -4,7 +4,7 @@ This is the SARL Agents in City Middleware infrastructure to control an agent te
 
 You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
 
-**Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.7.2 is version 1.3 for SARL 0.7.2.
+**Version convention**: `Major.Minor.<SARL Version>`. For example, 1.5.0.8.6 is version 1.5 for SARL 0.8.6.
 
 Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release versions.
 
@@ -16,7 +16,7 @@ This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucke
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (Sun version recommended)
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine 
-	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.7.2`
+	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.7.6`
 	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
 * The [EISMASSim](https://github.com/eishub/massim) environment interface.
 	* A Java library using the [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server that can be used with platforms which support the EIS.
@@ -64,8 +64,8 @@ There are then two ways to install the corresponding JAR file for the middleware
 
 	```shell
 
-	mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.github.ssardina-agt \
-		-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
+	mvn install:install-file -Dfile=agtcity-sarl-mw-1.5.0.8.6.jar -DgroupId=com.github.ssardina-agt \
+		-DartifactId=agtcity-sarl-mw -Dversion=1.5.0.8.6 -Dpackaging=jar
 	```
 
 	This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
@@ -167,7 +167,7 @@ or
 
 ```shell
 
-java -cp target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar 
+java -cp target/agtcity-sarl-mw-1.5.0.8.6-jar-with-dependencies.jar 
 ```
 
 Both will run class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which will provide the controllers available for selection. Make sure you then select a configuration file under `conf/` that is compatible with the controller chosen (see below).
@@ -181,7 +181,7 @@ This is one single SARL agent that manages all the players in the simulation via
 
 ```shell
 
-java -cp target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar  SingleRandomAgent
+java -cp target/agtcity-sarl-mw-1.5.0.8.6-jar-with-dependencies.jar  SingleRandomAgent
 ```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
@@ -194,7 +194,7 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
 ```
-java -jar target/agtcity-sarl-mw-1.3.0.7.2-jar-with-dependencies.jar SchedulerAgent
+java -jar target/agtcity-sarl-mw-1.5.0.8.6-jar-with-dependencies.jar SchedulerAgent
 ```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
