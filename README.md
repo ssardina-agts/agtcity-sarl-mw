@@ -6,9 +6,8 @@ You can see the infrastructure working by [watching this demo video](https://you
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.5.0.8.6 is version 1.5 for SARL 0.8.6.
 
-Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity-mw/commits/all) for various release versions.
 
-This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
+This framework can be accessible via JitPack at https://jitpack.io/#ssardina-agts/agtcity-sarl-mw by adding the corresponding dependency and repository on the `pom.xml`.
 
 
 ## PREREQUISITES
