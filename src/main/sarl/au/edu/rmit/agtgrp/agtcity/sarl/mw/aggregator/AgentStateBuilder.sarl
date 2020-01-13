@@ -44,41 +44,41 @@ class PlayerStateBuilder {
 	 */
     public static def build(name : String, percepts : Collection<Percept>) : PlayerState {
 
-        var gameEntity = EntityBuffer.get(name)
-        var agentName = name			// name of the agent
-        var team = TeamBuffer.selfteam	// name of the team
-        var role = gameEntity.role	// role of the agent (e.g., car, motorbike, drone, truck)
-		var route = new HashMap 	// agent's current route
-        var position = PositionBuilder.buildPosition(percepts)	// location (lat,long) of agent
-		var charge : double			// agent's current battery level
+		var gameEntity = EntityBuffer.get(name)
+		var agentName = name // name of the agent
+		var team = TeamBuffer.selfteam // name of the team
+		var role = gameEntity.role // role of the agent (e.g., car, motorbike, drone, truck)
+		var route = new HashMap // agent's current route
+
+		var position = PositionBuilder.buildPosition(percepts) // location (lat,long) of agent
+		var charge : double // agent's current battery level
 		var load : double			// agent's current load capacity
 		var routeLength : double 	// length of the agent's current route
 		var facilityName : String 	// name of the agent's current facility
 		var items = new HashMap		// items (with quantities) that the agent has
 		
-		
         // Populate Entity fields
         for (p : percepts) {
             switch p.name {
                 case "charge": {
-                    charge = Util.extractDouble(p.parameters.get(0))
+					charge = Util.extractDouble(p.parameters.get(0))
                 }
                 case "load": {
-                    load = Util.extractDouble(p.parameters.get(0))
+					load = Util.extractDouble(p.parameters.get(0))
                 }
                 case "routeLength": {
-                    routeLength = Util.extractDouble(p.parameters.get(0))
+					routeLength = Util.extractDouble(p.parameters.get(0))
                 }
                 case "facility": {
-                    facilityName = Util.extractString(p.parameters.get(0))
+					facilityName = Util.extractString(p.parameters.get(0))
                 }
                 case "hasItem": {
-                    var itemName = Util.extractString(p.parameters.get(0))
+					var itemName = Util.extractString(p.parameters.get(0))
                     var itemQty = Util.extractDouble(p.parameters.get(1))
                     items.put(itemName, itemQty)
                 }
                 case "route": {
-                    var params = p.parameters.get(0);
+					var params = p.parameters.get(0);
                     var wps = params as ParameterList
                     for (w : wps) {
                         var f = w as Function

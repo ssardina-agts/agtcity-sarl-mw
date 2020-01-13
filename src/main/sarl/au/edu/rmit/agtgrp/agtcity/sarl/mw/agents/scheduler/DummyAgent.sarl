@@ -33,7 +33,6 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ContinueOnRoute
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.ChargingStationSensedPercept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.WorkshopSensedPercept
 
 /** 
  * @author keiran
@@ -41,6 +40,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.WorkshopSensedPercept
  * The agent receives percepts via the E_AgentPercept event @see E_AgentPercept
  * 
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 agent DummyAgent {
     uses DefaultContextInteractions, C_Reporting
 
@@ -67,7 +67,6 @@ agent DummyAgent {
      */
     on EntityPercept {
     	// Code to react to entities.
-//    	System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 	}
 
 	// This will be fired for every facility observed

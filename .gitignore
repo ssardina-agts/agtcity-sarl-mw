@@ -33,3 +33,4 @@ target/
 src/main/generated-sources/*myClauses-*
 myClauses*
 generated-sources
+*.orig

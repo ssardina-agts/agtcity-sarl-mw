@@ -103,7 +103,8 @@ class Util {
 		return "unknown"
 	}
 
-
+	
+	
 	public static def getLastActionResult(percepts : Collection<Percept>) : String {
 
 		var action : String

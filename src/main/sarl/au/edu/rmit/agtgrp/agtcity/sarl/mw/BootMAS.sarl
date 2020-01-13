@@ -14,6 +14,7 @@ import java.util.Scanner
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 class BootMAS {
 	// Code adapted from example how to boot from name string: 	http://tinyurl.com/ycolmey5
 	def static main(args : String[]) : void {
@@ -28,41 +29,30 @@ class BootMAS {
 		// Boot a specific one and that' s it
 		// Boot.startJanus(typeof(DummyMultiCarController))
 		var agentToLaunch : String
-
-		System.out.println(args.length)
-
 		if (args.length == 0) { // if not agent given in CLI argument, list the available ones and ask user for one
 			agentToLaunch = getSelectionFromuser("Choose the controller to run: ", AGENTS_AVAILABLE)
 		} else {
 			agentToLaunch = args.get(0) 	// get the agent name from CLI first argument
 		}
 
-		if (args.length == 0) { // if not agent given in CLI argument, use default
-			System.out.println(
-				String.format("No controller specified from the available ones %s. Using controller \"%s\"",
-				AGENTS_AVAILABLE.toString, DEFAULT_CONTROLLER))
-			agentToLaunch = DEFAULT_CONTROLLER
-		} 
-		else {
-			agentToLaunch = args.get(0)	// get the agent name from CLI first argument
-		}
-
+		System.out.println(String.format("Running controller: \"%s\"", agentToLaunch))
 		switch agentToLaunch {
+			case 'default':
+				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
 			case 'SingleRandomAgent':
 				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
 			case 'SchedulerAgent':
-				fullyQualifiedAgent = basePackage + ".scheduler.SchedulerAgent" 
+				fullyQualifiedAgent = basePackage + ".scheduler.SchedulerAgent"
 			default:
-			    throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
-   		}
-	
-		
+				throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
+		}
+
 		// now get agent class for fullQualifiedAgent and boot it
-		System.out.println(String.format("Loading SARL controller agent %s", agentToLaunch))
+		System.out.println(String.format("Loading SARL controller agent %s (%s)", fullyQualifiedAgent, agentToLaunch))
 		val type = Class.forName(fullyQualifiedAgent)
 		var SARLagent : Class<? extends Agent>
 		SARLagent = type.asSubclass(Agent)
-		assert SARLagent !== null;
+		assert SARLagent != null;
 		Boot.startJanus(SARLagent)
 	}
 
@@ -78,7 +68,7 @@ class BootMAS {
 				confNum = Integer.parseInt(in.next())
 				if (confNum < 1 || confNum > options.size) {
 					System.out.println("No option for that number, try again:")
-					confNum = null
+			                confNum = null
 				}
 			} catch (e : Exception) {
 				System.out.println("Invalid number, try again:")
@@ -86,5 +76,4 @@ class BootMAS {
 		}
 		return options.get(confNum.intValue - 1)
 	}
-
 }

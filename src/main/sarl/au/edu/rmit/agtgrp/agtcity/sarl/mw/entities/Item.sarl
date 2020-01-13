@@ -34,10 +34,10 @@ import eis.iilang.ParameterList
  * @param volume The volume the item takes up in a storage location
  */
 class Item {
-    var name : String 
-    var volume : double
-    var tools : Map<String, Tool>
-    var parts : Map<Item, Integer>
+	public var name : String
+	public var volume : double
+	public var tools : Map<String, Tool>
+	public var parts : Map<Item, Integer>
     /**
      * Constructs a new instance of an item. 
      */
@@ -59,9 +59,12 @@ class Item {
     	
     	for (t : toolList){
     		var toolName = Util.extractString(t)
-    		var tool = new Tool(toolName)
-    		this.tools.put(tool.name, tool)
+    		addTool(new Tool(toolName))
     	}
+
+		// We do not fill the parts because these are themselves Items which may be objects already created elsewhere.
+		// Better to then add them one by one.
+		// CHECK SimStartBuffer.sarl where this is done globally...
     }
     
     /**
@@ -77,12 +80,24 @@ class Item {
     def getVolume() : double{
         return volume
     }
-    
-    def addTool(tool : Tool) : void {
+
+	def getTools() : Map<String, Tool> {
+		return this.tools
+	}
+
+	def getParts() : Map<Item, Integer> {
+		return this.parts
+	}
+	
+	
+
+	def addTool(tool : Tool) : void {
     	this.tools.put(tool.name, tool)
     }
     
     def addPart(part : Item, qty : int) : void {
     	this.parts.put(part, qty)
     }
+
+
 }

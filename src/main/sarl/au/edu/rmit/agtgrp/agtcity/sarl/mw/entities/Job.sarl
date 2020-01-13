@@ -76,7 +76,7 @@ abstract class Job {
 		
 		// The required items are always at the end of the structure as the last argument		
 		var requireds = p.parameters.last as ParameterList
-		var requiredItems = new ItemContainer()
+		this.required = new ItemContainer()
 
 		for (r : requireds) {
 			var required = r as Function
@@ -84,7 +84,7 @@ abstract class Job {
 			var requiredQty = Util.extractDouble(required.parameters.get(1))
 			var itemVolume = SimStartBuffer.getItem(requiredItemName).volume
 			var requiredItem = new Item(requiredItemName, itemVolume)
-			requiredItems.add(new ItemBundle(requiredItem, requiredQty))
+			this.required.add(new ItemBundle(requiredItem, requiredQty))
 		}
     }
     /**

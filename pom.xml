@@ -16,6 +16,9 @@
     <artifactId>agtcity-sarl-mw</artifactId>
     <version>1.5.${sarl.version}</version>
 
+    <!-- ##################################################################
+		PROJECT INFO 
+     ####################################################################### -->
 	<name>SARL Agents in City Middleware</name>
     <description>
 	    This project provides basic capacity and skill to interact with the Agents in City game simulator.
@@ -52,7 +55,9 @@
     </properties>
 
 
-    <!-- Project dependencies -->
+    <!-- ##################################################################
+		DEPENDENCIES 
+     ####################################################################### -->
     <dependencies>
         <!-- JANUS Project kernel (contains SARL language core) -->
         <dependency>
@@ -73,7 +78,9 @@
     </dependencies>
     
     
-    <!-- Repository definitions -->
+    <!-- ##################################################################
+		REPOSITORIES 
+     ####################################################################### -->
     <pluginRepositories>
         <pluginRepository>
             <id>maven.sarl.io</id>
@@ -106,7 +113,9 @@
 
     
 
-    <!-- Build pipeline plugins -->
+    <!-- ##################################################################
+		BUILD PIPELINE PLUGINS 
+     ####################################################################### -->
     <build>
     
          <resources>
@@ -121,6 +130,7 @@
           </resources>
     
     
+		<!--  PLUGINS FOR BUILDING -->
         <plugins>
             <plugin>
                 <!-- SARL Maven compiler plugin -->

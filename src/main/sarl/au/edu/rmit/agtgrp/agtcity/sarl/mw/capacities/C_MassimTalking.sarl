@@ -47,19 +47,29 @@ capacity C_MassimTalking {
 	// MAIN TOOLS: INTERACTION WITH GAME SERVER
 	// //////////////////////////////////////////////////////////////////////////
 
-	/* 
+	/**
+	 * 
 	 * Sets the configuration file containing the configuration of players in the game
 	 */
+	@Deprecated
 	def MT_setPlayerAgentsConfig(eiMassimPlayerAgentsConfigFile : Path)
 
-	/*
-	 * Initialize and start the Environment Interface
+	/**
+	 * Create and start the Environment Interface and register all player connections
 	 */
 	def MT_initialize() : boolean
+
+	/** 
+	 * Register the entity named entityName to be controlled
+	 */
+	def MT_registerEntityByName(entityName : String)
+	@Deprecated
+	def MT_addPlayerByName(playerName : String) 
 
 	/* 
 	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
 	 */
+	@Deprecated
 	def MT_registerPlayersFromConfig() : boolean
 
 	/* 

@@ -23,13 +23,13 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
  * Tool, A class to represent a MASSIM tool.
  */
 class Tool {
-    var agentName : String
+    var name : String
     
-    new(agentName : String) {
-    	this.agentName = agentName 
+    new(name : String) {
+    	this.name = name
     }
     
     public def getName(){
-    	return this.agentName 
+    	return this.name
     }
 }

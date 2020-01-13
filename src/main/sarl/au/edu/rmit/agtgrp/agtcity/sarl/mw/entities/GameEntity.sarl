@@ -22,9 +22,9 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
  * 
  */
 class GameEntity extends Position {
-	var name : String
-	var role : String
-	var team : String
+	public var name : String
+	public var role : String
+	public var team : String
 	/** 
 	 * @param name The name of the gameEntity
 	 * @param role The role of the entity
@@ -38,20 +38,19 @@ class GameEntity extends Position {
 		this.role = role
 		this.team = team
 	}
-	def getName() : String{
+	def getName() : String {
 		return name
 	}
-	def getRole() : String{
+	def getRole() : String {
 		return role	
 	}
-	def getTeam() : String{
+	def getTeam() : String {
 		return team
 	}
 
 	def update(lat : double, lon : double) {
 		super.update(lat, lon)
 	}
-	
 
 
 }
