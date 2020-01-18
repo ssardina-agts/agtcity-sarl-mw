@@ -1,6 +1,6 @@
 # SARL Middleware for Agents in the City 2018+
 
-This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/).  
+This is the SARL Middleware infrastructure to control an agent team in the [Agents in City Contest](https://multiagentcontest.org/2018/) from the Multi Agent Contest. In particular, this is the MW for the [RMIT 2018+ version of the game and server](https://github.com/ssardina-agts/agtcity-server), which brings back items in shops as the 2017 edition.
 
 You can see the infrastructure working by clicking on the following video:
 
