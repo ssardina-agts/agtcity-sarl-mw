@@ -1,4 +1,4 @@
-# SARL Middleware Framework for MAC Agents in the City 2018 
+# SARL Middleware Framework for Agents in the City 2018+
 
 This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/).  
 
@@ -9,6 +9,8 @@ You can see the infrastructure working by clicking on the following video:
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
 
 This framework can be accessible via JitPack at https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw by adding the corresponding dependency and repository on the `pom.xml` (see below).
+
+See general [HOWTO SARL Projects](https://gist.github.com/ssardina/43d6e6f469921e5f692b37304f952d43) guide and [SARL FAQ and Issues](https://gist.github.com/ssardina/ba59838bd6f2c2a64896e79533f35054).
 
 
 -----------------------------
@@ -62,23 +64,23 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 			-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
 ```
 
-
-### DEVELOP THE MIDDLEWARE FURTHER
-
-Clone this repo and refer to the the [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg) on how to setup, configure, and run SARL applications.
-
 ----------------------------
 ## RUN DEMO
 
-1. Start MAC17 Game Server. For example, from `server/` subdir:
+The MW comes with two simple agent controllers that can be used to test it when developing it further.
 
-		java -jar target/server-2017-0.7-jar-with-dependencies.jar --monitor 8001 -conf conf/Mexico-City-Test.json
+1. Start Game Server. For example, from `server/` subdir:
 
-	Note that the configuration file (here, `conf/Mexico-City-Test.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
-	
+	```shell
+
+	java -jar target/server-2.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
+	```
+
+	Note that the configuration file (here, `conf/SampleConfig.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
+
 	In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
 
-2. Start the SARL Controller, either via ECLIPSE or through the CLI (see [general SARL instructions](https://bitbucket.org/snippets/ssardina/6eybMg)). See below under examples for how to run the examples built-in in this package.
+2. Start the SARL demo controller, either via ECLIPSE or through the CLI. See below under examples for how to run the examples built-in in this package.
 3. Start the MASSIM Simulation by just hitting *ENTER* in the Game Server console
 	* The web GUI should start displaying/monitoring the simulation.
 4. Enjoy! You should start seeing the agent reporting things in the console. 
@@ -94,7 +96,7 @@ So, what is provided by this package?
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
 * **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agents, and control such players, by receiving their sensing percepts and performing actions in the simulation.
-	* The skill **S_MassimTalking17** implements this capability for the MAC 20017 version.
+	* The skill **S_MassimTalking** implements this capability for the MAC 20017 version.
 * **C_Reporting**: a capability to report information.
 	* The skill **S_ConsoleReporting** implements this capability by just printing messages on console.
 
@@ -116,7 +118,8 @@ The main tools provided by the **C_MassimTalking** capability are:
 	* `MT_getPlayerState(playerName : String) : PlayerState`: get the `PlayerState` of a given registered player.
 	* `MT_getStatus() : EnvironmentState`: get the state of the EI.
 
-The **S_MassimTalking17** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+The **S_MassimTalking** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+
 
 ### Entities, EI Players, Game User Agent 
 
@@ -151,7 +154,7 @@ A set of classes are provided to support aggregating many percepts (for differen
 
 So, the idea is to sense all players and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
-
+----------------------------
 ## EXAMPLE AGENTS 
 
 This package comes with two minimal examples that basically show how to sense the environment, report some information, and move players around randomly.
@@ -164,15 +167,21 @@ The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtci
 
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
-			mvn exec:java -Dexec.args=SingleRandomAgent
+```shell
+mvn exec:java -Dexec.args=SingleRandomAgent
+```
 
 If packaged with all dependencies one can use:
 
-		java -jar target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar  SingleRandomAgent
+```shell
+java -jar target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar  SingleRandomAgent
+```
 
 Alternatively, one can rely on the Janus booting class as follows:
 
-		java -cp target/sarl-agtcity-mw-1.3.0.7.2-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```shell
+java -cp target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+```
 
 
 One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
@@ -184,7 +193,9 @@ This is the demo agent developed by Bob and Keiran to test the infrastructure an
 
 The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
 
-			mvn exec:java -Dexec.args=SchedulerAgent
+```shell
+mvn exec:java -Dexec.args=SchedulerAgent
+```
 
 and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
 
@@ -193,19 +204,6 @@ and then select the single agent configuration `conf/SingleAgent`, as all agents
 All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corresponding player being managed by the **DummyAgent**.
 
 
-
-
-----------------------------
-## LINKS
-
-For general links check [here](https://bitbucket.org/snippets/ssardina/6eybMg#markdown-header-1-software-prerequisites-and-links).
-
-* The Multi Agent Agents in City 2017 contest:
-	* Multi-Agent Contest Home Page: https://multiagentcontest.org/
-	* Main GIT repository: https://github.com/agentcontest/massim
-	* Documentation: https://github.com/agentcontest/massim/tree/master/docs
-	* EISMASSim Documentation (the interface provided to communicate with game server): https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
-		* Web page of the Environment Interface Standard (EIS): https://github.com/eishub/
 
 
 ## PROJECT LEADER & CONTACT ##
