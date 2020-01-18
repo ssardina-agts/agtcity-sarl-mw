@@ -1,81 +1,66 @@
-# SARL Agent Middleware Framework for MAC Agents in the City 2018 
+# SARL Middleware Framework for MAC Agents in the City 2018 
 
 This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/).  
 
-You can see the infrastructure working by [watching this demo video](https://youtu.be/nFR7Strp9ms).
+You can see the infrastructure working by clicking on the following video:
+
+[![click to watch video](https://multiagentcontest.org/2016/banner.jpg)](https://youtu.be/nFR7Strp9ms).
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
 
-Check the the tags under [commits](https://bitbucket.org/ssardina-research/sarl-agtcity18-mw/commits/all) for various release versions.
+This framework can be accessible via JitPack at https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw by adding the corresponding dependency and repository on the `pom.xml` (see below).
 
-This framework can be accessible via JitPack at https://jitpack.io/#org.bitbucket.ssardina-research/sarl-agtcity-mw by adding the corresponding dependency and repository on the `pom.xml`.
-
------------------------------
-## TABLE OF CONTENTS
-
-[TOC]
 
 -----------------------------
 ## PREREQUISITES
 
 * Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (Sun version recommended)
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
-* SARL modules and execution engine 
-	* SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.8.6`
-	* Obtained via Maven automatically from <http://mvnrepository.com/artifact/io.sarl.maven>
-* The [EISMASSim](https://github.com/eishub/massim) environment interface.
-	* A Java library using the [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server that can be used with platforms which support the EIS.
-	* Provides a more high-level access to the game sever than low-level JSON messages.
-	* Comes with the game server. Using server release `massim-2018-1.2` (Sept 2018). Check [here](https://github.com/agentcontest/massim/tree/massim-2018-1.2).
-	* Uses the [eishub/EIS](https://github.com/eishub/eis) version `0.5` (sources also under `extras/`).
-* The [MASSIM Agents in City Game server](https://github.com/agentcontest/massim), version `massim-2018-1.2`, to run the game.
-	* Server version that comes with massim package distribution [`massim-2018-1.2`](https://github.com/agentcontest/massim/releases/tag/massim-2018-1.2).
-	* The doc of the protocol and messages [here](https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md)
-
+* SARL modules and execution engine - Maven [repo](http://mvnrepository.com/artifact/io.sarl.maven).
+    * SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.8.6`
+* The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agent in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server). 
+    * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven).
+    * Note this MW uses the [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server), not the official 2018 server. This updated edition brings back ites to shop as in the 2017 version.
+    * The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
 -----------------------------
 ## USE/INSTALL AND DEVELP THE MIDDLEWARE
 
 Most of the times one would just use this middleware out-of-the-box to develop SARL Agents in City controller. 
 
-To do so, you first need to have the JAR file for the middleware installed in your local Maven repo for your controller application to use it.
+To do so, you first need to have the JAR file for the MW installed in your local Maven repo for your controller application to use it. You can gather the MW via JitPack+GitHub by adding it as a dependency in the `pom.xml` file of your SARL application as follows:
 
-First the `pom.xml` of your SARL controller application using the this middleware should have the following dependency to the middleware:
+```xml
+<properties>
+	<!-- SARL Agt City MW version -->
+	<agtcity-sarl-mw.version>1.2.${sarl.version}</agtcity-sarl-mw.version>
 
-	    <properties>
-	        <!-- SARL Agt City MW version -->
-	        <sarl-agtcity-mw.version>1.2.${sarl.version}</sarl-agtcity18-mw.version>
-	
-			...
-		</properties>
+	...
+</properties>
+
+<repositories>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
+</repositories>
 
 
-        <!--  SARL Agent City Interface  -->
-		<dependency>
-		    <groupId>org.bitbucket.ssardina-research</groupId>
-		    <artifactId>sarl-agtcity18-mw</artifactId>
-	    	<version>${sarl-agtcity18-mw.version}</version>
-		</dependency>
+<!--  SARL Agent City Interface  -->
+<dependency>
+	<groupId>com.github.ssardina-agts</groupId>
+	<artifactId>agtcity-sarl-mw</artifactId>
+<version>${agtcity-sarl-mw.version}</version>
+</dependency>
+```
 
-There are then two ways to install the corresponding JAR file for the middleware:
+Alternatively, if you have the JAR file already of the MW, you can install it in your local Maven repo by running:
 
-1. Manually get the corresponding JAR file for the middleware for the SARL version you intend to use from the Download section (or produce the JAR yourself by cloning and compiling this repo yourself) and run something like this to install it:
+```shell
 
-		mvn install:install-file -Dfile=sarl-agtcity-mw-1.2.0.7.2.jar -DgroupId=org.bitbucket.ssardina-research \
-			-DartifactId=sarl-agtcity-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
-
-	This will install the middleware infrastructure in your local maven repository and your application will now have access to it. Done!
-
-2. You can specify your application to get it automatically via Maven. To do so, include this repository for the JitPack service:
-
-		<repositories>
-				<repository>
-					<id>jitpack.io</id>
-					<url>https://jitpack.io</url>
-				</repository>
-		</repositories>
-
-	With this, when you build your application, Maven via JitPack will get middleware from this repo, compile it, package, and install it.
+mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.github.ssardina-agts \
+			-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
+```
 
 
 ### DEVELOP THE MIDDLEWARE FURTHER
