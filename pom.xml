@@ -46,6 +46,11 @@
 		SARL-MASSIM PROPERTIES 
      ####################################################################### -->
     <properties>
+		<!--  Maven boot class for mvn exec:java -->
+		<boot.class>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</boot.class>
+		<!-- <mainClass>io.janusproject.Boot</mainClass>  -->
+
+
         <!-- SARL framework version and configuration -->
         <sarl.version>${env.SARL_VERSION}</sarl.version>
 
@@ -57,7 +62,7 @@
 
         <!--  EIS-MASSIM Environment Interface Standard -->
         <!-- https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md -->
-        <eismassim.version>4.0</eismassim.version>
+        <eismassim.version>massim-2020-1.0</eismassim.version>
     </properties>
 
 
@@ -74,8 +79,8 @@
 
         <!--  EIS-MASSIM Environment Interface Standard -->
         <dependency>
-            <groupId>com.github.ssardina-agts</groupId>
-            <artifactId>agtcity-server.eismassim</artifactId>
+            <groupId>com.github.ssardina-agts.agtcity-server</groupId>
+            <artifactId>eismassim</artifactId>
             <version>${eismassim.version}</version>
         </dependency>
     </dependencies>
@@ -182,10 +187,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
 	                <addClasspath>true</addClasspath>
-	                <!-- 
-                    <mainClass>io.janusproject.Boot</mainClass>
-	                 -->
-	                <mainClass>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</mainClass>
+	                <mainClass>${boot.class}</mainClass>
                 </configuration>
             </plugin>
 
