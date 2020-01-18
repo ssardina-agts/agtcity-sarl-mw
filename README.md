@@ -1,4 +1,4 @@
-# SARL Middleware Framework for Agents in the City 2018+
+# SARL Middleware for Agents in the City 2018+
 
 This is the SARL Agents in City Middleware infrastructure to control an agent team in the [2018 MAC Agents in City Contest](https://multiagentcontest.org/2018/).  
 
@@ -67,7 +67,7 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 ----------------------------
 ## RUN DEMO
 
-The MW comes with two simple agent controllers that can be used to test it when developing it further.
+The MW comes with two simple agent controllers that can be used to test it when developing it further (see below for detailed explanations).
 
 1. Start Game Server. For example, from `server/` subdir:
 
@@ -161,7 +161,11 @@ This package comes with two minimal examples that basically show how to sense th
 
 They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
 
-The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which takes the agent system to run as argument (defaults to `SingleRandomAgent`) 
+The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which can take the agent to boot as argument or otherwise will ask the user for which one to execute:
+
+```
+mvn exec:java
+```
 
 ### SuperSingleAgent ###
 
