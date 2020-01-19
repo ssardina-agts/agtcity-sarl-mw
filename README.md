@@ -107,7 +107,7 @@ The main tools provided by the **C_MassimTalking** capability are:
 		* This file has the details of the game server (e.g., IP, port) as well as all the entity connections to the server (e.g., `connectionA1`).
 	* `MT_registerEntityByName(entityName : String)`: register interest in controlling a given entity connection. If none is added, then it will be assumed that we will control all the connections in the server configuration file. This is useful if we do not want to control all the entity connections listed in the server configuration file, but only some of them.
 	* `MT_initialize()`: will create all network connection to game server for the entities of relevance and will register all the relevant players to be controlled that were added via `MT_addPlayerByName` (if none, then register all available connections).
-	* **NOTE:** there is no need to "register" players explicitely; they are all done automatically in the initialization phase.
+	* **NOTE:** there is no need to "register" players explicitly; they are all done automatically in the initialization phase.
 * For interaction with the game server:
 	*`MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>>`: sense the percepts for a player; blocking.
 	* `MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>>` sense the pecepts of all the players; blocking.
@@ -123,7 +123,7 @@ The **S_MassimTalking** skill makes use of entity class **PlayerState** to store
 
 ### Entities, EI Players, Game User Agent 
 
-Because the framework involves the MASSIM game server, an Environment Interface, and the SARL agents, there are different entities and identifications. Overall
+Because the framework involves the MASSIM game server, an Environment Interface (EI), and the SARL agents, there are different entities and identifications. Overall
 
 1. There is an **entity connection**, which is the connection to the game server, with a username and password. For example `connectionA1'.
 2. Then one can register a **player agent** in the Environment Interface and link it to an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity>`.
