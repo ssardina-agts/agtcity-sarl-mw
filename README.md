@@ -95,10 +95,10 @@ So, what is provided by this package?
 
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
-* **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agents, and control such players, by receiving their sensing percepts and performing actions in the simulation.
-	* The skill **S_MassimTalking** implements this capability for the MAC 20017 version.
+* **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agent players, and control such players, by receiving their sensing percepts and performing actions in the simulation.
+	* The skill **S_MassimTalking** implements this capability.
 * **C_Reporting**: a capability to report information.
-	* The skill **S_ConsoleReporting** implements this capability by just printing messages on console.
+	* The skill **S_ConsoleReporting** implements this capability by printing on console.
 
 The main tools provided by the **C_MassimTalking** capability are:
 
