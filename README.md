@@ -20,7 +20,7 @@ See general [HOWTO SARL Projects](https://gist.github.com/ssardina/43d6e6f469921
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine - Maven [repo](http://mvnrepository.com/artifact/io.sarl.maven).
     * SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.8.6`
-* The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agent in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server). 
+* The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server). 
     * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven).
     * Note this MW uses the [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server), not the official 2018 server. This updated edition brings back ites to shop as in the 2017 version.
     * The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
@@ -209,19 +209,15 @@ All **DummyAgents** can catch those events and emit events that are subclasses o
 
 
 
+----------------------------
+## PROJECT CONTRIBUTORS
 
-## PROJECT LEADER & CONTACT ##
-
-* Sebastian Sardina - ssardina@gmail.com
-
-
-## PROJECT CONTRIBUTORS ##
-
-* Sebastian Sardina
+* Sebastian Sardina (contact - ssardina@gmail.com)
 * Bob Zhou 
 * Keiran Hines
 
 
+----------------------------
 ## LICENSE ##
 
 This project is using the GPLv3 for open source licensing for information and the license visit GNU website (https://www.gnu.org/licenses/gpl-3.0.en.html).
