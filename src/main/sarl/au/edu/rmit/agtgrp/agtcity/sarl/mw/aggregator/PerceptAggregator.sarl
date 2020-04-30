@@ -59,6 +59,9 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.MissionJobPercept
 import java.util.List
 import java.util.Set
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.WorkshopSensedPercept
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.CityDataCreator
+import massim.protocol.scenario.city.data.FacilityData
+import massim.protocol.scenario.city.data.JobData
 
 /** 
  * @author boblo
@@ -71,8 +74,10 @@ class PerceptAggregator {
 	var missionJobs : HashMap<String, MissionJob>
 	public var chargingStations : HashMap<String, ChargingStation>
 	var dumps : HashMap<String, Dump>
+	var jobs : HashMap<String, JobData>
 	var regularJobs : HashMap<String, RegularJob>
 	var teamJobs : HashMap<String, TeamJob>
+	var facilities : HashMap<String, FacilityData>
 	var resources : HashMap<String, Resource>
 	var shops : HashMap<String, Shop>
 	var storages : HashMap<String, Storage>
@@ -134,77 +139,30 @@ class PerceptAggregator {
 	}
 	
 	/**
-	 * Function used to parse all of the percepts and populate the specialised Facilities. 
-	 * @param perepts - the collection of percepts received from MASSIM
+	 * Parse all of the percepts and populate the facilities hashmap with all facilities.
+	 * @param percepts - the collection of percepts received from MASSIM
 	 */
 	public def addFacilities(percepts : Collection<Percept>) {
-		for (p : percepts) {
-			switch (p.name) {
-				case "chargingStation": {
-					var cs = new ChargingStation(p)
-					this.chargingStations.put(cs.name, cs)
-				}
-				case "dump": {
-					var dp = new Dump(p)
-					this.dumps.put(dp.name, dp)
-				}
-				case "shop": {
-					var sp = new Shop(p)
-					this.shops.put(sp.name, sp)
-				}
-				case "storage": {
-					var st = new Storage(p)
-					this.storages.put(st.name, st)
-				}
-				case "workshop": {
-					var ws = new Workshop(p)
-					this.workshops.put(ws.name, ws)
-				}
-				case "resourceNode": {
-					var rn = new Resource(p)
-					this.resources.put(rn.name, rn)
-				}
-			}
-		}
+		percepts.stream().filter([ p : Percept |
+			CityDataCreator.FACILITY_TYPES.contains(p.name)
+		]).map([ p : Percept |
+			val facility = CityDataCreator.createFacility(p)
+			this.facilities.put(facility.name, facility)
+		]);
 	}
 
 
 	/**
-	 * Function used to populate the hashmaps keeping track of all of the jobs.
+	 * Parse all of the percepts and populate the jobs hashmap with all jobs (including Auction and Mission).
 	 * @param percepts - the collection of jobs
 	 */	
-	public def addJobs(percepts : Collection<Percept>){
-		for (p : percepts){
-			switch (p.name) {
-				case "job" : {
-					var storage = Util.extractString(p.parameters.get(1))
-					var storageFacility = this.storages.get(storage)
-					var rj = new RegularJob(p, storageFacility)
-					this.regularJobs.put(rj.id, rj)					
-				}
-				case "posted": {
-					var storage = Util.extractString(p.parameters.get(1))
-					var storageFacility = this.storages.get(storage)
-					var tj = new TeamJob(p, storageFacility)
-					this.teamJobs.put(tj.id, tj)
-					
-				}
-				case "auction": {
-					var storage = Util.extractString(p.parameters.get(1))
-					var storageFacility = this.storages.get(storage)
-					var aj = new AuctionJob(p, storageFacility)
-					this.auctionJobs.put(aj.id, aj)					
-				}
-				case "mission": {
-					var storage = Util.extractString(p.parameters.get(1))
-					var storageFacility = this.storages.get(storage)
-					var mj = new MissionJob(p, storageFacility)
-					this.missionJobs.put(mj.id, mj)
-				}
-			}
-		}
-		
-		
+	public def addJobs(percepts : Collection<Percept>) {
+		percepts.stream().filter([ p : Percept |
+			CityDataCreator.JOB_TYPES.contains(p.name)
+		]).map([ p : Percept |
+			val job = CityDataCreator.createJob(p)
+			this.jobs.put(job.getId(), job)
+		]);
 	}
 	
 	/**
@@ -474,8 +432,7 @@ class PerceptAggregator {
 	}
 
 	public def getFacilitiesNames() : Set<String> {
-		return shops.union(storages).union(chargingStations).union(dumps).union(workshops).
-			union(resources).keySet() 
+		return facilities.keySet()
 	}
 
 }
