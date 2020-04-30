@@ -50,11 +50,8 @@ import java.util.List
 import java.util.ArrayList
 
 /**
-  * Shop describes an instance of a shop in the world
-  *
-  * Based on the support objects in massim provided {@link FacilityData} and others
-  *
-  * @param p the MASSIM Percept that is used to create the shop
+  * Responsible for the creation of java objects from eismassim Percept information provided by
+  * the massim city server.
   */
 
 class CityDataCreator {
@@ -74,7 +71,6 @@ class CityDataCreator {
 		"auction",
 		"mission"
 	)
-
 
     /**
      * Constructs a new Facility object.
@@ -142,6 +138,9 @@ class CityDataCreator {
 		}
 	}
 
+    /**
+     * Constructs a new Job object.
+     */
 	static def createJob(p : Percept) : JobData {
 		val name = Util.extractString(p.parameters.get(0))
 		val storage = Util.extractString(p.parameters.get(1))
@@ -214,8 +213,4 @@ class CityDataCreator {
 			}
 		}
 	}
-    def getShopItems(): HashMap<String, ShopItem>{
-    	return shopItems
-    }
-
 }
