@@ -86,10 +86,31 @@ The MW comes with two simple agent controllers that can be used to test it when 
 4. Enjoy! You should start seeing the agent reporting things in the console. 
     * You can see the simulation on the web browser.
 
+
+
 ----------------------------
 ## INFRASTRUCTURED PROVIDED
 
 So, what is provided by this package?
+
+### Entities, EI Players, Game User Agent 
+
+Because the framework involves the [MASSIM game server](https://github.com/ssardina-agts/agtcity-server), an [EISMASSim](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md) Environment Interface (EI from now on) for MASSIM, and the SARL agents, there are different entities and identifications that need to be understood:
+
+1. An **entity connection** represents a _connection a concrete entity_ in the game server (e.g., a truck or motorcycle) that can _execute actions_ and can _receive percepts_. An entity connection is specified in the JSON configuration file by:
+    - A **name**, like `connectionA1`.
+    - A **username** (e.g., `agentA1`) and a **password** to be able to successfully establish the connection to the entity in the game server.
+
+2. The username of an entity connection is linked to a real game **game entity agent** (e.g., a particular truck or drone) in the game simulator. This is the name (e.g., "agentA1") that apperas in the  percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
+    
+3. A **player** agent in the EI links to or exposes an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity connection>`, for example `player_connectionA1`. 
+    - Potentially, the EI could link a "player" to many entity connections, but for simplicity we don't do that and establish a 1-to-1 mapping between EI players and sever entity connnections.
+
+
+So, `connectionA1` will be linked to `agentA32`, which is a truck vehicle in the game and will be exposed by the EI as `player_connectionA1` (which will be used to receive percepts and send actions via `connectionA1` to agent entity `agentA32`).
+
+
+
 
 ### Capabilities and Skills
 
@@ -121,13 +142,6 @@ The main tools provided by the **C_MassimTalking** capability are:
 The **S_MassimTalking** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
 
 
-### Entities, EI Players, Game User Agent 
-
-Because the framework involves the MASSIM game server, an Environment Interface (EI), and the SARL agents, there are different entities and identifications. Overall
-
-1. There is an **entity connection**, which is the connection to the game server, with a username and password. For example `connectionA1'.
-2. Then one can register a **player agent** in the Environment Interface and link it to an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity>`.
-3. Finally, a connection is linked to a real game **user agent** in the game simulator (as per `username` entry in the JSON configuration file). This will have a name that will be transmitted in its percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
 
 
 ### Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
