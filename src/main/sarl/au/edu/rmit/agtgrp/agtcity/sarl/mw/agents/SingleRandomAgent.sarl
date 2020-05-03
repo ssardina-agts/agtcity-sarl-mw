@@ -1,7 +1,8 @@
 /** 
  * SARL-MASSIM - Interface between the SARL agent-oriented language 
- * and the MASSIM 2017 server
- * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * and the MASSIM 2017-2020 server
+ * 
+ * Copyright (C) 2017-2020 The SARL-MASSIM Authors.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,8 +57,7 @@ import java.util.Set
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com
  * 
- * This is a monolithic SARL agent that uses the S_MassimTalking17 skill 
- * to manage ALL the players in the  game simulation.
+ * This is a monolithic SARL agent to manage ALL the entity agents in the  game simulation.
  */
 @SuppressWarnings("potential_field_synchronization_problem")
 agent SingleRandomAgent {
@@ -75,60 +75,80 @@ agent SingleRandomAgent {
 	var rand : Random
 	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
 
-	// These are the connection players we will control
-	var myConnections  = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5", "connectionA6"]
+	// These are the entities will control
+	var myEntityConnections  = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5", "connectionA6"]
 
+	
+	
+	
 	/* 
-	 * Agent may receive the path directory where the config files for server connection
-	 * and player authentications are located. Otherwise, will query via terminal.
+	 * SARL agent is initialized 
+	 *
+	 * The agent may control one more more game entities.
+	 * 
+	 * To do so, the agent will install a S_MassimTalking skill, which allows the agent to talk to the game server.
+	 * 
+	 * The skill requires an EI configuration file "eismassimconfig.json" containing all the server info and
+	 * all entity connections available (including username/password to authenticate) which should include at least the
+	 * connections in myEntityConnections will be the ones this SARL agent will control
+	 * 
+	 * 
+	 * Different EI config files can be kept in different folders under conf/
+	 * 
+	 * If a directory is given in CLI argument, then  EI config file eismassimconfig.json is search there.
+	 * Otherwise, possible options as per folders under conf/ are scanned and given to user for selection	 * 
 	 */
 	on Initialize { // Should only be initializing with the EIS as a parameter.
 			var args = newArrayList(occurrence.parameters) // may receive directory conf directory
 			var eiConfigDir : String
-			val eiMassimConfigFile = "eismassimconfig.json"
+			val eiConfigFileName = "eismassimconfig.json"
 
 			rand = new Random()
 
-			aggregator = new PerceptAggregator() // collect all the percepts from all agents
+			// Create an information aggregator (where all percept info from percepts will be integrated and stored)
+			aggregator = new PerceptAggregator() 
+			
 			// Give reporting skill via console
 			setSkill(new S_ConsoleReporting(myName), C_Reporting)
 			setLogLevel(4)
 
 			/*
-			 * First, we collect the directory where the server and player configuration files to be used are
+			 * FIRST, collect the directory where the server and player configuration files to be used are
 			 */
-			agent_says("PHASE 1: INITIALIZING MASSIM-TALKING SKILL WITH SERVER CONFIG FILE: {0}", eiMassimConfigFile)
+			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiConfigFileName)
 			if (args.length != 0)
-				eiConfigDir = args.get(0) as String
+				eiConfigDir = args.get(0) as String	// use the config dir given as CLI argument
 			else {
-				// Ask the user which subdirectory in conf/ we need to use to find the server config JSON file
+				// Ask the user which folder in conf/ is to be used to use the EI config file
 				eiConfigDir = ConfHandler.getConfDir()
 			}
+			val eiConfigurationFile = Paths.get(eiConfigDir, eiConfigFileName)
+
 			debug("
 				***************************************************
 				Configuration settings: 
 				\t My SARL agent name: {0}
-				\t Directory of configuration files: {1}
-				\t File containing authentication and sever info: {2}
-				***************************************************", myName, eiConfigDir, eiMassimConfigFile)
-
-			/*
-			 * We give the agent the skill to talk to the MASSIM game server. 
-			 * We provide server JSON config file and player JSON config file
-			 */
-			// Give agent ability to talk to MASSIM server
+				\t EI configuration file: {1}
+				***************************************************", myName, eiConfigurationFile)
+			
 			try {
-				setSkill(new S_MassimTalking(Paths.get(eiConfigDir, eiMassimConfigFile)), C_MassimTalking)
+				/*
+				 * SECOND, install skill to talk to the server using EI config file (no actual connection to entities yet)
+				 * 
+				 */
+				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI CONFIG FILE {0}", eiConfigurationFile)
+				setSkill(new S_MassimTalking(eiConfigurationFile), C_MassimTalking)
+
 
 				/* 
 				 * Next, we initialize the Environment Interface (EIS)
 				 * This involves connecting to game server, authenticating entities, and registering players in EI
 				 */
-				agent_says("PHASE 2: INITIALIZING EI WITH FILE {0} TO CONTROL CONNECTIONS: {1} ", eiMassimConfigFile,
-					myConnections.toString)
-				if (myConnections !== null)
-					myConnections.forEach [ player : String |
-						MT_registerEntityByName(player) // entities to control
+				agent_says("PHASE 3: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiConfigFileName,
+					myEntityConnections.toString)
+				if (myEntityConnections !== null)
+					myEntityConnections.forEach [ entityName : String |
+						MT_registerEntityByName(entityName) // register entities to control (no authentication yet)
 					]
 				if (MT_initialize()) {
 					agent_says("The EI is now initialized, entities are being authenticated...")
@@ -137,11 +157,8 @@ agent SingleRandomAgent {
 					killMe
 				}
 	
-				agent_shouts("I am now alive! Will start working now (sending and acting!)...")
-	
-				// We are ready, now start the cycle for sensing the environment (and thus acting)!
-				// Wait 2 seconds to allow everyone to authenticate to server
-				in(2000)[emit(new E_SenseEnvironment())]
+				agent_says("PHASE 4 (FINAL): EMIT E_sendEnviroment() to start sensing and acting")
+				in(2000)[emit(new E_SenseEnvironment())]	// wait 2 seconds to allow everyone to auhenticate to server
 			} catch (e : Exception) {
 				error("Sorry but I was not able to initialize the skill to talk to server! Message: {0}", e.message)
 				e.printStackTrace()
@@ -157,9 +174,9 @@ agent SingleRandomAgent {
 		agent_shouts("Start sensing the environment")
 		var step = 0
 
-		// Initializes three static data buffers for entities, teams and sim-start
-		// Util is provided by the MW as part of the aggregator package
-		if (Util.initDataBuffers()) {}
+//		// Initializes three static data buffers for entities, teams and sim-start
+//		// Util is provided by the MW as part of the aggregator package
+//		if (Util.initDataBuffers()) {}
 
 		// While the environment is running, wait for new percepts (read percepts for each player registered/connected)
 		while (MT_getStatus() == EnvironmentState.RUNNING) {
@@ -179,17 +196,16 @@ agent SingleRandomAgent {
 //					MT_getPlayerState(playerName).update(percepts) // update the agent data
 					info(MT_getPlayerState(playerName).reportState)
 					
-					// FACILITIES: Aggregate all facilities information that are the same info for everyone
-					// (shop, workshops, charging stations, dump, storage, resourceNodes)
-					Util.populateDataBuffers(percepts)
+					// Process percepts into aggregator
+//					Util.populateDataBuffers(percepts)
+					aggregator.fillAggregator(percepts)
+					aggregator.addFacilities(percepts) // shop, workshops, charging stations, dump, storage, resourceNodes
+					aggregator.addJobs(percepts) // job, auction, mission, or posted
+					agent_shouts("Facilities and Jobs aggregated for entity {0}", playerName)
 					
-					
-					aggregator.addFacilities(percepts)
 					facilities = aggregator.getFacilitiesNames()
-
-					// JOBS: Aggregate all jobs (job, auction, mission, or posted)
-					aggregator.addJobs(percepts)
-
+					agent_shouts("Set of facilities known: {0}", facilities)
+			
 
 					// update the last step if the percept just processed has a higher step number
 					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step

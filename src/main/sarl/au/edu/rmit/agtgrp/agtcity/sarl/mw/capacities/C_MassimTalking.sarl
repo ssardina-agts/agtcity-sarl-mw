@@ -56,11 +56,17 @@ capacity C_MassimTalking {
 
 	/**
 	 * Create and start the Environment Interface and register all player connections
+	 * 
+	 * @return - true if initialization was successful
 	 */
 	def MT_initialize() : boolean
 
+
+
 	/** 
-	 * Register the entity named entityName to be controlled
+	 * Register the entity named entityName to be controlled (no authentication done, just registration)
+	 * 
+	 * @param entityName - name of the entity to register for control
 	 */
 	def MT_registerEntityByName(entityName : String)
 	@Deprecated
