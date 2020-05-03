@@ -40,13 +40,13 @@ import eis.iilang.Action
 import io.sarl.core.Logging
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.PlayerState
 import eis.exceptions.ActException
 import java.util.HashSet
 import java.nio.file.Paths
 import org.json.JSONArray
 import java.io.File
 import java.io.FileWriter
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -94,7 +94,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * (for all that have been authenticated in the game server)
 	 * 
 	 */
-	var players : Map<String, PlayerState> = new HashMap<String, PlayerState>()
+	var players : Map<String, TeamEntityAgent> = new HashMap<String, TeamEntityAgent>()
 
 	/*
 	 * Stores all the players in the game server that I will connect and control
@@ -285,7 +285,7 @@ skill S_MassimTalking implements C_MassimTalking {
 		// the ei system register the agent
 		if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
 			debug("Agent *{0}* has been successfully associated with entity *{1}*", playerName, playerEntity)
-			this.players.put(playerName, new PlayerState(playerName, playerClass, playerTeam))
+			this.players.put(playerName, new TeamEntityAgent(playerName, playerClass, playerTeam))
 		} else {
 			warning("Unsuccessful association of agent *{0}* with entity *{1}*", playerName, playerEntity)
 		}
@@ -346,10 +346,10 @@ skill S_MassimTalking implements C_MassimTalking {
 	/** 
 	 * Provides a map from player names to the player state
 	 */	
-	def MT_getAllPlayerStates() : Map<String, PlayerState> {
+	def MT_getAllPlayerStates() : Map<String, TeamEntityAgent> {
 		return players
 	}
-	def MT_getPlayerState(playerName : String) : PlayerState {
+	def MT_getPlayerState(playerName : String) : TeamEntityAgent {
 		return players.get(playerName)
 	}
 

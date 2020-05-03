@@ -45,10 +45,6 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.EntityPercept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.FacilitySensedPercept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.JobPercept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.WorkshopSensedPercept
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_AgentAction
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SenseEnvironment
 
@@ -62,7 +58,10 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
 
 
 import eis.exceptions.PerceiveException
-
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_TellEntityInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_FacilityInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_WorkshopInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_JobInfo
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -241,11 +240,11 @@ agent SchedulerAgent {
 					aggregator.addActionResults(playerName, percepts)
 					
 					var PlayerState = PlayerStateBuilder.build(myServerName, percepts) // build a new agent state from percept
-					aggregator.addTeamMember(playerName, PlayerState) // Fill the aggregator with this agent state for playerName
+					aggregator.addPlayerTeam(playerName, PlayerState) // Fill the aggregator with this agent state for playerName
 					
 					// OTHER ENTITIES: 
                     //	Add to aggregator the info of all other entities that are not part of the team (not agents)
-                    aggregator.addEntities()
+                    aggregator.addPlayerOpposition()
 
 					// FACILITIES: Aggregate all facilities information 
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
@@ -293,7 +292,7 @@ agent SchedulerAgent {
 
 
 		// Emit SARL events for each TEAM percept (now just the money)
-		var allEntityPercepts = new HashSet<EntityPercept>()
+		var allEntityPercepts = new HashSet<E_TellEntityInfo>()
 		allEntityPercepts.addAll(aggregator.getTeamMemberPercepts())
 		allEntityPercepts.addAll(aggregator.getGameEntityPercepts())
 		agent_says("Emitting {0} event percepts about {1}", allEntityPercepts.length, "ENTITIES")
@@ -309,7 +308,7 @@ agent SchedulerAgent {
 		}
 
 		// Emit SARL events for all perception about FACILITIES (shops, charging stations, workshops, dumps, storage, resources)
-		var allFacilityPercepts = new ArrayList<FacilitySensedPercept>()
+		var allFacilityPercepts = new ArrayList<E_FacilityInfo>()
 		allFacilityPercepts.addAll(aggregator.shopSensedPercepts)
 		allFacilityPercepts.addAll(aggregator.chargingStationSensedPercepts)
 		allFacilityPercepts.addAll(aggregator.workshopSensedPercepts)
@@ -322,7 +321,7 @@ agent SchedulerAgent {
 		}
 
 		// Emit SARL events for all perception about JOBS (regular, auctions, team jobs, missions)
-		var allJobPercepts = new ArrayList<JobPercept>()
+		var allJobPercepts = new ArrayList<E_JobInfo>()
 		allJobPercepts.addAll(aggregator.regularJobPercepts)
 		allJobPercepts.addAll(aggregator.teamJobPercepts)
 		allJobPercepts.addAll(aggregator.auctionJobPercepts)
@@ -364,7 +363,7 @@ agent SchedulerAgent {
 		}
 	}
 
-	on WorkshopSensedPercept {
+	on E_WorkshopInfo {
 		agent_says("I have seen a workshop named {0}", occurrence.workshop.name)
 	}
 
