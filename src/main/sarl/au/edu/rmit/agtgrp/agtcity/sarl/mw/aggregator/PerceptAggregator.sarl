@@ -190,14 +190,11 @@ class PerceptAggregator {
 		percepts.forEach([ p : Percept |
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
 				System.out.println("=============================")
-				System.out.println(p)
-				System.out.println("=============================")
 				val facility = CityDataCreator.createFacility(p)
+				System.out.println(facility.name)
 				this.facilities.put(facility.name, facility)
+				System.out.println("=============================")
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
-				System.out.println("=============================")
-				System.out.println(p)
-				System.out.println("=============================")
 				val job = CityDataCreator.createJob(p)
 				this.jobs.put(job.getId(), job)
 			}
