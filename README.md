@@ -93,7 +93,7 @@ The MW comes with two simple agent controllers that can be used to test it when 
 
 So, what is provided by this package?
 
-### Entities, EI Players, Game User Agent 
+### EI Player --> Connectiion Entity --> Game Entity Agent 
 
 Because the framework involves the [MASSIM game server](https://github.com/ssardina-agts/agtcity-server), an [EISMASSim](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md) Environment Interface (EI from now on) for MASSIM, and the SARL agents, there are different entities and identifications that need to be understood:
 
