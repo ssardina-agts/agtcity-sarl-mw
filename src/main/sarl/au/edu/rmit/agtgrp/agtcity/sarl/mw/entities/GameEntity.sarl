@@ -21,7 +21,7 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
  * @author boblo
  * 
  */
-class GameEntity extends Position {
+class EntityAgent extends Position {
 	public var name : String
 	public var role : String
 	public var team : String

@@ -18,27 +18,24 @@
  */
  package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
 
-import java.util.HashMap
-
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityBuffer
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PositionBuilder
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.TeamBuffer
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import eis.iilang.Function
 import eis.iilang.ParameterList
 import eis.iilang.Percept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Position
 import java.util.Collection
 import java.util.HashMap
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Facility
-
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.*
-
-import java.util.*
+import java.util.Vector
 
 /** 
  * @author bob
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
- * A class to store a player state in the simulation
+ * A class to store a player state in the simulation (e.g., its location, current route, charge level, etc)
  */
-class PlayerState extends GameEntity {
+class TeamEntityAgent extends EntityAgent {
 
     public var charge : double      
     public var load : double

@@ -30,7 +30,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.MissionJob
  * JobPercept, emitted once per tick for every observed job. Superclass to all jobs
  * @param job - The job entity that was observed.
  */
-event JobPercept extends E_AgentPercept {
+event E_JobInfo extends E_AgentInfo {
 	var job : Job
 
 	new(sources : Set<String>, job : Job) {
@@ -43,7 +43,7 @@ event JobPercept extends E_AgentPercept {
  * RegularJob, emitted once per tick for every observed Regular Job, inherited from Job.
  * @param regularJob - The RegularJob entity that was observed.
  */
-event RegularJobPercept extends JobPercept {
+event E_RegularJobInfo extends E_JobInfo {
 	var regularJob : RegularJob
 
 	new(sources : Set<String>, job : RegularJob) {
@@ -56,7 +56,7 @@ event RegularJobPercept extends JobPercept {
  * TeamJobPercept, emitted once per tick for every observed job posted by a team member..
  * @param teamJob - The teamJob entity that was observed.
  */
-event TeamJobPercept extends JobPercept {
+event E_TeamJobInfo extends E_JobInfo {
 	var teamJob : TeamJob
 
 	new(sources : Set<String>, job : TeamJob) {
@@ -69,7 +69,7 @@ event TeamJobPercept extends JobPercept {
  * ActionJobPercept, emitted once per tick for every observed Auction.
  * @param auctionJob - The auction job entity that was observed.
  */
-event AuctionJobPercept extends JobPercept {
+event E_AuctionJobInfo extends E_JobInfo {
 	var auctionJob : AuctionJob
 
 	new(sources : Set<String>, job : AuctionJob) {
@@ -83,7 +83,7 @@ event AuctionJobPercept extends JobPercept {
  * MissionJobPercept, emitted once per tick for every observed mission posting.
  * @param missionJob - The MissionJob entity that was observed.
  */
-event MissionJobPercept extends JobPercept {
+event E_MissionJobInfo extends E_JobInfo {
 	var missionJob : MissionJob 
 
 	new(sources : Set<String>, missionJob : MissionJob) {
