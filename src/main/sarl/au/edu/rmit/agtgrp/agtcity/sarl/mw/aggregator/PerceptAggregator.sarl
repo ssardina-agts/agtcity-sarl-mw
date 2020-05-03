@@ -161,15 +161,10 @@ class PerceptAggregator {
 	 * 
 	 */
 	public def addFacilities(percepts : Collection<Percept>) {
-		
 		// extract percepts that are about facilities
-		val stream_facilities = percepts.stream().filter([ p : Percept |
+		percepts.stream().filter([ p : Percept |
 			CityDataCreator.FACILITY_TYPES.contains(p.name)
-		])
-		
-		// for each facility percept, create a corresponding facility object (class provided by game server)
-		// and add that object to this.facilities
-		stream_facilities.map([ p : Percept |
+		]).map([ p : Percept |
 			val facility = CityDataCreator.createFacility(p)
 			this.facilities.put(facility.name, facility)
 		]);
@@ -189,8 +184,26 @@ class PerceptAggregator {
 			this.jobs.put(job.getId(), job)
 		]);
 	}
+
 	
-	
+	public def fillAggregator(percepts : Collection<Percept>) {
+		percepts.forEach([ p : Percept |
+			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
+				System.out.println("=============================")
+				System.out.println(p)
+				System.out.println("=============================")
+				val facility = CityDataCreator.createFacility(p)
+				this.facilities.put(facility.name, facility)
+			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
+				System.out.println("=============================")
+				System.out.println(p)
+				System.out.println("=============================")
+				val job = CityDataCreator.createJob(p)
+				this.jobs.put(job.getId(), job)
+			}
+		]);
+
+	}	
 	
 	/**
 	 * Get the action results for an agent sources. 
