@@ -29,11 +29,11 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Workshop
 import java.util.Set
 
 /** 
- * FacilitySensedPercept emitted once for every facility that was observed each tick. If multiple agents observe the same facility, only 1 is emitted. 
- * This is also the super class for all percepts of specific facilities. 
- * @param facility - the facility that was observed.
+ * Emitted to distribute information about a facility 
+ * 
+ * @param facility - the facility to be distributed
  */
-event FacilitySensedPercept extends E_AgentPercept {
+event E_FacilityInfo extends E_AgentInfo {
 	var facility : Facility
 
 	new(sources : Set<String>, facility : Facility) {
@@ -43,11 +43,12 @@ event FacilitySensedPercept extends E_AgentPercept {
 }
 
 
-/**
- * Inherited from FacilitySensedPercept, emitted once for every shop that was observed each tick. 
- * @param shop The shop object
+/** 
+ * Emitted to distribute information about a shop
+ * 
+ * @param shop  - the shop to be distributed
  */
-event ShopSensedPercept extends FacilitySensedPercept {
+event E_ShopInfo extends E_FacilityInfo {
 	var shop : Shop
 
 	new(sources : Set<String>, shop : Shop) {
@@ -56,23 +57,13 @@ event ShopSensedPercept extends FacilitySensedPercept {
 	}
 }
 
-/** 
- * currently not implemented
- */
-event ShopUpdatePercept extends ShopSensedPercept {
-	var items : ItemContainer
-
-	new(sources : Set<String>, shop : Shop, items : ItemContainer) {
-		super(sources, shop)
-		this.items = items;
-	}
-}
 
 /** 
- * WorkshopSensedPercept, emitted once per tick for every observed workshop.
- * @param workshop - The workshop entity that was observed.
+ * Emitted to distribute information about a workshop
+ * 
+ * @param workshop - The workshop entity to be distributed
  */
-event WorkshopSensedPercept extends FacilitySensedPercept {
+event E_WorkshopInfo extends E_FacilityInfo {
 	var workshop : Workshop
 
 	new(sources : Set<String>, workshop : Workshop) {
@@ -82,10 +73,11 @@ event WorkshopSensedPercept extends FacilitySensedPercept {
 }
 
 /** 
- * ChargingStationPercept, emitted once per tick for every observed charging station.
- * @param chargingStation- The charging entity that was observed.
+ * Emitted to distribute information about a charging stations
+ * 
+ * @param chargingStation The charging entity that was observed.
  */
-event ChargingStationSensedPercept extends FacilitySensedPercept {
+event E_ChargingStationInfo extends E_FacilityInfo {
 	var chargingStation : ChargingStation
 
 	new(sources : Set<String>, chargingStation : ChargingStation) {
@@ -95,10 +87,11 @@ event ChargingStationSensedPercept extends FacilitySensedPercept {
 }
 
 /** 
- * DumpSensedPercept, emitted once per tick for every observed dump.
- * @param dump - The dump entity that was observed.
+ * Emitted to distribute information about a dumps
+ * 
+ * @param dump - The dump entity to be distributed.
  */
-event DumpSensedPercept extends FacilitySensedPercept {
+event E_DumpInfo extends E_FacilityInfo {
 	var dump : Dump
 
 	new(sources : Set<String>, dump : Dump) {
@@ -107,10 +100,11 @@ event DumpSensedPercept extends FacilitySensedPercept {
 	}
 }
 /** 
- * StorageSensedPercept, emitted once per tick for every observed storage.
- * @param storage - The storage entity that was observed.
+ * Emitted to distribute information about a storage
+ * 
+ * @param storage - The storage entity to be distributed
  */
-event StorageSensedPercept extends FacilitySensedPercept {
+event E_StorageInfo extends E_FacilityInfo {
 	var storage : Storage
 
 	new(sources : Set<String>, storage : Storage) {
@@ -119,17 +113,36 @@ event StorageSensedPercept extends FacilitySensedPercept {
 	}
 }
 
+
+
+
+
+
+/** 
+ * currently not implemented
+ */
+event ShopUpdatePercept extends E_ShopInfo {
+	var items : ItemContainer
+
+	new(sources : Set<String>, shop : Shop, items : ItemContainer) {
+		super(sources, shop)
+		this.items = items;
+	}
+}
+
+
+
 /** 
  * NOT IMPLEMENTED, 
  */
-event StorageUsedUpdatedPercept extends FacilitySensedPercept {
+event StorageUsedUpdatedPercept extends E_FacilityInfo {
 	// TODO COMPLETE ME> update the storage used if the other team has dropped or collected things
 }
 
 /** 
  * NOT IMPLEMENTED
  */
-event StorageItemStoredPercept extends FacilitySensedPercept {
+event StorageItemStoredPercept extends E_FacilityInfo {
 	var items : ItemContainer
 
 	new(sources : Set<String>, storage : Storage, items : ItemContainer) {
@@ -141,7 +154,7 @@ event StorageItemStoredPercept extends FacilitySensedPercept {
 /** 
  * NOT IMPLEMENTED
  */
-event StorageDeliveredUpdatedPercept extends FacilitySensedPercept {
+event StorageDeliveredUpdatedPercept extends E_FacilityInfo {
 	var items : ItemContainer
 
 	new(sources : Set<String>, storage : Storage, items : ItemContainer) {
@@ -154,7 +167,7 @@ event StorageDeliveredUpdatedPercept extends FacilitySensedPercept {
  * ResourceSensedPercept emitted once per resource per tick
  * @param resouce - The resource patch that was observed.
  */
-event ResourceSensedPercept extends FacilitySensedPercept {
+event E_ResourceInfo extends E_FacilityInfo {
 	var resource : Resource
 
 	new(sources : Set<String>, resource : Resource) {

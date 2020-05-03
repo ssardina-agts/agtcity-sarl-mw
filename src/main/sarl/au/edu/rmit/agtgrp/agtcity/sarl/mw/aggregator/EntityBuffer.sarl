@@ -19,15 +19,16 @@
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
 import eis.iilang.Percept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.GameEntity
 import java.util.Collection
 import java.util.HashMap
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
+
 /** 
  * Class to hold entity listings so they can be looked up by name
  * @param entities HASHMAP class used to keep track of entities.
  */
 class EntityBuffer {
-    public static var entities : HashMap<String, GameEntity>
+    public static var entities : HashMap<String, EntityAgent>
 
     public static def init() {
         entities = new HashMap();
@@ -46,11 +47,11 @@ class EntityBuffer {
                 var lon = Util.extractDouble(p.parameters.get(3));
                 var role = Util.extractString(p.parameters.get(4));
 
-                var ge : GameEntity
+                var ge : EntityAgent
                 if (entities.containsKey(name)) {
                     ge = entities.get(name);
                 } else {
-                    ge = new GameEntity(name,role,team,lat,lon)
+                    ge = new EntityAgent(name,role,team,lat,lon)
                 }
                 entities.put(name, ge)	// push the game entity for entity with name 
             }
@@ -61,7 +62,7 @@ class EntityBuffer {
 	 * get, gets a perticular entity by it's identifier (name).
 	 * @param name String identifying the entity.
 	 */
-    public static def get(name : String) : GameEntity {
+    public static def get(name : String) : EntityAgent {
         return entities.get(name);
     }
 

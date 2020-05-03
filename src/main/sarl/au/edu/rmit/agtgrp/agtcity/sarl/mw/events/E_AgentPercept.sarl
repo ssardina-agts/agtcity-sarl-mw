@@ -22,26 +22,26 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.AuctionJob
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ChargingStation
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Dump
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Facility
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.GameEntity
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ItemContainer
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Job
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.RegularJob
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Resource
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Shop
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Storage
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.PlayerState
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Workshop
 import java.util.HashSet
 import java.util.Set
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamJob
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.MissionJob
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ActionResult
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
 
 /** 
  * E_AgentPercept superclass used to pass on all percepts from MASSIM. 
  * @param sources : a set of originating agents for a given percept 
  */
-event E_AgentPercept {
+event E_AgentInfo {
 	var sources : Set<String>	// the source of the percept
 
 	new(sources : Set<String>) {
@@ -54,7 +54,7 @@ event E_AgentPercept {
  * TeamPercept emitted once per tick to notify all entities of current team status. 
  * @param monty, current team money. 
  */
-event TeamPercept extends E_AgentPercept {
+event E_TeamInfo extends E_AgentInfo {
 	var money : double
 
 	new(sources : Set<String>, money : double) {
@@ -68,7 +68,7 @@ event TeamPercept extends E_AgentPercept {
  * ActionStatusPercept emitted once per tick to notify an agent of it's action result from the previous tick. 
  * @param actionResult, object containing data relating to the previous action and it's result. 
  */
-event ActionStatusPercept extends E_AgentPercept { 
+event E_ActionStatusInfo extends E_AgentInfo { 
 	var actionResult : ActionResult
 
 	new(sources : Set<String>, actionResultt : ActionResult) {

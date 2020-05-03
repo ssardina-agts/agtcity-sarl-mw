@@ -18,20 +18,20 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.events
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.GameEntity
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.PlayerState
 import java.util.HashSet
 import java.util.Set
-
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
 
 /** 
- * EntityPercept emitted once per tick per observed entity. 
- * @param entity, the observed entity. 
+ * An event to transmit a GameEntity object. An entity is a game player, team-mate or opponent.
+ * 
+ * @param entity, the observed entity (team-mate or opponent). 
  */
-event EntityPercept extends E_AgentPercept {
-	var entity : GameEntity	// the game entity containing the percept data
+event E_TellEntityInfo extends E_AgentInfo {
+	var entity : EntityAgent	// the game entity containing the percept data
 
-	new(source : Set<String>, entity : GameEntity) {
+	new(source : Set<String>, entity : EntityAgent) {
 		super(source);
 		this.entity = entity;
 
@@ -43,11 +43,11 @@ event EntityPercept extends E_AgentPercept {
  * TeamMemberPercept emitted once per tick per observed teammate. 
  * @param PlayerState, the observed entity. 
  */
-event TeamMemberPercept extends EntityPercept {
+event E_TellPlayerTeamInfo extends E_TellEntityInfo {
 
-	var PlayerState : PlayerState
+	var PlayerState : TeamEntityAgent
 
-	new(sources : HashSet<String>, PlayerState : PlayerState) {
+	new(sources : HashSet<String>, PlayerState : TeamEntityAgent) {
 		super(sources, PlayerState)
 		this.PlayerState = PlayerState
 	}
