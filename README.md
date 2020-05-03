@@ -186,7 +186,14 @@ mvn exec:java
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
 ```shell
-mvn exec:java -Dexec.args=SingleRandomAgent
+mvn exec:java 
+```
+
+This will ask for agent selection from the available ones and then which folder in `conf/` to be used to find the `eismassimconfig.json` configuration connection file. We can provide one, or both, as follows:
+
+
+```shell
+mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
 ```
 
 If packaged with all dependencies one can use:
