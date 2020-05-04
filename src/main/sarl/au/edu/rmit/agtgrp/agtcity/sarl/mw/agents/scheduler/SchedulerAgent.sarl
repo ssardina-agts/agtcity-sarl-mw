@@ -246,13 +246,12 @@ agent SchedulerAgent {
                     //	Add to aggregator the info of all other entities that are not part of the team (not agents)
                     aggregator.addPlayerOpposition()
 
-					// FACILITIES: Aggregate all facilities information 
+					// FACILITIES & JOBS: Aggregate all facilities information 
 					// (shop, workshops, charging stations, dump, storage, resourceNodes)
-					aggregator.addFacilities(percepts)
+					aggregator.fillFacilitiesAndJobs((percepts)
 
-					// JOBS: Aggregate all jobs (job, auction, mission, or posted)
-					aggregator.addJobs(percepts)
-					
+
+)					
 				} catch (e : PerceiveException) {
 					agent_says("There was an exception perceiving for player {0}: {1}", playerName, e.message)
 				} catch (e : Exception) {

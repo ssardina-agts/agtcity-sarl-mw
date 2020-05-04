@@ -79,30 +79,31 @@ class CityDataCreator {
 		val lat = Util.extractDouble(p.parameters.get(1))
 		val lon = Util.extractDouble(p.parameters.get(2))
 
+		// Information on what each component has is at 
+		// https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md
 		switch (p.name) {
-			case "chargingStation": {
+			case "chargingStation": { // chargingStation(name, lat, lon, rate)
 				val rate = Util.extractInt(p.parameters.get(3))
 				return new ChargingStationData(name, lat, lon, rate);
 			}
-			case "dump": {
+			case "dump": { // dump(name, lat, lon)
 				return new DumpData(name, lat, lon);
 			}
-			case "shop": {
+			case "shop": { // shop(name, lat, lon, restock, [item(name1, price1, qty1), ...])
 				val restock = Util.extractInt(p.parameters.get(3))
-				val items = p.parameters.get(4) as ParameterList
+				
+				val items = p.parameters.get(4) as ParameterList // [item(name1, price1, qty1), ...]
 				val stockData : List<StockData> = new ArrayList();
-				for (item : items) {
-					val f = item as Function
+				for (item : items) {	// build a list of stack data
+					val f = item as Function	// function term with name "item" and three arguments: name, price, qty
 					val itemName = Util.extractString(f.parameters.get(0))
-					// TODO: address SimStartBuffer stuff
-					val itemObj = SimStartBuffer.getItem(itemName)
 					val itemPrice = Util.extractInt(f.parameters.get(1))
 					val itemQty = Util.extractInt(f.parameters.get(2))
 					stockData.add(new StockData(itemName, itemPrice, itemQty))
 				}
 				return new ShopData(name, lat, lon, restock, stockData);
 			}
-			case "storage": {
+			case "storage": { // storage(name, lat, lon, cap, used, [item(name1, stored1, delivered1), ...])
 				val ^capacity = Util.extractInt(p.parameters.get(3))
 				val usedCapacity = Util.extractInt(p.parameters.get(4))
 				val stored : List<StoredData> = new ArrayList<StoredData>()
