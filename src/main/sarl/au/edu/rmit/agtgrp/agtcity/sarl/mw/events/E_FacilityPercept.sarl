@@ -18,15 +18,15 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.events
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ChargingStation
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Dump
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Facility
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ItemContainer
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Resource
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Shop
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Storage
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Workshop
 import java.util.Set
+import massim.protocol.scenario.city.data.ChargingStationData
+import massim.protocol.scenario.city.data.DumpData
+import massim.protocol.scenario.city.data.FacilityData
+import massim.protocol.scenario.city.data.ResourceNodeData
+import massim.protocol.scenario.city.data.ShopData
+import massim.protocol.scenario.city.data.StockData
+import massim.protocol.scenario.city.data.StorageData
+import massim.protocol.scenario.city.data.WorkshopData
 
 /** 
  * Emitted to distribute information about a facility 
@@ -34,9 +34,9 @@ import java.util.Set
  * @param facility - the facility to be distributed
  */
 event E_FacilityInfo extends E_AgentInfo {
-	var facility : Facility
+	val facility : FacilityData
 
-	new(sources : Set<String>, facility : Facility) {
+	new(sources : Set<String>, facility : FacilityData) {
 		super(sources);
 		this.facility = facility;
 	}
@@ -49,9 +49,9 @@ event E_FacilityInfo extends E_AgentInfo {
  * @param shop  - the shop to be distributed
  */
 event E_ShopInfo extends E_FacilityInfo {
-	var shop : Shop
+	var shop : ShopData
 
-	new(sources : Set<String>, shop : Shop) {
+	new(sources : Set<String>, shop : ShopData) {
 		super(sources, shop)
 		this.shop = shop;
 	}
@@ -64,9 +64,9 @@ event E_ShopInfo extends E_FacilityInfo {
  * @param workshop - The workshop entity to be distributed
  */
 event E_WorkshopInfo extends E_FacilityInfo {
-	var workshop : Workshop
+	var workshop : WorkshopData
 
-	new(sources : Set<String>, workshop : Workshop) {
+	new(sources : Set<String>, workshop : WorkshopData) {
 		super(sources, workshop)
 		this.workshop = workshop
 	}
@@ -78,9 +78,9 @@ event E_WorkshopInfo extends E_FacilityInfo {
  * @param chargingStation The charging entity that was observed.
  */
 event E_ChargingStationInfo extends E_FacilityInfo {
-	var chargingStation : ChargingStation
+	var chargingStation : ChargingStationData
 
-	new(sources : Set<String>, chargingStation : ChargingStation) {
+	new(sources : Set<String>, chargingStation : ChargingStationData) {
 		super(sources, chargingStation)
 		this.chargingStation = chargingStation
 	}
@@ -92,9 +92,9 @@ event E_ChargingStationInfo extends E_FacilityInfo {
  * @param dump - The dump entity to be distributed.
  */
 event E_DumpInfo extends E_FacilityInfo {
-	var dump : Dump
+	var dump : DumpData
 
-	new(sources : Set<String>, dump : Dump) {
+	new(sources : Set<String>, dump : DumpData) {
 		super(sources, dump)
 		this.dump = dump
 	}
@@ -105,9 +105,9 @@ event E_DumpInfo extends E_FacilityInfo {
  * @param storage - The storage entity to be distributed
  */
 event E_StorageInfo extends E_FacilityInfo {
-	var storage : Storage
+	var storage : StorageData
 
-	new(sources : Set<String>, storage : Storage) {
+	new(sources : Set<String>, storage : StorageData) {
 		super(sources, storage)
 		this.storage = storage
 	}
@@ -122,9 +122,9 @@ event E_StorageInfo extends E_FacilityInfo {
  * currently not implemented
  */
 event ShopUpdatePercept extends E_ShopInfo {
-	var items : ItemContainer
+	var items : StockData
 
-	new(sources : Set<String>, shop : Shop, items : ItemContainer) {
+	new(sources : Set<String>, shop : ShopData, items : StockData) {
 		super(sources, shop)
 		this.items = items;
 	}
@@ -143,9 +143,9 @@ event StorageUsedUpdatedPercept extends E_FacilityInfo {
  * NOT IMPLEMENTED
  */
 event StorageItemStoredPercept extends E_FacilityInfo {
-	var items : ItemContainer
+	var items : StockData
 
-	new(sources : Set<String>, storage : Storage, items : ItemContainer) {
+	new(sources : Set<String>, storage : StorageData, items : StockData) {
 		super(sources, storage)
 		this.items = items
 	}
@@ -155,9 +155,9 @@ event StorageItemStoredPercept extends E_FacilityInfo {
  * NOT IMPLEMENTED
  */
 event StorageDeliveredUpdatedPercept extends E_FacilityInfo {
-	var items : ItemContainer
+	var items : StockData
 
-	new(sources : Set<String>, storage : Storage, items : ItemContainer) {
+	new(sources : Set<String>, storage : StorageData, items : StockData) {
 		super(sources, storage)
 		this.items = items
 	}
@@ -168,9 +168,9 @@ event StorageDeliveredUpdatedPercept extends E_FacilityInfo {
  * @param resouce - The resource patch that was observed.
  */
 event E_ResourceInfo extends E_FacilityInfo {
-	var resource : Resource
+	var resource : ResourceNodeData
 
-	new(sources : Set<String>, resource : Resource) {
+	new(sources : Set<String>, resource : ResourceNodeData) {
 		super(sources, resource)
 		this.resource = resource
 	}

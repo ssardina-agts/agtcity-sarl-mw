@@ -322,10 +322,9 @@ agent SchedulerAgent {
 
 		// Emit SARL events for all perception about JOBS (regular, auctions, team jobs, missions)
 		var allJobPercepts = new ArrayList<E_JobInfo>()
-		allJobPercepts.addAll(aggregator.regularJobPercepts)
-		allJobPercepts.addAll(aggregator.teamJobPercepts)
+		allJobPercepts.addAll(aggregator.regularJobEvents)
 		allJobPercepts.addAll(aggregator.auctionJobPercepts)
-		allJobPercepts.addAll(aggregator.missionJobPercepts)
+
 		agent_says("Emitting {0} event percepts about {1}", allJobPercepts.length, "JOBS")
 		for (e : allJobPercepts) {
 			emit(e)

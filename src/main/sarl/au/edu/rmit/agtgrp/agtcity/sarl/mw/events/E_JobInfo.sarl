@@ -1,0 +1,54 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.events
+
+import java.util.Set
+import massim.protocol.scenario.city.data.JobData
+
+/** 
+ * An event to distribute a JobData. Superclass for other events about jobs
+ * 
+ * @param job - The job data to be distributed
+ */
+event E_JobInfo extends E_AgentInfo {
+	var job : JobData
+	val type : String // can be "job", "auction",  "mission"
+	val team : boolean // has it been posted by a team
+
+	new(sources : Set<String>, job : JobData, type : String, team: boolean) {
+		super(sources)
+		this.job = job
+		this.type = type
+		this.team = team
+	}
+	
+	new(sources : Set<String>, job : JobData, team: boolean) {
+		this(sources, job, "job", team)
+	}
+
+	new(sources : Set<String>, job : JobData, type: String) {
+		this(sources, job, type, false)
+	}
+
+	new(sources : Set<String>, job : JobData) {
+		this(sources, job, "job", false)
+	}
+
+}
+
