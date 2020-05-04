@@ -71,13 +71,6 @@ class PerceptAggregator {
 	var jobs : HashMap<String, JobData>	// holds regular jobs and auction jobs (subclass AuctionJobData)
 
 	var facilities : HashMap<String, FacilityData>
-	var chargingStations : HashMap<String, ChargingStationData>
-	var dumps : HashMap<String, DumpData>
-	var shops : HashMap<String, ShopData>
-	var storages : HashMap<String, StorageData>
-	var workshops : HashMap<String, WorkshopData>
-	var resources : HashMap<String, ResourceNodeData>
-	var wells: HashMap<String, WellData>
 
 	
 	/**
@@ -92,12 +85,6 @@ class PerceptAggregator {
 		this.jobs = new HashMap()
 		
 		this.facilities = new HashMap()
-		this.chargingStations = new HashMap()
-		this.dumps = new HashMap()
-		this.storages = new HashMap()
-		this.shops = new HashMap()
-		this.workshops = new HashMap()
-		this.resources = new HashMap()
 	}
 	
 	
@@ -153,30 +140,6 @@ class PerceptAggregator {
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
 				val facility = CityDataCreator.createFacility(p)
 				this.facilities.put(facility.name, facility)
-				
-				switch (p.name) {
-					case "chargingStation": {
-						this.chargingStations.put(facility.name, facility as ChargingStationData)
-						}
-					case "dump": {
-						this.dumps.put(facility.name, facility as DumpData)
-						}
-					case "shop": {
-						this.shops.put(facility.name, facility as ShopData)
-						}
-					case "storage": {
-						this.storages.put(facility.name, facility as StorageData)
-						}
-					case "workshop": {
-						this.workshops.put(facility.name, facility as WorkshopData)
-						}
-					case "resourceNode": {
-						this.resources.put(facility.name, facility as ResourceNodeData)
-						}
-					case "well": {
-						this.wells.put(facility.name, facility as WellData)
-						}
-					}				
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
 //				val job = CityDataCreator.createJob(p)
 //				this.jobs.put(job.getId(), job)
@@ -242,7 +205,89 @@ class PerceptAggregator {
 		return facilities.keySet()
 	}
 
+	/**
+	 * Get all charging stations
+	 *
+	 * @returns the set of names of known charging station facilities
+	 */
+	def getChargingStations() : HashMap<String, ChargingStationData> {
+		getFacilities(typeof(ChargingStationData))
+	}
 
+	/**
+	 * Get all dumps
+	 *
+	 * @returns the set of names of known dump facilities
+	 */
+	def getDumps() : HashMap<String, DumpData> {
+		getFacilities(typeof(DumpData))
+	}
+
+	/**
+	 * Get all resource nodes
+	 *
+	 * @returns the set of names of known resource node facilities
+	 */
+	def getResourceNodes() : HashMap<String, ResourceNodeData> {
+		getFacilities(typeof(ResourceNodeData))
+	}
+
+	/**
+	 * Get all shops
+	 *
+	 * @returns the set of names of known shop facilities
+	 */
+	def getShops() : HashMap<String, ShopData> {
+		getFacilities(typeof(ShopData))
+	}
+
+	/**
+	 * Get all storages
+	 *
+	 * @returns the set of names of known storage facilities
+	 */
+	def getStorages() : HashMap<String, StorageData> {
+		getFacilities(typeof(StorageData))
+	}
+
+	/**
+	 * Get all wells
+	 *
+	 * @returns a hashmap of known well facilities
+	 */
+	def getWells() : HashMap<String, WellData> {
+		getFacilities(typeof(WellData))
+	}
+
+	/**
+	 * Get all workshops
+	 *
+	 * @returns the set of names of known workshop facilities
+	 */
+	def getWorkshops() : HashMap<String, WorkshopData> {
+		getFacilities(typeof(WorkshopData))
+	}
+
+	/**
+	 * Get all facilities of a given type
+	 *
+	 * @param type the class type of the facilities to return
+	 * @returns a hashmap of facilities matching type T
+	 */
+	private def <T extends FacilityData> getFacilities(type : Class<T>) : HashMap<String, T> {
+		val filtered_facilities : HashMap<String, T> = newHashMap();
+		// extract only WellData
+		val stream_facilities = facilities.values().stream().filter([ f : FacilityData |
+			// check if this facility is of type we asked for
+			return type.isInstance(f)
+		])
+
+		// add all wells to a hashmap and return
+		stream_facilities.map([ s : FacilityData |
+			filtered_facilities.put(s.getName, s as T)
+		])
+		return filtered_facilities
+	}
 
 
 
@@ -330,7 +375,7 @@ class PerceptAggregator {
 	def getShopSensedPercepts() : List<E_ShopInfo> {
 		var events = new ArrayList<E_ShopInfo>
 
-		for (facilityname : shops.keySet) {
+		for (facilityname : getShops().keySet) {
 			var ssp = new E_ShopInfo(players_team.keySet, shops.get(facilityname));
 			events.add(ssp)
 		}
@@ -346,7 +391,7 @@ class PerceptAggregator {
 	def getChargingStationSensedPercepts() : List<E_ChargingStationInfo>{
 		var events = new ArrayList<E_ChargingStationInfo>
 		
-		for (stationName : chargingStations.keySet){
+		for (stationName : getChargingStations().keySet){
 			var cssp = new E_ChargingStationInfo(players_team.keySet, chargingStations.get(stationName));
 			events.add(cssp)
 		}
@@ -362,7 +407,7 @@ class PerceptAggregator {
 	def getWorkshopSensedPercepts() : List<E_WorkshopInfo> {
 		var events = new ArrayList<E_WorkshopInfo>
 
-		for (facilityname : workshops.keySet) {
+		for (facilityname : getWorkshops().keySet) {
 			var ssp = new E_WorkshopInfo(players_team.keySet, workshops.get(facilityname));
 			events.add(ssp)
 		}
@@ -379,7 +424,7 @@ class PerceptAggregator {
 
 		var events = new ArrayList<E_DumpInfo>
 
-		for (facilityname : dumps.keySet) {
+		for (facilityname : getDumps().keySet) {
 			var dsp = new E_DumpInfo(players_team.keySet, dumps.get(facilityname));
 			events.add(dsp)
 		}
@@ -395,7 +440,7 @@ class PerceptAggregator {
 	def getStorageSensedPercepts() : List<E_StorageInfo> {
 		var events = new ArrayList<E_StorageInfo>
 
-		for (facilityname : storages.keySet) {
+		for (facilityname : getStorages().keySet) {
 			var ssp = new E_StorageInfo(players_team.keySet, storages.get(facilityname));
 			events.add(ssp)
 		}
@@ -411,8 +456,8 @@ class PerceptAggregator {
 	def getResourceSensedPercepts() : List<E_ResourceInfo> { 
 		var events = new ArrayList<E_ResourceInfo>
 
-		for (resourceName : resources.keySet) {
-			var rsp = new E_ResourceInfo(players_team.keySet, resources.get(resourceName));
+		for (resourceName : getResourceNodes().keySet) {
+			var rsp = new E_ResourceInfo(players_team.keySet, getResourceNodes().get(resourceName));
 			events.add(rsp)
 		}
 		return events 
