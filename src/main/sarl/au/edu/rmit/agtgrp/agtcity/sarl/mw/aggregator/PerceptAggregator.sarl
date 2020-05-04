@@ -146,39 +146,9 @@ class PerceptAggregator {
 		this.money = money
 	}
 	
-	/**
-	 * Populate the this.facilities HashMap with all info coming from the percept about facilities
-	 * 
-	 * @param percepts - the collection of percepts received from MASSIM
-	 * 
-	 */
-	def addFacilities(percepts : Collection<Percept>) {
-		// extract percepts that are about facilities
-		percepts.stream().filter([ p : Percept |
-			CityDataCreator.FACILITY_TYPES.contains(p.name)
-		]).map([ p : Percept |
-			val facility = CityDataCreator.createFacility(p)
-			this.facilities.put(facility.name, facility)
-		]);
-	}
-
-
-	/**
-	 * Populate the this.jobs HashMap with all info coming from the percept about jobs
-	 * 
-	 * @param percepts - the collection of percepts received from MASSIM
-	 */	
-	def addJobs(percepts : Collection<Percept>) {
-		percepts.stream().filter([ p : Percept |
-			CityDataCreator.JOB_TYPES.contains(p.name)
-		]).map([ p : Percept |
-			val job = CityDataCreator.createJob(p)
-			this.jobs.put(job.getId(), job)
-		]);
-	}
 
 	
-	def fillAggregator(percepts : Collection<Percept>) {
+	def fillFacilitiesAndJobs(percepts : Collection<Percept>) {
 		percepts.forEach([ p : Percept |
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
 				val facility = CityDataCreator.createFacility(p)
@@ -208,8 +178,8 @@ class PerceptAggregator {
 						}
 					}				
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
-				val job = CityDataCreator.createJob(p)
-				this.jobs.put(job.getId(), job)
+//				val job = CityDataCreator.createJob(p)
+//				this.jobs.put(job.getId(), job)
 			}
 		]);
 
