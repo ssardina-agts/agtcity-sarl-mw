@@ -300,11 +300,10 @@ class PerceptAggregator {
 	 */
 	def getRegularJobs() : HashMap<String, JobData> {
 		val filtered_jobs : HashMap<String, JobData> = new HashMap();
-		// extract only regular jobs - these are directly of parent type JobData, so cannot filter by class
-		for (job : jobs.entrySet) {
-			val jobKey : String = job.getKey()
-			if (jobKey.contains("job")) {
-				filtered_jobs.put(jobKey, job.getValue())
+		// extract only regular jobs - these are directly of parent type JobData, filter out all other class types
+		for (job : jobs.values()) {
+			if (! (job instanceof AuctionJobData || job instanceof MissionData)) {
+				filtered_jobs.put(job.getId(), job)
 			}
 		}
 		return filtered_jobs
@@ -315,7 +314,7 @@ class PerceptAggregator {
 	 *
 	 * @returns the set of names of known auction jobs
 	 */
-	def getAuctions() : HashMap<String, AuctionJobData> {
+	def getAuctionJobs() : HashMap<String, AuctionJobData> {
 		return getJobs(typeof(AuctionJobData))
 	}
 
@@ -324,7 +323,7 @@ class PerceptAggregator {
 	 *
 	 * @returns the set of names of known mission jobs
 	 */
-	def getMissions() : HashMap<String, MissionData> {
+	def getMissionJobs() : HashMap<String, MissionData> {
 		return getJobs(typeof(MissionData))
 	}
 
@@ -532,11 +531,9 @@ class PerceptAggregator {
 	def getRegularJobEvents() : List<E_JobInfo> {
 		var events = new ArrayList<E_JobInfo>
 
-		for (job : jobs.entrySet) {
-			if (! (job.value instanceof AuctionJobData)) {
-				var ev = new E_JobInfo(players_team.keySet, job.value);
-				events.add(ev)
-				}
+		for (job : getRegularJobs().entrySet) {
+			var ev = new E_JobInfo(players_team.keySet, job.value);
+			events.add(ev)
 		}
 		return events
 	}
@@ -546,14 +543,27 @@ class PerceptAggregator {
 	 * 
 	 * @returns a list of events each containing a auction job  data
 	 */
-	 def getAuctionJobPercepts() : List<E_JobInfo> {
+	def getAuctionJobPercepts() : List<E_JobInfo> {
 		var events = new ArrayList<E_JobInfo>
 
-		for (job : jobs.entrySet) {
-			if (job.value instanceof AuctionJobData) {
-				var ev = new E_JobInfo(players_team.keySet, job.value as AuctionJobData, "auction");
-				events.add(ev)
-				}
+		for (job : getAuctionJobs().entrySet) {
+			var ev = new E_JobInfo(players_team.keySet, job.value, "auction");
+			events.add(ev)
+		}
+		return events
+	}
+
+	/**
+	 * Build a list of E_JobInfo events with mission jobs data
+	 *
+	 * @returns a list of events each containing a auction job  data
+	 */
+	def getMissionJobPercepts() : List<E_JobInfo> {
+		var events = new ArrayList<E_JobInfo>
+
+		for (job : getMissionJobs().entrySet) {
+			var ev = new E_JobInfo(players_team.keySet, job.value, "mission");
+			events.add(ev)
 		}
 		return events
 	}
