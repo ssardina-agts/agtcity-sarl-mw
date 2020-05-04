@@ -49,6 +49,7 @@ import massim.protocol.scenario.city.data.ShopData
 import massim.protocol.scenario.city.data.StorageData
 import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
+import massim.protocol.scenario.city.data.MissionData
 
 /** 
  * @author boblo
@@ -68,8 +69,7 @@ class PerceptAggregator {
 	var actionResults : HashMap<String, ActionResult>
 	var money : double
 
-	var jobs : HashMap<String, JobData>	// holds regular jobs and auction jobs (subclass AuctionJobData)
-
+	var jobs : HashMap<String, JobData>	// holds regular jobs, missions (subclass Mission) and auction jobs (subclass AuctionJobData)
 	var facilities : HashMap<String, FacilityData>
 
 	
@@ -141,8 +141,8 @@ class PerceptAggregator {
 				val facility = CityDataCreator.createFacility(p)
 				this.facilities.put(facility.name, facility)
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
-//				val job = CityDataCreator.createJob(p)
-//				this.jobs.put(job.getId(), job)
+				val job = CityDataCreator.createJob(p)
+				this.jobs.put(job.getId(), job)
 			}
 		]);
 
@@ -211,7 +211,7 @@ class PerceptAggregator {
 	 * @returns the set of names of known charging station facilities
 	 */
 	def getChargingStations() : HashMap<String, ChargingStationData> {
-		getFacilities(typeof(ChargingStationData))
+		return getFacilities(typeof(ChargingStationData))
 	}
 
 	/**
@@ -220,7 +220,7 @@ class PerceptAggregator {
 	 * @returns the set of names of known dump facilities
 	 */
 	def getDumps() : HashMap<String, DumpData> {
-		getFacilities(typeof(DumpData))
+		return getFacilities(typeof(DumpData))
 	}
 
 	/**
@@ -229,7 +229,7 @@ class PerceptAggregator {
 	 * @returns the set of names of known resource node facilities
 	 */
 	def getResourceNodes() : HashMap<String, ResourceNodeData> {
-		getFacilities(typeof(ResourceNodeData))
+		return getFacilities(typeof(ResourceNodeData))
 	}
 
 	/**
@@ -238,7 +238,7 @@ class PerceptAggregator {
 	 * @returns the set of names of known shop facilities
 	 */
 	def getShops() : HashMap<String, ShopData> {
-		getFacilities(typeof(ShopData))
+		return getFacilities(typeof(ShopData))
 	}
 
 	/**
@@ -247,7 +247,7 @@ class PerceptAggregator {
 	 * @returns the set of names of known storage facilities
 	 */
 	def getStorages() : HashMap<String, StorageData> {
-		getFacilities(typeof(StorageData))
+		return getFacilities(typeof(StorageData))
 	}
 
 	/**
@@ -256,7 +256,7 @@ class PerceptAggregator {
 	 * @returns a hashmap of known well facilities
 	 */
 	def getWells() : HashMap<String, WellData> {
-		getFacilities(typeof(WellData))
+		return getFacilities(typeof(WellData))
 	}
 
 	/**
@@ -265,7 +265,7 @@ class PerceptAggregator {
 	 * @returns the set of names of known workshop facilities
 	 */
 	def getWorkshops() : HashMap<String, WorkshopData> {
-		getFacilities(typeof(WorkshopData))
+		return getFacilities(typeof(WorkshopData))
 	}
 
 	/**
@@ -275,22 +275,83 @@ class PerceptAggregator {
 	 * @returns a hashmap of facilities matching type T
 	 */
 	private def <T extends FacilityData> getFacilities(type : Class<T>) : HashMap<String, T> {
-		val filtered_facilities : HashMap<String, T> = newHashMap();
-		// extract only WellData
-		val stream_facilities = facilities.values().stream().filter([ f : FacilityData |
-			// check if this facility is of type we asked for
-			return type.isInstance(f)
-		])
+		val filtered_facilities : HashMap<String, T> = new HashMap();
+		// extract only facilities of desired type
+		val stream_facilities =
+			facilities
+				.values()
+				.stream()
+				.filter([ facility : FacilityData |
+					// check if this facility is of type we asked for
+					return type.isInstance(facility)
+				])
 
-		// add all wells to a hashmap and return
-		stream_facilities.map([ s : FacilityData |
-			filtered_facilities.put(s.getName, s as T)
+		// add all facilities of requested type to a hashmap and return
+		stream_facilities.map([ facility : FacilityData |
+			filtered_facilities.put(facility.getName(), facility as T)
 		])
 		return filtered_facilities
 	}
 
+	/**
+	 * Get all regular jobs
+	 *
+	 * @returns the set of names of known regular jobs
+	 */
+	def getRegularJobs() : HashMap<String, JobData> {
+		val filtered_jobs : HashMap<String, JobData> = new HashMap();
+		// extract only regular jobs - these are directly of parent type JobData, so cannot filter by class
+		for (job : jobs.entrySet) {
+			val jobKey : String = job.getKey()
+			if (jobKey.contains("job")) {
+				filtered_jobs.put(jobKey, job.getValue())
+			}
+		}
+		return filtered_jobs
+	}
 
+	/**
+	 * Get all auctions
+	 *
+	 * @returns the set of names of known auction jobs
+	 */
+	def getAuctions() : HashMap<String, AuctionJobData> {
+		return getJobs(typeof(AuctionJobData))
+	}
 
+	/**
+	 * Get all missions
+	 *
+	 * @returns the set of names of known mission jobs
+	 */
+	def getMissions() : HashMap<String, MissionData> {
+		return getJobs(typeof(MissionData))
+	}
+
+	/**
+	 * Get all jobs of a given type
+	 *
+	 * @param type the class type of the jobs to return
+	 * @returns a hashmap of jobs matching type T
+	 */
+	private def <T extends JobData> getJobs(type : Class<T>) : HashMap<String, T> {
+		val filtered_jobs : HashMap<String, T> = new HashMap();
+		// extract only jobs of desired type
+		val stream_facilities =
+			jobs
+			.values()
+			.stream()
+			.filter([ job : JobData |
+				// check if this facility is of type we asked for
+				return type.isInstance(job)
+			])
+
+		// add all jobs of requested type to a hashmap and return
+		stream_facilities.map([ job : JobData |
+			filtered_jobs.put(job.getId(), job as T)
+		])
+		return filtered_jobs
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	EVENT CREATION FROM DATA
