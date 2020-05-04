@@ -435,8 +435,8 @@ class PerceptAggregator {
 	def getShopSensedPercepts() : List<E_ShopInfo> {
 		var events = new ArrayList<E_ShopInfo>
 
-		for (facilityname : getShops().keySet) {
-			var ssp = new E_ShopInfo(players_team.keySet, shops.get(facilityname));
+		for (shop : getShops().values) {
+			var ssp = new E_ShopInfo(players_team.keySet, shop);
 			events.add(ssp)
 		}
 		return events
@@ -451,8 +451,8 @@ class PerceptAggregator {
 	def getChargingStationSensedPercepts() : List<E_ChargingStationInfo>{
 		var events = new ArrayList<E_ChargingStationInfo>
 		
-		for (stationName : getChargingStations().keySet){
-			var cssp = new E_ChargingStationInfo(players_team.keySet, chargingStations.get(stationName));
+		for (station : getChargingStations().values){
+			var cssp = new E_ChargingStationInfo(players_team.keySet, station);
 			events.add(cssp)
 		}
 		return events
@@ -467,8 +467,8 @@ class PerceptAggregator {
 	def getWorkshopSensedPercepts() : List<E_WorkshopInfo> {
 		var events = new ArrayList<E_WorkshopInfo>
 
-		for (facilityname : getWorkshops().keySet) {
-			var ssp = new E_WorkshopInfo(players_team.keySet, workshops.get(facilityname));
+		for (workshop : getWorkshops().values) {
+			var ssp = new E_WorkshopInfo(players_team.keySet, workshop);
 			events.add(ssp)
 		}
 		return events
@@ -484,8 +484,8 @@ class PerceptAggregator {
 
 		var events = new ArrayList<E_DumpInfo>
 
-		for (facilityname : getDumps().keySet) {
-			var dsp = new E_DumpInfo(players_team.keySet, dumps.get(facilityname));
+		for (dump : getDumps().values) {
+			var dsp = new E_DumpInfo(players_team.keySet, dump);
 			events.add(dsp)
 		}
 		return events
@@ -500,8 +500,8 @@ class PerceptAggregator {
 	def getStorageSensedPercepts() : List<E_StorageInfo> {
 		var events = new ArrayList<E_StorageInfo>
 
-		for (facilityname : getStorages().keySet) {
-			var ssp = new E_StorageInfo(players_team.keySet, storages.get(facilityname));
+		for (storage : getStorages().values) {
+			var ssp = new E_StorageInfo(players_team.keySet, storage);
 			events.add(ssp)
 		}
 		return events 
@@ -516,8 +516,8 @@ class PerceptAggregator {
 	def getResourceSensedPercepts() : List<E_ResourceInfo> { 
 		var events = new ArrayList<E_ResourceInfo>
 
-		for (resourceName : getResourceNodes().keySet) {
-			var rsp = new E_ResourceInfo(players_team.keySet, getResourceNodes().get(resourceName));
+		for (resourceNode : getResourceNodes().values) {
+			var rsp = new E_ResourceInfo(players_team.keySet, resourceNode);
 			events.add(rsp)
 		}
 		return events 
