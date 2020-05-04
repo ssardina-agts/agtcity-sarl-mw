@@ -12,8 +12,14 @@ import java.util.Scanner
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
+ * Class can be run with two optional CLI options:
+ * 
+ * 1) the agent to boot up	(if missing, this class will list available and ask)
+ * 2) the directory where the configuration file eismassimconfig.json is located (if missing agent will list and ask)
+ * 
  */
-@SuppressWarnings("potential_field_synchronization_problem")
+//@SuppressWarnings("potential_field_synchronization_problem")
+@SuppressWarnings("all")
 class BootMAS {
 	// Code adapted from example how to boot from name string: 	http://tinyurl.com/ycolmey5
 	def static main(args : String[]) : void {
@@ -44,17 +50,24 @@ class BootMAS {
 				throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
 		}
 
+
 		// now get agent class for fullQualifiedAgent and boot it
 		System.out.println(String.format("Loading SARL controller agent %s (%s)", fullyQualifiedAgent, agentToLaunch))
 		val type = Class.forName(fullyQualifiedAgent)
 		var SARLagent : Class<? extends Agent>
 		SARLagent = type.asSubclass(Agent)
 		assert SARLagent != null;
-		Boot.startJanus(SARLagent)
+
+		if (args.length == 2) { // second CLI argument states which config dir has to be used to find "eismassimconfig.json"
+			Boot.startJanus(SARLagent, args.get(1))	// pass it to agent if there was one
+		} else {
+			Boot.startJanus(SARLagent)
+		}
+
+		
 	}
 
 	static def getSelectionFromuser(message : String, options : String[]) : String {
-		System.out.println(message);
 		for (var i = 0; i < options.size; i++) {
 			System.out.println(String.format("%d. %s", i + 1, options.get(i)))
 		}

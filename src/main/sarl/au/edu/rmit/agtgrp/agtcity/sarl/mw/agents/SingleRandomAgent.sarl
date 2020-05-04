@@ -20,37 +20,28 @@
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.agents
 
 // MASSIM EIS imports
-import eis.iilang.Action // needed to do actions
-import eis.iilang.Percept // needed to process percepts
-import eis.iilang.EnvironmentState;
 
-// SARL imports
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SenseEnvironment
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
+import eis.exceptions.ActException
+import eis.exceptions.PerceiveException
+import eis.iilang.Action
+import eis.iilang.EnvironmentState
+import eis.iilang.Identifier
+import eis.iilang.Percept
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
-
-// General Java tools
-import java.nio.file.Paths
-
-import eis.exceptions.PerceiveException
-import eis.exceptions.ActException
-import eis.iilang.Identifier
-
-// Import project content
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
-
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
-
 import io.sarl.core.Schedules
+import java.nio.file.Paths
 import java.util.Collection
 import java.util.Map
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_SenseEnvironment
 import java.util.Random
 import java.util.Set
 
@@ -99,7 +90,7 @@ agent SingleRandomAgent {
 	 * Otherwise, possible options as per folders under conf/ are scanned and given to user for selection	 * 
 	 */
 	on Initialize { // Should only be initializing with the EIS as a parameter.
-			var args = newArrayList(occurrence.parameters) // may receive directory conf directory
+			var args = newArrayList(occurrence.parameters) // may receive config directory at creation
 			var eiConfigDir : String
 			val eiConfigFileName = "eismassimconfig.json"
 
@@ -116,9 +107,9 @@ agent SingleRandomAgent {
 			 * FIRST, collect the directory where the server and player configuration files to be used are
 			 */
 			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiConfigFileName)
-			if (args.length != 0)
+			if (args.length != 0) {
 				eiConfigDir = args.get(0) as String	// use the config dir given as CLI argument
-			else {
+			} else {
 				// Ask the user which folder in conf/ is to be used to use the EI config file
 				eiConfigDir = ConfHandler.getConfDir()
 			}
