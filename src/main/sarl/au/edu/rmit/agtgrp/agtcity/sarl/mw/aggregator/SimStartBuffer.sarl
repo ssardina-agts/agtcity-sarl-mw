@@ -18,16 +18,14 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
-import java.util.Collection
-import eis.iilang.Percept
-import java.util.HashMap
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Item
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Role
-import java.util.Map
+import eis.iilang.Percept
+import java.util.Collection
+import java.util.HashMap
 import java.util.HashSet
+import java.util.Map
 import java.util.Set
-import eis.iilang.Function
-import eis.iilang.ParameterList
 
 /** 
  * @author bob

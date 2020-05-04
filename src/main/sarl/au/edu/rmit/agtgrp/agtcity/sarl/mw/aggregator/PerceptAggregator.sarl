@@ -19,17 +19,19 @@
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ActionResult
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.AuctionJob
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ChargingStation
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.CityDataCreator
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Dump
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.MissionJob
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.RegularJob
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Resource
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Shop
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Storage
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamJob
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Workshop
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ActionStatusInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ChargingStationInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_DumpInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_JobInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ResourceInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ShopInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_StorageInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_TellEntityInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_TellPlayerTeamInfo
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_WorkshopInfo
 import eis.iilang.Percept
 import java.util.ArrayList
 import java.util.Collection
@@ -37,23 +39,16 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.List
 import java.util.Set
+import massim.protocol.scenario.city.data.AuctionJobData
+import massim.protocol.scenario.city.data.ChargingStationData
+import massim.protocol.scenario.city.data.DumpData
 import massim.protocol.scenario.city.data.FacilityData
 import massim.protocol.scenario.city.data.JobData
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_TellEntityInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_TellPlayerTeamInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ShopInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_WorkshopInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_DumpInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_StorageInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ChargingStationInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ActionStatusInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ResourceInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_AuctionJobInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_MissionJobInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_TeamJobInfo
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_RegularJobInfo
+import massim.protocol.scenario.city.data.ResourceNodeData
+import massim.protocol.scenario.city.data.ShopData
+import massim.protocol.scenario.city.data.StorageData
+import massim.protocol.scenario.city.data.WellData
+import massim.protocol.scenario.city.data.WorkshopData
 
 /** 
  * @author boblo
@@ -70,42 +65,39 @@ class PerceptAggregator {
 	 */
 	var players_team : HashMap<String, TeamEntityAgent>
 	var players_opp : HashMap<String, EntityAgent>
-
 	var actionResults : HashMap<String, ActionResult>
-	var auctionJobs : HashMap<String, AuctionJob>
-	var missionJobs : HashMap<String, MissionJob>
-	var regularJobs : HashMap<String, RegularJob>
-	var jobs : HashMap<String, JobData>
-	var teamJobs : HashMap<String, TeamJob>
+	var money : double
+
+	var jobs : HashMap<String, JobData>	// holds regular jobs and auction jobs (subclass AuctionJobData)
 
 	var facilities : HashMap<String, FacilityData>
-	var chargingStations : HashMap<String, ChargingStation>
-	var dumps : HashMap<String, Dump>
-	var shops : HashMap<String, Shop>
-	var storages : HashMap<String, Storage>
-	var workshops : HashMap<String, Workshop>
+	var chargingStations : HashMap<String, ChargingStationData>
+	var dumps : HashMap<String, DumpData>
+	var shops : HashMap<String, ShopData>
+	var storages : HashMap<String, StorageData>
+	var workshops : HashMap<String, WorkshopData>
+	var resources : HashMap<String, ResourceNodeData>
+	var wells: HashMap<String, WellData>
 
-	var resources : HashMap<String, Resource>
-	var money : double
 	
 	/**
-	 * Constructor that initializes all of the HashMaps
+	 * Constructor that initializes all of the HashMaps to empty
 	 */
 	new() {
-		this.actionResults = new HashMap();
-		this.auctionJobs = new HashMap();
-		this.missionJobs = new HashMap();
-		this.chargingStations = new HashMap();
-		this.dumps = new HashMap();
-		this.regularJobs = new HashMap();
-		this.teamJobs = new HashMap();
-		this.resources = new HashMap();
-		this.shops = new HashMap();
-		this.storages = new HashMap();
-		this.players_team = new HashMap();
-		this.workshops = new HashMap();
-		this.players_opp = new HashMap();
-		this.money = 0;
+		this.players_team = new HashMap()
+		this.players_opp = new HashMap()
+		this.actionResults = new HashMap()
+		this.money = 0
+		
+		this.jobs = new HashMap()
+		
+		this.facilities = new HashMap()
+		this.chargingStations = new HashMap()
+		this.dumps = new HashMap()
+		this.storages = new HashMap()
+		this.shops = new HashMap()
+		this.workshops = new HashMap()
+		this.resources = new HashMap()
 	}
 	
 	
@@ -117,7 +109,7 @@ class PerceptAggregator {
 	 * @param source - list of agents that received this percept from MASSIM. 
 	 * @param PlayerState - the observed entity
 	 */
-	public def addPlayerTeam(source : String, teamEntity : TeamEntityAgent) {
+	def addPlayerTeam(source : String, teamEntity : TeamEntityAgent) {
 		players_team.put(source, teamEntity)
 	}
 
@@ -127,7 +119,7 @@ class PerceptAggregator {
 	 * @param source - list of agents that received this percept from MASSIM. 
 	 * @param PlayerState - the observed entity
 	 */
-	public def addPlayerOpposition(source : String, entityAgent : EntityAgent) {
+	def addPlayerOpposition(source : String, entityAgent : EntityAgent) {
 		players_opp.put(source, entityAgent)
 	}
 
@@ -137,7 +129,7 @@ class PerceptAggregator {
 	 * 
 	 */
 	 // TODO: can we get rid of this? Do we need EntityBuffer complex data?
-	public def addPlayerOpposition() {
+	def addPlayerOpposition() {
 		for (e : EntityBuffer.entities.keySet) {
 			if (!this.players_team.keySet.contains(e)) { // add only if they are not agents of the team
 				addPlayerOpposition(e, (EntityBuffer.entities.get(e)))
@@ -150,7 +142,7 @@ class PerceptAggregator {
 	 * 
 	 * @param money - the amount of money perceived our team to have.
 	 */
-	public def addMoneyPercept(money : double) {
+	def addMoneyPercept(money : double) {
 		this.money = money
 	}
 	
@@ -160,7 +152,7 @@ class PerceptAggregator {
 	 * @param percepts - the collection of percepts received from MASSIM
 	 * 
 	 */
-	public def addFacilities(percepts : Collection<Percept>) {
+	def addFacilities(percepts : Collection<Percept>) {
 		// extract percepts that are about facilities
 		percepts.stream().filter([ p : Percept |
 			CityDataCreator.FACILITY_TYPES.contains(p.name)
@@ -176,7 +168,7 @@ class PerceptAggregator {
 	 * 
 	 * @param percepts - the collection of percepts received from MASSIM
 	 */	
-	public def addJobs(percepts : Collection<Percept>) {
+	def addJobs(percepts : Collection<Percept>) {
 		percepts.stream().filter([ p : Percept |
 			CityDataCreator.JOB_TYPES.contains(p.name)
 		]).map([ p : Percept |
@@ -186,14 +178,35 @@ class PerceptAggregator {
 	}
 
 	
-	public def fillAggregator(percepts : Collection<Percept>) {
+	def fillAggregator(percepts : Collection<Percept>) {
 		percepts.forEach([ p : Percept |
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
-				System.out.println("=============================")
 				val facility = CityDataCreator.createFacility(p)
-				System.out.println(facility.name)
 				this.facilities.put(facility.name, facility)
-				System.out.println("=============================")
+				
+				switch (p.name) {
+					case "chargingStation": {
+						this.chargingStations.put(facility.name, facility as ChargingStationData)
+						}
+					case "dump": {
+						this.dumps.put(facility.name, facility as DumpData)
+						}
+					case "shop": {
+						this.shops.put(facility.name, facility as ShopData)
+						}
+					case "storage": {
+						this.storages.put(facility.name, facility as StorageData)
+						}
+					case "workshop": {
+						this.workshops.put(facility.name, facility as WorkshopData)
+						}
+					case "resourceNode": {
+						this.resources.put(facility.name, facility as ResourceNodeData)
+						}
+					case "well": {
+						this.wells.put(facility.name, facility as WellData)
+						}
+					}				
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
 				val job = CityDataCreator.createJob(p)
 				this.jobs.put(job.getId(), job)
@@ -208,7 +221,7 @@ class PerceptAggregator {
 	 * @param source - the EI source (e.g., player_connectionA1) of the percept is referring to. 
 	 * @param percepts - the collection of percepts received from MASSIM
 	 */
-	public def addActionResults(source : String, percepts : Collection<Percept>){
+	def addActionResults(source : String, percepts : Collection<Percept>){
 		
 		var action : String
 		var success : String
@@ -246,7 +259,7 @@ class PerceptAggregator {
 	 * 
 	 * @returns the set of names of known shops
 	 */
-	public def getShopsNames() : Set<String> {
+	def getShopsNames() : Set<String> {
 		return shops.keySet()
 	}
 
@@ -255,7 +268,7 @@ class PerceptAggregator {
 	 * 
 	 * @returns the set of names of known facilities
 	 */
-	public def getFacilitiesNames() : Set<String> {
+	def getFacilitiesNames() : Set<String> {
 		return facilities.keySet()
 	}
 
@@ -275,7 +288,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_TellPlayerTeamInfo events containing the data for each player team-mate
 	 */
-	public def getTeamMemberPercepts() : Set<E_TellEntityInfo> {
+	def getTeamMemberPercepts() : Set<E_TellEntityInfo> {
 		var events = new HashSet<E_TellEntityInfo>()
 
 		for (agentName : players_team.keySet) {
@@ -292,7 +305,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_TellEntityInfo events 
 	 */
-	public def getGameEntityPercepts() : Set<E_TellEntityInfo> {
+	def getGameEntityPercepts() : Set<E_TellEntityInfo> {
 		var events = new HashSet<E_TellEntityInfo>()
 
 		for (entityName : players_opp.keySet) {
@@ -309,7 +322,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_ActionStatusInfo events 
 	 */
-	public def getActionPercepts() : List<E_ActionStatusInfo>{
+	def getActionPercepts() : List<E_ActionStatusInfo>{
 		var events = new ArrayList<E_ActionStatusInfo>
 		
 		for (agentName : actionResults.keySet){
@@ -344,7 +357,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_ShopInfo events 
 	 */
-	public def getShopSensedPercepts() : List<E_ShopInfo> {
+	def getShopSensedPercepts() : List<E_ShopInfo> {
 		var events = new ArrayList<E_ShopInfo>
 
 		for (facilityname : shops.keySet) {
@@ -360,7 +373,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_ChargingStationInfo events 
 	 */
-	public def getChargingStationSensedPercepts() : List<E_ChargingStationInfo>{
+	def getChargingStationSensedPercepts() : List<E_ChargingStationInfo>{
 		var events = new ArrayList<E_ChargingStationInfo>
 		
 		for (stationName : chargingStations.keySet){
@@ -376,7 +389,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_WorkshopInfo events 
 	 */
-	public def getWorkshopSensedPercepts() : List<E_WorkshopInfo> {
+	def getWorkshopSensedPercepts() : List<E_WorkshopInfo> {
 		var events = new ArrayList<E_WorkshopInfo>
 
 		for (facilityname : workshops.keySet) {
@@ -392,7 +405,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_DumpInfo events 
 	 */
-	public def getDumpSensedPercepts() : List<E_DumpInfo>{
+	def getDumpSensedPercepts() : List<E_DumpInfo>{
 
 		var events = new ArrayList<E_DumpInfo>
 
@@ -409,7 +422,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_StorageInfo events 
 	 */
-	public def getStorageSensedPercepts() : List<E_StorageInfo> {
+	def getStorageSensedPercepts() : List<E_StorageInfo> {
 		var events = new ArrayList<E_StorageInfo>
 
 		for (facilityname : storages.keySet) {
@@ -425,7 +438,7 @@ class PerceptAggregator {
 	 * 
 	 * @return an set of E_ResourceInfo events 
 	 */
-	public def getResourceSensedPercepts() : List<E_ResourceInfo> { 
+	def getResourceSensedPercepts() : List<E_ResourceInfo> { 
 		var events = new ArrayList<E_ResourceInfo>
 
 		for (resourceName : resources.keySet) {
@@ -434,71 +447,39 @@ class PerceptAggregator {
 		}
 		return events 
 	}
-	
-	
 
-	/** 
-	 * Build a set E_ResourceInfo
-	 * To send information about all resources known
-	 * 
-	 * @return an set of E_ResourceInfo events 
-	 */
-	public def getAuctionJobPercepts() : List<E_AuctionJobInfo> {
-		var events = new ArrayList<E_AuctionJobInfo>
-
-		for (jobId : auctionJobs.keySet) {
-			var ajp = new E_AuctionJobInfo(players_team.keySet, auctionJobs.get(jobId));
-			events.add(ajp)
-		}
-		return events
-	}
-	
-	
-	
 	/**
-	 * Function used to get all regular jobs
-	 * @returns a list of events each containing a regular job (Posted of opponent team).
-	 */
-	public def getRegularJobPercepts() : List<E_RegularJobInfo> {
-		var events = new ArrayList<E_RegularJobInfo>
-
-		for (jobId : regularJobs.keySet) {
-			var rjp = new E_RegularJobInfo(players_team.keySet, regularJobs.get(jobId));
-			events.add(rjp)
-		}
-		return events 
-	}
-
-	/** 
-	 * Build a set E_MissionJobInfo
-	 * To send information about all mission jobs known
+	 * Build a list of E_JobInfo events with regular jobs
 	 * 
-	 * @return an set of E_MissionJobInfo events 
+	 * @returns a list of events each containing a regular job 
 	 */
-	public def getMissionJobPercepts() : List<E_MissionJobInfo> {
-		var events = new ArrayList<E_MissionJobInfo>
+	def getRegularJobEvents() : List<E_JobInfo> {
+		var events = new ArrayList<E_JobInfo>
 
-		for (jobId : missionJobs.keySet) {
-			var mjp = new E_MissionJobInfo(players_team.keySet, missionJobs.get(jobId));
-			events.add(mjp)
+		for (job : jobs.entrySet) {
+			if (! (job.value instanceof AuctionJobData)) {
+				var ev = new E_JobInfo(players_team.keySet, job.value);
+				events.add(ev)
+				}
 		}
 		return events
 	}
 
 	/** 
-	 * Build a set E_TeamJobInfo
-	 * To send information about all team jobsknown
+	 * Build a list of E_JobInfo events with auction jobs data
 	 * 
-	 * @return an set of E_TeamJobInfo events 
+	 * @returns a list of events each containing a auction job  data
 	 */
-	public def getTeamJobPercepts() : List<E_TeamJobInfo> {
-		var events = new ArrayList<E_TeamJobInfo>
+	 def getAuctionJobPercepts() : List<E_JobInfo> {
+		var events = new ArrayList<E_JobInfo>
 
-		for (jobId : teamJobs.keySet) {
-			var tjp = new E_TeamJobInfo(players_team.keySet, teamJobs.get(jobId));
-			events.add(tjp)
+		for (job : jobs.entrySet) {
+			if (job.value instanceof AuctionJobData) {
+				var ev = new E_JobInfo(players_team.keySet, job.value as AuctionJobData, "auction");
+				events.add(ev)
+				}
 		}
-		return events 
+		return events
 	}
 	
 	
