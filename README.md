@@ -1,14 +1,18 @@
 # SARL Middleware for Agents in the City 2018+
 
-This is the SARL Middleware infrastructure to control an agent team in the [Agents in City Contest](https://multiagentcontest.org/2018/) from the Multi Agent Contest. In particular, this is the MW for the [RMIT 2018+ version of the game and server](https://github.com/ssardina-agts/agtcity-server), which brings back items in shops as the 2017 edition.
+This is the SARL Middleware infrastructure (MW) to control an agent team in the [Agents in City Contest](https://multiagentcontest.org/2018/) from the Multi Agent Contest. In particular, this is the MW for the [RMIT 2018+ version of the game and server](https://github.com/ssardina-agts/agtcity-server), which brings back items in shops as the 2017 edition.
+
+The MW can be used to develop SARL agent controllers for Agents in City, providing convenient capacities and skills to sense and act in the game server.
+
 
 You can see the infrastructure working by clicking on the following video:
 
 [![click to watch video](https://multiagentcontest.org/2016/banner.jpg)](https://youtu.be/nFR7Strp9ms).
 
+
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
 
-This framework can be accessible via JitPack at https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw by adding the corresponding dependency and repository on the `pom.xml` (see below).
+This framework can be [accessible via JitPack](https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw) by adding the corresponding dependency and repository on the `pom.xml` (see below). 
 
 See general [HOWTO SARL Projects](https://gist.github.com/ssardina/43d6e6f469921e5f692b37304f952d43) guide and [SARL FAQ and Issues](https://gist.github.com/ssardina/ba59838bd6f2c2a64896e79533f35054).
 
@@ -16,14 +20,16 @@ See general [HOWTO SARL Projects](https://gist.github.com/ssardina/43d6e6f469921
 -----------------------------
 ## PREREQUISITES
 
-* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8 (Sun version recommended)
+* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8+.
+    * Tested with SUN Java 1.8 and OpenJDK 11.
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine - Maven [repo](http://mvnrepository.com/artifact/io.sarl.maven).
-    * SARL version to be used determined via env variable `SARL_VERSION`, e.g., `export SARL_VERSION=0.8.6`
 * The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server). 
-    * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven).
-    * Note this MW uses the [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server), not the official 2018 server. This updated edition brings back ites to shop as in the 2017 version.
+    * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
     * The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
+
+Note this MW uses the [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server), not the official 2018 server. This updated edition brings back ites to shop as in the 2017 version.
+
 
 -----------------------------
 ## USE/INSTALL AND DEVELP THE MIDDLEWARE
@@ -36,7 +42,6 @@ To do so, you first need to have the JAR file for the MW installed in your local
 <properties>
 	<!-- SARL Agt City MW version -->
 	<agtcity-sarl-mw.version>1.2.${sarl.version}</agtcity-sarl-mw.version>
-
 	...
 </properties>
 
@@ -65,35 +70,35 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 ```
 
 ----------------------------
-## RUN DEMO
+## RUN MW DEMO
 
 The MW comes with two simple agent controllers that can be used to test it when developing it further (see below for detailed explanations).
 
-1. Start Game Server. For example, from `server/` subdir:
+1. **Start Game Server**. For example, from `server/` subdir:
 
-	```shell
-
-	java -jar target/server-2.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
-	```
+		java -jar target/server-2020-1.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
 
 	Note that the configuration file (here, `conf/SampleConfig.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
 
 	In the console of the server, you will see a URL link to the monitor. Click it to see the GUI interface of the game.
 
-2. Start the SARL demo controller, either via ECLIPSE or through the CLI. See below under examples for how to run the examples built-in in this package.
-3. Start the MASSIM Simulation by just hitting *ENTER* in the Game Server console
+2. **Start the SARL demo controller**, either via ECLIPSE or through the CLI. For example:
+
+		```
+		mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
+		```
+	
+	See below under Examples for more information on the two "dummy" controller examples provided here in the MW, mostly for testing and as agent templates.
+
+3. **Start simulation** by just hitting *ENTER* in the Game Server console.
 	* The web GUI should start displaying/monitoring the simulation.
-4. Enjoy! You should start seeing the agent reporting things in the console. 
+4. **Enjoy!** You should start seeing the agent reporting things in the console. 
     * You can see the simulation on the web browser.
 
-
-
 ----------------------------
-## INFRASTRUCTURED PROVIDED
+## EI Player Entity --> Connection Entity --> Game Entity Agent 
 
-So, what is provided by this package?
-
-### EI Player --> Connectiion Entity --> Game Entity Agent 
+Before explaining what the MW provides, in terms of capacities, skills, events and data structures, we need to understand the different abtsractions from an actual player agent game in the game (e.g., a truck or drone) to a SARL agent controlling one more of those agents.
 
 Because the framework involves the [MASSIM game server](https://github.com/ssardina-agts/agtcity-server), an [EISMASSim](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md) Environment Interface (EI from now on) for MASSIM, and the SARL agents, there are different entities and identifications that need to be understood:
 
@@ -111,15 +116,23 @@ So, `connectionA1` will be linked to `agentA32`, which is a truck vehicle in the
 
 
 
+----------------------------
+## INFRASTRUCTURED PROVIDED
 
-### Capabilities and Skills
+The MW provides:
+
+* A capacity and associated skill
+
+So, what is provided by this package?
+
+
+## MassimTalking Capacity and Skill 
 
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
 * **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agent players, and control such players, by receiving their sensing percepts and performing actions in the simulation.
 	* The skill **S_MassimTalking** implements this capability.
-* **C_Reporting**: a capability to report information.
-	* The skill **S_ConsoleReporting** implements this capability by printing on console.
+
 
 The main tools provided by the **C_MassimTalking** capability are:
 
@@ -144,6 +157,13 @@ The **S_MassimTalking** skill makes use of entity class **PlayerState** to store
 
 
 
+## Reporting Capacity and Skill 
+
+**C_Reporting**: a capability to report information.
+	* The skill **S_ConsoleReporting** implements this capability by printing on console.
+
+
+
 ### Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
 
 The main set of events are:
@@ -156,13 +176,8 @@ Both are used by the demo **SchedulerAgent** to inform the dummy agents of the p
 
 There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
 
-### Entities (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.entities`)
 
-A set of classes representing entities/artifacts (e.g., facilities, jobs, storages, etc.) in the simulation are provided.
-
-A special one is **PlayerState** which is used to keep track of each player current state, as per the last percept received.
-
-### Aggregators (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator`)
+### Aggregator (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator`)
 
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server. 
 
