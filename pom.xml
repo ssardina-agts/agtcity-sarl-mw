@@ -137,7 +137,9 @@
             </exclusions>
         </dependency>
 
-        <!--  EIS-MASSIM Environment Interface Standard -->
+        <!--  EIS-MASSIM Environment Interface Standard Modified for RMIT server
+        	https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim
+         -->
         <dependency>
             <groupId>com.github.ssardina-agts.agtcity-server</groupId>
             <artifactId>eismassim</artifactId>
