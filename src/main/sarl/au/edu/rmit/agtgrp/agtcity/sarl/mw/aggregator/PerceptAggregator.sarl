@@ -49,6 +49,7 @@ import massim.protocol.scenario.city.data.ShopData
 import massim.protocol.scenario.city.data.StorageData
 import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
+import massim.protocol.scenario.city.data.MissionData
 
 /** 
  * @author boblo
@@ -68,16 +69,8 @@ class PerceptAggregator {
 	var actionResults : HashMap<String, ActionResult>
 	var money : double
 
-	var jobs : HashMap<String, JobData>	// holds regular jobs and auction jobs (subclass AuctionJobData)
-
+	var jobs : HashMap<String, JobData>	// holds regular jobs, missions (subclass Mission) and auction jobs (subclass AuctionJobData)
 	var facilities : HashMap<String, FacilityData>
-	var chargingStations : HashMap<String, ChargingStationData>
-	var dumps : HashMap<String, DumpData>
-	var shops : HashMap<String, ShopData>
-	var storages : HashMap<String, StorageData>
-	var workshops : HashMap<String, WorkshopData>
-	var resources : HashMap<String, ResourceNodeData>
-	var wells: HashMap<String, WellData>
 
 	
 	/**
@@ -92,12 +85,6 @@ class PerceptAggregator {
 		this.jobs = new HashMap()
 		
 		this.facilities = new HashMap()
-		this.chargingStations = new HashMap()
-		this.dumps = new HashMap()
-		this.storages = new HashMap()
-		this.shops = new HashMap()
-		this.workshops = new HashMap()
-		this.resources = new HashMap()
 	}
 	
 	
@@ -153,33 +140,9 @@ class PerceptAggregator {
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
 				val facility = CityDataCreator.createFacility(p)
 				this.facilities.put(facility.name, facility)
-				
-				switch (p.name) {
-					case "chargingStation": {
-						this.chargingStations.put(facility.name, facility as ChargingStationData)
-						}
-					case "dump": {
-						this.dumps.put(facility.name, facility as DumpData)
-						}
-					case "shop": {
-						this.shops.put(facility.name, facility as ShopData)
-						}
-					case "storage": {
-						this.storages.put(facility.name, facility as StorageData)
-						}
-					case "workshop": {
-						this.workshops.put(facility.name, facility as WorkshopData)
-						}
-					case "resourceNode": {
-						this.resources.put(facility.name, facility as ResourceNodeData)
-						}
-					case "well": {
-						this.wells.put(facility.name, facility as WellData)
-						}
-					}				
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
-//				val job = CityDataCreator.createJob(p)
-//				this.jobs.put(job.getId(), job)
+				val job = CityDataCreator.createJob(p)
+				this.jobs.put(job.getId(), job)
 			}
 		]);
 
@@ -242,10 +205,152 @@ class PerceptAggregator {
 		return facilities.keySet()
 	}
 
+	/**
+	 * Get all charging stations
+	 *
+	 * @returns the set of names of known charging station facilities
+	 */
+	def getChargingStations() : HashMap<String, ChargingStationData> {
+		return getFacilities(typeof(ChargingStationData))
+	}
 
+	/**
+	 * Get all dumps
+	 *
+	 * @returns the set of names of known dump facilities
+	 */
+	def getDumps() : HashMap<String, DumpData> {
+		return getFacilities(typeof(DumpData))
+	}
 
+	/**
+	 * Get all resource nodes
+	 *
+	 * @returns the set of names of known resource node facilities
+	 */
+	def getResourceNodes() : HashMap<String, ResourceNodeData> {
+		return getFacilities(typeof(ResourceNodeData))
+	}
 
+	/**
+	 * Get all shops
+	 *
+	 * @returns the set of names of known shop facilities
+	 */
+	def getShops() : HashMap<String, ShopData> {
+		return getFacilities(typeof(ShopData))
+	}
 
+	/**
+	 * Get all storages
+	 *
+	 * @returns the set of names of known storage facilities
+	 */
+	def getStorages() : HashMap<String, StorageData> {
+		return getFacilities(typeof(StorageData))
+	}
+
+	/**
+	 * Get all wells
+	 *
+	 * @returns a hashmap of known well facilities
+	 */
+	def getWells() : HashMap<String, WellData> {
+		return getFacilities(typeof(WellData))
+	}
+
+	/**
+	 * Get all workshops
+	 *
+	 * @returns the set of names of known workshop facilities
+	 */
+	def getWorkshops() : HashMap<String, WorkshopData> {
+		return getFacilities(typeof(WorkshopData))
+	}
+
+	/**
+	 * Get all facilities of a given type
+	 *
+	 * @param type the class type of the facilities to return
+	 * @returns a hashmap of facilities matching type T
+	 */
+	private def <T extends FacilityData> getFacilities(type : Class<T>) : HashMap<String, T> {
+		val filtered_facilities : HashMap<String, T> = new HashMap();
+		// extract only facilities of desired type
+		val stream_facilities =
+			facilities
+				.values()
+				.stream()
+				.filter([ facility : FacilityData |
+					// check if this facility is of type we asked for
+					return type.isInstance(facility)
+				])
+
+		// add all facilities of requested type to a hashmap and return
+		stream_facilities.map([ facility : FacilityData |
+			filtered_facilities.put(facility.getName(), facility as T)
+		])
+		return filtered_facilities
+	}
+
+	/**
+	 * Get all regular jobs
+	 *
+	 * @returns the set of names of known regular jobs
+	 */
+	def getRegularJobs() : HashMap<String, JobData> {
+		val filtered_jobs : HashMap<String, JobData> = new HashMap();
+		// extract only regular jobs - these are directly of parent type JobData, filter out all other class types
+		for (job : jobs.values()) {
+			if (! (job instanceof AuctionJobData || job instanceof MissionData)) {
+				filtered_jobs.put(job.getId(), job)
+			}
+		}
+		return filtered_jobs
+	}
+
+	/**
+	 * Get all auctions
+	 *
+	 * @returns the set of names of known auction jobs
+	 */
+	def getAuctionJobs() : HashMap<String, AuctionJobData> {
+		return getJobs(typeof(AuctionJobData))
+	}
+
+	/**
+	 * Get all missions
+	 *
+	 * @returns the set of names of known mission jobs
+	 */
+	def getMissionJobs() : HashMap<String, MissionData> {
+		return getJobs(typeof(MissionData))
+	}
+
+	/**
+	 * Get all jobs of a given type
+	 *
+	 * @param type the class type of the jobs to return
+	 * @returns a hashmap of jobs matching type T
+	 */
+	private def <T extends JobData> getJobs(type : Class<T>) : HashMap<String, T> {
+		val filtered_jobs : HashMap<String, T> = new HashMap();
+		// extract only jobs of desired type
+		val stream_facilities =
+			jobs
+			.values()
+			.stream()
+			.filter([ job : JobData |
+				// check if this facility is of type we asked for
+				return type.isInstance(job)
+			])
+
+		// add all jobs of requested type to a hashmap and return
+		stream_facilities.map([ job : JobData |
+			filtered_jobs.put(job.getId(), job as T)
+		])
+		return filtered_jobs
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	EVENT CREATION FROM DATA
@@ -330,8 +435,8 @@ class PerceptAggregator {
 	def getShopSensedPercepts() : List<E_ShopInfo> {
 		var events = new ArrayList<E_ShopInfo>
 
-		for (facilityname : shops.keySet) {
-			var ssp = new E_ShopInfo(players_team.keySet, shops.get(facilityname));
+		for (shop : getShops().values) {
+			var ssp = new E_ShopInfo(players_team.keySet, shop);
 			events.add(ssp)
 		}
 		return events
@@ -346,8 +451,8 @@ class PerceptAggregator {
 	def getChargingStationSensedPercepts() : List<E_ChargingStationInfo>{
 		var events = new ArrayList<E_ChargingStationInfo>
 		
-		for (stationName : chargingStations.keySet){
-			var cssp = new E_ChargingStationInfo(players_team.keySet, chargingStations.get(stationName));
+		for (station : getChargingStations().values){
+			var cssp = new E_ChargingStationInfo(players_team.keySet, station);
 			events.add(cssp)
 		}
 		return events
@@ -362,8 +467,8 @@ class PerceptAggregator {
 	def getWorkshopSensedPercepts() : List<E_WorkshopInfo> {
 		var events = new ArrayList<E_WorkshopInfo>
 
-		for (facilityname : workshops.keySet) {
-			var ssp = new E_WorkshopInfo(players_team.keySet, workshops.get(facilityname));
+		for (workshop : getWorkshops().values) {
+			var ssp = new E_WorkshopInfo(players_team.keySet, workshop);
 			events.add(ssp)
 		}
 		return events
@@ -379,8 +484,8 @@ class PerceptAggregator {
 
 		var events = new ArrayList<E_DumpInfo>
 
-		for (facilityname : dumps.keySet) {
-			var dsp = new E_DumpInfo(players_team.keySet, dumps.get(facilityname));
+		for (dump : getDumps().values) {
+			var dsp = new E_DumpInfo(players_team.keySet, dump);
 			events.add(dsp)
 		}
 		return events
@@ -395,8 +500,8 @@ class PerceptAggregator {
 	def getStorageSensedPercepts() : List<E_StorageInfo> {
 		var events = new ArrayList<E_StorageInfo>
 
-		for (facilityname : storages.keySet) {
-			var ssp = new E_StorageInfo(players_team.keySet, storages.get(facilityname));
+		for (storage : getStorages().values) {
+			var ssp = new E_StorageInfo(players_team.keySet, storage);
 			events.add(ssp)
 		}
 		return events 
@@ -411,8 +516,8 @@ class PerceptAggregator {
 	def getResourceSensedPercepts() : List<E_ResourceInfo> { 
 		var events = new ArrayList<E_ResourceInfo>
 
-		for (resourceName : resources.keySet) {
-			var rsp = new E_ResourceInfo(players_team.keySet, resources.get(resourceName));
+		for (resourceNode : getResourceNodes().values) {
+			var rsp = new E_ResourceInfo(players_team.keySet, resourceNode);
 			events.add(rsp)
 		}
 		return events 
@@ -426,11 +531,9 @@ class PerceptAggregator {
 	def getRegularJobEvents() : List<E_JobInfo> {
 		var events = new ArrayList<E_JobInfo>
 
-		for (job : jobs.entrySet) {
-			if (! (job.value instanceof AuctionJobData)) {
-				var ev = new E_JobInfo(players_team.keySet, job.value);
-				events.add(ev)
-				}
+		for (job : getRegularJobs().entrySet) {
+			var ev = new E_JobInfo(players_team.keySet, job.value);
+			events.add(ev)
 		}
 		return events
 	}
@@ -440,14 +543,27 @@ class PerceptAggregator {
 	 * 
 	 * @returns a list of events each containing a auction job  data
 	 */
-	 def getAuctionJobPercepts() : List<E_JobInfo> {
+	def getAuctionJobPercepts() : List<E_JobInfo> {
 		var events = new ArrayList<E_JobInfo>
 
-		for (job : jobs.entrySet) {
-			if (job.value instanceof AuctionJobData) {
-				var ev = new E_JobInfo(players_team.keySet, job.value as AuctionJobData, "auction");
-				events.add(ev)
-				}
+		for (job : getAuctionJobs().entrySet) {
+			var ev = new E_JobInfo(players_team.keySet, job.value, "auction");
+			events.add(ev)
+		}
+		return events
+	}
+
+	/**
+	 * Build a list of E_JobInfo events with mission jobs data
+	 *
+	 * @returns a list of events each containing a auction job  data
+	 */
+	def getMissionJobPercepts() : List<E_JobInfo> {
+		var events = new ArrayList<E_JobInfo>
+
+		for (job : getMissionJobs().entrySet) {
+			var ev = new E_JobInfo(players_team.keySet, job.value, "mission");
+			events.add(ev)
 		}
 		return events
 	}

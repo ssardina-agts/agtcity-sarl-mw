@@ -23,7 +23,6 @@ import eis.iilang.ParameterList
 import eis.iilang.Function
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import eis.iilang.Percept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.SimStartBuffer
 
 import massim.protocol.scenario.city.data.FacilityData
 import massim.protocol.scenario.city.data.ChargingStationData
@@ -158,8 +157,6 @@ class CityDataCreator {
 			val required = r as Function
 			val requiredItemName = Util.extractString(required.parameters.get(0))
 			val requiredQty = Util.extractInt(required.parameters.get(1))
-			// TODO: address SimStartBuffer stuff
-			val itemVolume = SimStartBuffer.getItem(requiredItemName).volume
 			requiredItems.add(new ItemAmountData(requiredItemName, requiredQty))
 		}
 
