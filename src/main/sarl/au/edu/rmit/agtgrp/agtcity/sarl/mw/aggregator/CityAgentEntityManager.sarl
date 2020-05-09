@@ -38,23 +38,23 @@ import massim.protocol.scenario.city.data.ActionData
   */
 class CityAgentEntityManager {
 
-    /**
-     * Constructs a new Agent Entity object. We don't know anything about this agent yet.
-     * TODO: except name etc, to fix
-     */
-    static def createEntity(playerName : String, playerClass : String, playerTeam: String) : EntityData {
-    	// return new EntityData(Integer currentBattery, Integer maxBattery, Integer currentLoad, Integer maxLoad,
-        //              Integer vision, Integer skill, Integer speed,
-        //              ActionData lastAction,
-        //              String facilityName, List<WayPointData> route, List<ItemAmountData> items,
-        //              String agentName, String team, String role, double lat, double lon);
-        return new EntityData();
-    }
-    
-    /**
-     * Takes an entity and updates its internal representation
-     */
-    static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : void {
+	/**
+	 * Constructs a new Agent Entity object. We don't know anything about this agent yet.
+	 * TODO: except name etc, to fix
+	 */
+	static def createEntity(playerName : String, playerClass : String, playerTeam: String) : EntityData {
+		// return new EntityData(Integer currentBattery, Integer maxBattery, Integer currentLoad, Integer maxLoad,
+		//			  Integer vision, Integer skill, Integer speed,
+		//			  ActionData lastAction,
+		//			  String facilityName, List<WayPointData> route, List<ItemAmountData> items,
+		//			  String agentName, String team, String role, double lat, double lon);
+		return new EntityData();
+	}
+
+	/**
+	 * Takes an entity and updates its internal representation
+	 */
+	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : void {
 		var items : ArrayList<ItemAmountData> // item --> quantity
 		var lastAction : String
 		var lastActionParams : String
@@ -62,17 +62,17 @@ class CityAgentEntityManager {
 
 		// Populate Entity fields
 		for (p : percepts) {
-	            switch p.name {
+				switch p.name {
 				case "step": {
 					// TODO: track step somewhere else
 					entity.step = Util.extractInt(p.parameters.get(0))
 				}
-       			case "lat": {
-       				entity.lat = Util.extractDouble(p.parameters.get(0))
-       			}
-                case "lon": {
-                	entity.lon = Util.extractDouble(p.parameters.get(0))
-                }
+				case "lat": {
+					entity.lat = Util.extractDouble(p.parameters.get(0))
+				}
+				case "lon": {
+					entity.lon = Util.extractDouble(p.parameters.get(0))
+				}
 				case "lastAction": {
 					lastAction = Util.extractString(p.parameters.get(0))
 				}
@@ -92,7 +92,7 @@ class CityAgentEntityManager {
 				case "routeLength": {
 					entity.routeLength = Util.extractInt(p.parameters.get(0))
 				}
-	            case "facility": {
+				case "facility": {
 					entity.facility = Util.extractString(p.parameters.get(0))
 				}
 				case "hasItem": {
