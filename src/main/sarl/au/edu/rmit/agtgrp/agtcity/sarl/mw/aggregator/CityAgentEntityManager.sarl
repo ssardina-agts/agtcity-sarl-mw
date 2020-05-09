@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
 import java.util.HashMap
 import eis.iilang.ParameterList
@@ -42,7 +42,7 @@ class CityAgentEntityManager {
      * Constructs a new Agent Entity object. We don't know anything about this agent yet.
      * TODO: except name etc, to fix
      */
-    static def createEntity(percepts : Collection<Percept>) : EntityData {
+    static def createEntity(playerName : String, playerClass : String, playerTeam: String) : EntityData {
     	// return new EntityData(Integer currentBattery, Integer maxBattery, Integer currentLoad, Integer maxLoad,
         //              Integer vision, Integer skill, Integer speed,
         //              ActionData lastAction,
@@ -54,7 +54,7 @@ class CityAgentEntityManager {
     /**
      * Takes an entity and updates its internal representation
      */
-    static def updateEntity(entity : EntityData, percepts : Collection<Percept>) {
+    static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : void {
 		var items : ArrayList<ItemAmountData> // item --> quantity
 		var lastAction : String
 		var lastActionParams : String
@@ -128,4 +128,19 @@ class CityAgentEntityManager {
 			entity.lastAction = new ActionData(lastAction, lastActionParams, lastActionResult)
 		}
 	}
+	/*
+	 * Return a string with a summary of the player state: name, location, and battery level
+	 *
+	 */
+	static def reportState(entity : EntityData) : String {
+		var message : String = String.format("Report on entity %s (%s - %s): at (%f, %f) with battery level %f and load %f",
+			entity.name,
+			entity.role,
+			entity.lat,
+			entity.lon,
+			entity.charge,
+			entity.load
+			)
+		return message
+	   }
 }
