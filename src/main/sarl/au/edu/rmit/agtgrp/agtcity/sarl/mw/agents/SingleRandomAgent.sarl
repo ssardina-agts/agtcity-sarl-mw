@@ -192,12 +192,11 @@ agent SingleRandomAgent {
 			
 
 					// update the last step if the percept just processed has a higher step number
-					// TODO: store step somewhere else, it isn't part of an entity
-					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step
+					last_step = MT_getStepNo()
 
 
-					agent_shouts("I am finished sensing the environment - Step {0} for player {1}",
-						MT_getPlayerState(playerName).step, playerName)
+					agent_shouts("I am finished sensing the environment - Step {0} for player {1}", MT_getStepNo(),
+						playerName)
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
 				} catch (e : Exception) {
