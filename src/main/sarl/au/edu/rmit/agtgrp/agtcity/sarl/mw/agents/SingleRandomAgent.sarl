@@ -205,7 +205,7 @@ agent SingleRandomAgent {
 			])
 
 			agent_shouts(
-				"Finished sensing the environment for all the player connections. Next report and act for step {0}!",
+				"Finished sensing the environment for all the player connections. Next report and act for step {0}!!!",
 				last_step)
 
 			// 1 - Report some information per player agent
