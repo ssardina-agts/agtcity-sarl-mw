@@ -50,20 +50,21 @@ class CityAgentEntityManager {
 	/**
 	 * Takes an entity and updates its internal representation
 	 */
-	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : void {
+	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : int {
 		var items : ArrayList<ItemAmountData> // item --> quantity
 		var lastAction : String
 		var lastActionParams = new ArrayList<String> 
 		var lastActionResult : String
 		
+		var stepNo : int = -1
+		
 
 		// Populate Entity fields
 		for (p : percepts) {
 				switch p.name {
-//				case "step": {
-//					// TODO: track step somewhere else (it's track in the overall skill as a single number)
-//					entity.step = Util.extractInt(p.parameters.get(0))
-//				}
+				case "step": {
+					stepNo = Util.extractInt(p.parameters.get(0))
+				}
 				case "lat": {
 					entity.lat = Util.extractDouble(p.parameters.get(0))
 				}
@@ -132,6 +133,7 @@ class CityAgentEntityManager {
 //			System.out.println("======================> " + lastAction)
 			entity.lastAction = new ActionData(lastAction, lastActionParams, lastActionResult)
 		}
+		return stepNo
 	}
 
 	/*

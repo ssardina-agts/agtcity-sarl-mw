@@ -360,7 +360,10 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * Update the player state in place.
 	 */
 	def MT_updatePlayerState(playerName : String, percepts : Collection<Percept>): void {
-		CityAgentEntityManager.updateEntity(players.get(playerName), percepts)
+		val stepNo = CityAgentEntityManager.updateEntity(players.get(playerName), percepts)
+		if (this.stepNo < stepNo) {
+			this.stepNo = stepNo
+		}
 	}
 
 	def MT_reportPlayerState(playerName : String) : String {
