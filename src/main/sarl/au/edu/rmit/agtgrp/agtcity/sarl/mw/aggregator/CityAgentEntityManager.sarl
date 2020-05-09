@@ -53,7 +53,7 @@ class CityAgentEntityManager {
 	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : void {
 		var items : ArrayList<ItemAmountData> // item --> quantity
 		var lastAction : String
-		var lastActionParams : ArrayList<String>
+		var lastActionParams = new ArrayList<String> 
 		var lastActionResult : String
 		
 
@@ -75,9 +75,11 @@ class CityAgentEntityManager {
 				}
 				case "lastActionParams": {
 					// lastActinParams([param1, param2, ...])
-					val params= p.parameters.get(0) as ParameterList // [param1, param2...]
-					for (param: params) { // build a list of stack data
-						lastActionParams.add(Util.extractString(param))
+					if (p.parameters.get(0) !== null) {	// the action may not have had any parameter and is null
+						val params = p.parameters.get(0) as ParameterList // [param1, param2...]
+						for (param : params) { // build a list of stack data
+							lastActionParams.add(Util.extractString(param))
+						}
 					}
 				}
 				case "lastActionResult": {
