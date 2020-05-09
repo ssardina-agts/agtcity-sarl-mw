@@ -74,6 +74,7 @@ class CityDataCreator {
      * Constructs a new Facility object.
      */
     static def createFacility(p : Percept) : FacilityData {
+		// first three parameters of p have name, lot and lon. The rest is parameters 3+
 		val name = Util.extractString(p.parameters.get(0))
 		val lat = Util.extractDouble(p.parameters.get(1))
 		val lon = Util.extractDouble(p.parameters.get(2))

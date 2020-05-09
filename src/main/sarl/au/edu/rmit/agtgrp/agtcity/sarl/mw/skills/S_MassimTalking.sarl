@@ -76,6 +76,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	var eiMassimPlayerAgentsConfigFile : Path 		// Details of the EI agent to be register against connected entities
 	var connected : boolean = false
 
+	var stepNo: int = 0 // last step number seen
 
 	/* 
 	 * EISMASSim is based on the Environment Interface Standard (EIS), a proposed standard for agent-environment interaction. 
@@ -135,10 +136,10 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 	
-	@Deprecated
-	def MT_addPlayerByName(playerName : String) {
-		MT_registerEntityByName(playerName)
-	}
+//	@Deprecated
+//	def MT_addPlayerByName(playerName : String) {
+//		MT_registerEntityByName(playerName)
+//	}
 
 
 
@@ -187,40 +188,40 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 
-	/*
-	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
-	 * 
-	 * Players will be associated with entities in the simulation and connection will happen per agent
-	 */
-	@Deprecated
-	def MT_registerPlayersFromConfig() : boolean {
-		if (eiMassimPlayerAgentsConfigFile !== null) {
-			try {
-				// Read from config file which agents will participate in the simulation
-				// Agents will be of a certain type entity (define in the EIS)
-	            var config : JSONObject = new JSONObject(
-					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
-				var players : JSONObject = config.optJSONObject("agents")
-	
-				if (players !== null) { // There are agents!
-					// register each player into the server					
-					for (agName : players.keySet) {
-	                    // Not sure if need all of these but better safe than sorry.
-						var agConf : JSONObject = players.getJSONObject(agName)
-						registerEIAgent( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
-					}
-				}
-				return true
-			} catch (e : IOException) {
-				e.printStackTrace()
-				return false
-			}
-		} else
-		{
-			error("Sorry, EI agent registration details are not yet loaded (missing agent JSON file)...")
-			return false
-		}
-	}
+//	/*
+//	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
+//	 * 
+//	 * Players will be associated with entities in the simulation and connection will happen per agent
+//	 */
+//	@Deprecated
+//	def MT_registerPlayersFromConfig() : boolean {
+//		if (eiMassimPlayerAgentsConfigFile !== null) {
+//			try {
+//				// Read from config file which agents will participate in the simulation
+//				// Agents will be of a certain type entity (define in the EIS)
+//	            var config : JSONObject = new JSONObject(
+//					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
+//				var players : JSONObject = config.optJSONObject("agents")
+//	
+//				if (players !== null) { // There are agents!
+//					// register each player into the server					
+//					for (agName : players.keySet) {
+//	                    // Not sure if need all of these but better safe than sorry.
+//						var agConf : JSONObject = players.getJSONObject(agName)
+//						registerEIAgent( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
+//					}
+//				}
+//				return true
+//			} catch (e : IOException) {
+//				e.printStackTrace()
+//				return false
+//			}
+//		} else
+//		{
+//			error("Sorry, EI agent registration details are not yet loaded (missing agent JSON file)...")
+//			return false
+//		}
+//	}
 
 
 
@@ -364,6 +365,15 @@ skill S_MassimTalking implements C_MassimTalking {
 
 	def MT_reportPlayerState(playerName : String) : String {
 		return CityAgentEntityManager.reportState(players.get(playerName))
+	}
+
+	/** 
+	 * Retrieve the last step number sensed
+	 * 
+	 * @return - the last step number seen 
+	 */
+	def MT_getStepNo() : int {
+		return stepNo
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
