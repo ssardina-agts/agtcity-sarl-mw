@@ -20,8 +20,7 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.events
 
 import java.util.HashSet
 import java.util.Set
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
 
 /** 
  * An event to transmit a GameEntity object. An entity is a game player, team-mate or opponent.
@@ -29,9 +28,9 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
  * @param entity, the observed entity (team-mate or opponent). 
  */
 event E_TellEntityInfo extends E_AgentInfo {
-	var entity : EntityAgent	// the game entity containing the percept data
+	var entity : EntityDataPlus // the game entity containing the percept data
 
-	new(source : Set<String>, entity : EntityAgent) {
+	new(source : Set<String>, entity : EntityDataPlus) {
 		super(source);
 		this.entity = entity;
 
@@ -45,9 +44,9 @@ event E_TellEntityInfo extends E_AgentInfo {
  */
 event E_TellPlayerTeamInfo extends E_TellEntityInfo {
 
-	var PlayerState : TeamEntityAgent
+	var PlayerState : EntityDataPlus
 
-	new(sources : HashSet<String>, PlayerState : TeamEntityAgent) {
+	new(sources : HashSet<String>, PlayerState : EntityDataPlus) {
 		super(sources, PlayerState)
 		this.PlayerState = PlayerState
 	}

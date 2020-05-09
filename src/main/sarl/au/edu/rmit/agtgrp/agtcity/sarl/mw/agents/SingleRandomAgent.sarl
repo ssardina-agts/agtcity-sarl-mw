@@ -46,8 +46,6 @@ import java.util.Random
 import java.util.Set
 
 /** 
- * @author Sebastian Sardina (ssardina@gmail.com
- * 
  * This is a monolithic SARL agent to manage ALL the entity agents in the  game simulation.
  */
 @SuppressWarnings("potential_field_synchronization_problem")
