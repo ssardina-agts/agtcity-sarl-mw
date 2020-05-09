@@ -20,8 +20,6 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ActionResult
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.CityDataCreator
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.EntityAgent
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.TeamEntityAgent
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ActionStatusInfo
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ChargingStationInfo
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_DumpInfo
@@ -50,6 +48,7 @@ import massim.protocol.scenario.city.data.StorageData
 import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
 import massim.protocol.scenario.city.data.MissionData
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
 
 /** 
  * @author boblo
@@ -64,8 +63,8 @@ class PerceptAggregator {
 	 * 
 	 * The are all hash maps mapping the name id to an object storing the corresponding information
 	 */
-	var players_team : HashMap<String, TeamEntityAgent>
-	var players_opp : HashMap<String, EntityAgent>
+	var players_team : HashMap<String, EntityDataPlus>
+	var players_opp : HashMap<String, EntityDataPlus>
 	var actionResults : HashMap<String, ActionResult>
 	var money : double
 
@@ -96,7 +95,7 @@ class PerceptAggregator {
 	 * @param source - list of agents that received this percept from MASSIM. 
 	 * @param PlayerState - the observed entity
 	 */
-	def addPlayerTeam(source : String, teamEntity : TeamEntityAgent) {
+	def addPlayerTeam(source : String, teamEntity : EntityDataPlus) {
 		players_team.put(source, teamEntity)
 	}
 
@@ -106,7 +105,7 @@ class PerceptAggregator {
 	 * @param source - list of agents that received this percept from MASSIM. 
 	 * @param PlayerState - the observed entity
 	 */
-	def addPlayerOpposition(source : String, entityAgent : EntityAgent) {
+	def addPlayerOpposition(source : String, entityAgent : EntityDataPlus) {
 		players_opp.put(source, entityAgent)
 	}
 
@@ -116,13 +115,13 @@ class PerceptAggregator {
 	 * 
 	 */
 	 // TODO: can we get rid of this? Do we need EntityBuffer complex data?
-	def addPlayerOpposition() {
-		for (e : EntityBuffer.entities.keySet) {
-			if (!this.players_team.keySet.contains(e)) { // add only if they are not agents of the team
-				addPlayerOpposition(e, (EntityBuffer.entities.get(e)))
-			}
-		}
-	}
+//	def addPlayerOpposition() {
+//		for (e : EntityBuffer.entities.keySet) {
+//			if (!this.players_team.keySet.contains(e)) { // add only if they are not agents of the team
+//				addPlayerOpposition(e, (EntityBuffer.entities.get(e)))
+//			}
+//		}
+//	}
 
 	/**
 	 * Store the amount of money the team has.

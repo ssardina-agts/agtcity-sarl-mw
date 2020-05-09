@@ -18,8 +18,9 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
+import massim.protocol.scenario.city.data.WayPointData
+
 import eis.iilang.Percept
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.Position
 import java.util.Collection
 /** 
  * Class used to extrace the position field of the source percept agent.
@@ -38,6 +39,6 @@ class PositionBuilder {
             }
         }
         
-        return new Position(lat, lon);
+        return new WayPointData(-1, lat, lon);
     }
 }

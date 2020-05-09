@@ -16,18 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityBuffer
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PositionBuilder
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.TeamBuffer
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
-import eis.iilang.Function
-import eis.iilang.ParameterList
-import eis.iilang.Percept
+import massim.protocol.scenario.city.data.EntityData
 import java.util.Collection
+import eis.iilang.Percept
+import massim.protocol.scenario.city.data.ActionData
+import massim.protocol.scenario.city.data.ItemAmountData
+import java.util.List
+import massim.protocol.scenario.city.data.WayPointData
 import java.util.HashMap
-import java.util.Vector
 
 /** 
  * @author bob
@@ -35,63 +33,71 @@ import java.util.Vector
  * 
  * A class to store a player state in the simulation (e.g., its location, current route, charge level, etc)
  */
-class TeamEntityAgent extends EntityAgent {
+class EntityDataPlus extends EntityData {
 
-    public var charge : double      
-    public var load : double
-    public var items : HashMap<String, Double>
-    public var route : HashMap<Integer, Position>
-    public var routeLength : double
-    public var facilityName : String
-	public var percepts : Collection<Percept> 
-	public var lastActioResult : String
-	public var step : int
-	public var userName : String
+    var entity : EntityData
 
-	// CONSTRUCTOR
-    new(
-        name : String,
-        role : String,
-        team : String,
-        lat : double,
-        lon : double,
-        charge : double,
-        load : double,
-        items : HashMap<String, Double>,	// item --> quantity
-        route : HashMap<Integer, Position>, // index --> waypoint
-        routeLength : double,
-        facilityName : String
-    ) {
-        super(name, role, team, lat, lon)
-        this.charge = charge
-        this.load = load
-        this.items = items
-        this.route = route
-        this.routeLength = routeLength
-        this.facilityName = facilityName        
-        this.percepts = new Vector<Percept>
-        this.step = 0
-        this.userName = null
-    }
+    var team: boolean
+    var userName : String
+	var	percepts : Collection<Percept>
+	var step : int
+
+	new (currentBattery : Integer, maxBattery : Integer, currentLoad : Integer, maxLoad : Integer, vision : Integer, 
+		skillLevel : Integer, speed : Integer, lastAction : ActionData, facilityName : String, 
+		route : List<WayPointData>, items : List<ItemAmountData>, agentName : String, team : String, role : String,
+		lat : double, lon : double) {
+			super(currentBattery, maxBattery, currentLoad, maxLoad, vision, skillLevel, speed , lastAction , facilityName, 
+		route, items, agentName, team, role, lat, lon)
+		
+		this.team = true;
+		this.userName = "";
+		}
+
+	new(agentName : String, role : String, team : String) {
+		super(-1, -1, -1, -1, -1, -1, -1, null, null,
+			null, null, agentName, team, role, -1, -1)
+		
+		
+		// this.percepts = new Vector<Percept>()
+	}
+	
+		
+
+//	// CONSTRUCTOR
+//    new(
+//        name : String,
+//        role : String,
+//        team : String,
+//        lat : double,
+//        lon : double,
+//        charge : double,
+//        load : double,
+//        items : HashMap<String, Double>,	// item --> quantity
+//        route : HashMap<Integer, Position>, // index --> waypoint
+//        routeLength : double,
+//        facilityName : String
+//    ) {
+//        super(name, role, team, lat, lon)
+//        this.charge = charge
+//        this.load = load
+//        this.items = items
+//        this.route = route
+//        this.routeLength = routeLength
+//        this.facilityName = facilityName        
+//        this.percepts = new Vector<Percept>
+//        this.step = 0
+//        this.userName = null
+//    }
 
 	
-	// CONSTRUCTOR
-	new(
-		name : String,
-		role : String,
-		team : String
-	) {
-		super(name, role, team, 0, 0)
-		this.percepts = new Vector<Percept>()
-		
-	}
+
 
 	// CONSTRUCTOR
-	new(name : String, percepts : Collection<Percept>) {
-		super(name, EntityBuffer.get(name).role, TeamBuffer.selfteam, PositionBuilder.buildPosition(percepts).lat,
-			PositionBuilder.buildPosition(percepts).lon)
-		this.percepts = new Vector<Percept>()
-	}
+//	new(name : String, percepts : Collection<Percept>) {
+//		super(name, EntityBuffer.get(name).role, TeamBuffer.selfteam, PositionBuilder.buildPosition(percepts).lat,
+//			PositionBuilder.buildPosition(percepts).lon)
+//		this.percepts = new Vector<Percept>()
+//	}
 
 
 	/*
@@ -118,20 +124,32 @@ class TeamEntityAgent extends EntityAgent {
 	 */
 	def update(percepts : Collection<Percept>) {
 		var position = PositionBuilder.buildPosition(percepts) // location (lat,long) of agent
-		super.update(position.lat, position.lon)
+//		super.update(position.lat, position.lon)
 
 		this.percepts = percepts // store current percepts
-		this.route = new HashMap()	// initialize with empty	
-		this.items = new HashMap() // initialize with empty
+		
+        var name : String
+        var role : String
+        var team : String
+        var lat : double
+        var lon : double
+        var charge : double
+        var load : double
+        var items : HashMap<String, Double>	// item --> quantity
+		var route : HashMap<Integer, WayPointData> // index --> waypoint
+		var routeLength : double
+		var facilityName : String
+		var lastActioResult : String
+		
 		
 		// Populate Entity fields
 		for (p : percepts) {
 	            switch p.name {
 					case "step": {
-						step= Util.extractInt(p.parameters.get(0))
+						this.step = Util.extractInt(p.parameters.get(0))
 					}
 					case "lastActionResult": {
-					lastActioResult = Util.extractString(p.parameters.get(0))
+						lastActioResult = Util.extractString(p.parameters.get(0))
 					}
 	                case "charge": {
 						charge = Util.extractDouble(p.parameters.get(0))
@@ -166,7 +184,7 @@ class TeamEntityAgent extends EntityAgent {
 							var f = w as Function
 		                        var lat = Util.extractDouble(f.parameters.get(1))
 		                        var lon = Util.extractDouble(f.parameters.get(2))
-							var wayPoint = new Position(lat, lon)
+							var wayPoint = new WayPointData(-1, lat, lon)
 							var index = Util.extractInt(f.parameters.get(0));
 							this.route.put(index, wayPoint)
 						}
