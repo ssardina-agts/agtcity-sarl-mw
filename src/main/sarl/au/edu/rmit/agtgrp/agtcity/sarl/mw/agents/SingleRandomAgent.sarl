@@ -66,8 +66,9 @@ agent SingleRandomAgent {
 
 	// These are the entities will control
 //	val myEntityConnections = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5",
-//		"connectionA6"]
-	val myEntityConnections = #["connectionA1", "connectionA5"]	// simpler testing, just 2 players
+	// "connectionA6"]
+//	val myEntityConnections = #["connectionA1", "connectionA5"] // simpler testing, just 2 players
+	val myEntityConnections = #["connectionA1"] // simpler testing, just 2 players
 
 
 	
@@ -176,13 +177,16 @@ agent SingleRandomAgent {
 				var allPercepts : Map<String, Collection<Percept>>
 				var percepts : Collection<Percept>
 				try {
+					debug("About to sense percepts for player {0}", playerName)
 					percepts = MT_sensePlayerPercepts(playerName) // This is blocking!
+					debug("Finished sensing percepts for player {0}", playerName)
 
 					// Updating the PlayerState of the player where percepts come from
 					// The skill S_MassimTalking already maintains a PlayerState object per player (MT_getPlayerState(playerName))
+					debug("About to update entity state for for player {0}", playerName)
 					MT_updatePlayerState(playerName, percepts) // update the agent data
-					
-//					debug(MT_getPlayerState(playerName).reportState)	// in case we want to know the agent
+					debug("Finish updating entity state for for player {0}", playerName)
+
 					
 					aggregator.fillFacilitiesAndJobs(percepts)		
 					agent_shouts("Facilities and Jobs aggregated for entity {0}", playerName)
@@ -200,7 +204,9 @@ agent SingleRandomAgent {
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
 				} catch (e : Exception) {
-					error("Something bad has happened during perception for player **{0}**: {1}", playerName, e.toString)
+					error("Something bad has happened during perception for player **{0}**: {1}", playerName,
+						e.toString)
+					throw e
 				}
 			])
 
