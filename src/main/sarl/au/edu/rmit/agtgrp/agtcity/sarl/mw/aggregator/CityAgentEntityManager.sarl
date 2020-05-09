@@ -134,13 +134,13 @@ class CityAgentEntityManager {
 	 *
 	 */
 	static def reportState(entity : EntityData) : String {
-		var message : String = String.format("Report on entity %s (%s - %s): at (%f, %f) with battery level %f and load %f",
+		var message : String = String.format("Report on entity %s (%s): at (%f, %f) with battery level %d and load %d",
 			entity.name,
 			entity.role,
-			entity.lat,
-			entity.lon,
-			entity.charge,
-			entity.load
+			entity.lat.doubleValue,
+			entity.lon.doubleValue,
+			entity.charge.intValue,
+			entity.load.intValue
 			)
 		return message
 	   }
