@@ -46,7 +46,8 @@ import java.nio.file.Paths
 import org.json.JSONArray
 import java.io.File
 import java.io.FileWriter
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
+import massim.protocol.scenario.city.data.EntityData
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -94,7 +95,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * (for all that have been authenticated in the game server)
 	 * 
 	 */
-	var players : Map<String, EntityDataPlus> = new HashMap<String, EntityDataPlus>()
+	var players : Map<String, EntityData> = new HashMap<String, EntityData>()
 
 	/*
 	 * Stores all the players in the game server that I will connect and control
@@ -246,8 +247,9 @@ skill S_MassimTalking implements C_MassimTalking {
 		// This is where the sensing form the server happens via the EI
 		var allPercepts = ei.getAllPercepts(playerName)
 
+		// TODO: assess whether we should do this by default
 		// update player state with the first collection (only works if player is linked to just one entity)
-		players.get(playerName).update(allPercepts.values().get(0)) // update the agent data
+		MT_updatePlayerState(playerName, allPercepts.values().get(0)) // update the agent data
 		
 		return allPercepts
 	}
@@ -285,7 +287,7 @@ skill S_MassimTalking implements C_MassimTalking {
 		// the EI system register the agent
 		if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
 			debug("Agent *{0}* has been successfully associated with entity *{1}*", playerName, playerEntity)
-			this.players.put(playerName, new EntityDataPlus(playerName, playerClass, playerTeam))
+			this.players.put(playerName, CityAgentEntityManager.createEntity(playerName, playerClass, playerTeam))
 		} else {
 			warning("Unsuccessful association of agent *{0}* with entity *{1}*", playerName, playerEntity)
 		}
@@ -346,14 +348,23 @@ skill S_MassimTalking implements C_MassimTalking {
 	/** 
 	 * Provides a map from player names to the player state
 	 */	
-	def MT_getAllPlayerStates() : Map<String, EntityDataPlus> {
+	def MT_getAllPlayerStates() : Map<String, EntityData> {
 		return players
 	}
-	def MT_getPlayerState(playerName : String) : EntityDataPlus {
+	def MT_getPlayerState(playerName : String) : EntityData {
 		return players.get(playerName)
 	}
 
+	/**
+	 * Update the player state in place.
+	 */
+	def MT_updatePlayerState(playerName : String, percepts : Collection<Percept>): void {
+		CityAgentEntityManager.updateEntity(players.get(playerName), percepts)
+	}
 
+	def MT_reportPlayerState(playerName : String) : String {
+		return CityAgentEntityManager.reportState(players.get(playerName))
+	}
 
 	// //////////////////////////////////////////////////////////////////////////
 	// //////////////////////////////////////////////////////////////////////////
