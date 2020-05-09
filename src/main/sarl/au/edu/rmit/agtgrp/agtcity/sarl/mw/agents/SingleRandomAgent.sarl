@@ -180,8 +180,7 @@ agent SingleRandomAgent {
 
 					// Updating the PlayerState of the player where percepts come from
 					// The skill S_MassimTalking already maintains a PlayerState object per player (MT_getPlayerState(playerName))
-					// ATTENTION: THis is already done by the MT once data is sensed, so it is really not necessary
-					//MT_getPlayerState(playerName).update(percepts) // update the agent data
+					MT_updatePlayerState(playerName, percepts) // update the agent data
 					
 //					debug(MT_getPlayerState(playerName).reportState)	// in case we want to know the agent
 					
@@ -193,6 +192,7 @@ agent SingleRandomAgent {
 			
 
 					// update the last step if the percept just processed has a higher step number
+					// TODO: store step somewhere else, it isn't part of an entity
 					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step
 
 
@@ -211,7 +211,7 @@ agent SingleRandomAgent {
 
 			// 1 - Report some information per player agent
 			MT_getPlayersNames().forEach([ playerName : String |
-				agent_says(MT_getPlayerState(playerName).reportState()) // report agent state
+				agent_says(MT_reportPlayerState(playerName)) // report agent state
 			])
 
 			// 2 - Each control player agent should travel to some random facility (if in route, continue)
