@@ -55,6 +55,7 @@ class CityAgentEntityManager {
 		var lastAction : String
 		var lastActionParams : ArrayList<String>
 		var lastActionResult : String
+		
 
 		// Populate Entity fields
 		for (p : percepts) {
@@ -75,8 +76,6 @@ class CityAgentEntityManager {
 				case "lastActionParams": {
 					// lastActinParams([param1, param2, ...])
 					val params= p.parameters.get(0) as ParameterList // [param1, param2...]
-
-					val paramsData : List<String> = new ArrayList<String>
 					for (param: params) { // build a list of stack data
 						lastActionParams.add(Util.extractString(param))
 					}
@@ -96,7 +95,7 @@ class CityAgentEntityManager {
 				case "facility": {
 					entity.facility = Util.extractString(p.parameters.get(0))
 				}
-				case "hasItem": {
+				case "hasItem": { // hasItem(name, qty)
 					var itemName = Util.extractString(p.parameters.get(0))
 					var itemQty = Util.extractInt(p.parameters.get(1))
 					items.add(new ItemAmountData(itemName, itemQty))
@@ -125,10 +124,14 @@ class CityAgentEntityManager {
 					}
 				}
 			}
-			entity.items = items
+		} // for loop processing all percepts
+		entity.items = items
+		if (lastActionResult !== null) {
+//			System.out.println("======================> " + lastAction)
 			entity.lastAction = new ActionData(lastAction, lastActionParams, lastActionResult)
 		}
 	}
+
 	/*
 	 * Return a string with a summary of the player state: name, location, and battery level
 	 *
