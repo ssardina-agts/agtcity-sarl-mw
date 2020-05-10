@@ -183,6 +183,7 @@ agent SingleRandomAgent {
 
 					// Updating the PlayerState of the player where percepts come from
 					// The skill S_MassimTalking already maintains a PlayerState object per player (MT_getPlayerState(playerName))
+					// ATTENTION: THis is already done by the MT once data is sensed, so it is really not necessary
 					debug("About to update entity state for for player {0}", playerName)
 					MT_updatePlayerState(playerName, percepts) // update the agent data
 					

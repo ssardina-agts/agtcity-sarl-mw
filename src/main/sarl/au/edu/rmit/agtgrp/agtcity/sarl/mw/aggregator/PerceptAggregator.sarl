@@ -133,7 +133,14 @@ class PerceptAggregator {
 	}
 	
 
-	
+	/**
+	 * Updates the facility and job state.
+	 * 
+	 * 1. Filter out facilities and jobs from the game percept.
+	 * 2. Create/update the Java representation of them within this skill.
+	 * 
+	 * @param percepts received for the current step.
+	 */
 	def fillFacilitiesAndJobs(percepts : Collection<Percept>) {
 		percepts.forEach([ p : Percept |
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
