@@ -248,7 +248,6 @@ skill S_MassimTalking implements C_MassimTalking {
 		// This is where the sensing form the server happens via the EI
 		var allPercepts = ei.getAllPercepts(playerName)
 
-		// TODO: assess whether we should do this by default
 		// update player state with the first collection (only works if player is linked to just one entity)
 		MT_updatePlayerState(playerName, allPercepts.values().get(0)) // update the agent data
 		
