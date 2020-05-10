@@ -1,0 +1,154 @@
+/**
+ * SARL-MASSIM - Interface between the SARL agent-oriented language
+ * and the MASSIM 2017 server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
+
+import java.util.HashMap
+import eis.iilang.ParameterList
+import eis.iilang.Function
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
+import eis.iilang.Percept
+
+import java.util.List
+import java.util.ArrayList
+import massim.protocol.scenario.city.data.EntityData
+import massim.protocol.scenario.city.data.ItemAmountData
+import java.util.Collection
+import massim.protocol.scenario.city.data.WayPointData
+import massim.protocol.scenario.city.data.ActionData
+
+/**
+  * Responsible for the creation of Java objects from EiSMASSimPercept information provided by MASSIM gameserver.
+  */
+class CityAgentEntityManager {
+
+	/**
+	 * Constructs a new Agent Entity object. We don't know anything about this agent yet.
+	 * TODO: except name etc, to fix
+	 */
+	static def createEntity(playerName : String, playerRole : String, playerTeam : String) : EntityData {
+		 return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null, 
+		 	playerName, playerTeam, playerRole, -1, -1);
+//		return new EntityData();
+	}
+
+	/**
+	 * Takes an entity and updates its internal representation
+	 */
+	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : int {
+		var items : ArrayList<ItemAmountData> // item --> quantity
+		var lastAction : String
+		var lastActionParams = new ArrayList<String> 
+		var lastActionResult : String
+		
+		var stepNo : int = -1
+		
+
+		// Populate Entity fields
+		for (p : percepts) {
+				switch p.name {
+				case "step": {
+					stepNo = Util.extractInt(p.parameters.get(0))
+				}
+				case "lat": {
+					entity.lat = Util.extractDouble(p.parameters.get(0))
+				}
+				case "lon": {
+					entity.lon = Util.extractDouble(p.parameters.get(0))
+				}
+				case "lastAction": {
+					lastAction = Util.extractString(p.parameters.get(0))
+				}
+				case "lastActionParams": {
+					// lastActinParams([param1, param2, ...])
+					if (p.parameters.get(0) !== null) {	// the action may not have had any parameter and is null
+						val params = p.parameters.get(0) as ParameterList // [param1, param2...]
+						for (param : params) { // build a list of stack data
+							lastActionParams.add(Util.extractString(param))
+						}
+					}
+				}
+				case "lastActionResult": {
+					lastActionResult = Util.extractString(p.parameters.get(0))
+				}
+				case "charge": {
+					entity.charge = Util.extractInt(p.parameters.get(0))
+				}
+				case "load": {
+					entity.load = Util.extractInt(p.parameters.get(0))
+				}
+				case "routeLength": {
+					entity.routeLength = Util.extractInt(p.parameters.get(0))
+				}
+				case "facility": {
+					entity.facility = Util.extractString(p.parameters.get(0))
+				}
+				case "hasItem": { // hasItem(name, qty)
+					var itemName = Util.extractString(p.parameters.get(0))
+					var itemQty = Util.extractInt(p.parameters.get(1))
+					items.add(new ItemAmountData(itemName, itemQty))
+				}
+				case "role": {
+					entity.role = Util.extractString(p.parameters.get(0))
+				}
+				case "team": {
+					entity.team = Util.extractString(p.parameters.get(0))
+				}
+				case "name": {
+					entity.name = Util.extractString(p.parameters.get(0))
+				}
+				case "route": {
+					var params = p.parameters.get(0);
+					var wps = params as ParameterList
+					for (w : wps) {
+							var f = w as Function
+						var routeLat = Util.extractDouble(f.parameters.get(1))
+						var routeLon = Util.extractDouble(f.parameters.get(2))
+						var wayPoint = new WayPointData(-1, routeLat, routeLon)
+						// TODO: do we need an index?
+						var index = Util.extractInt(f.parameters.get(0));
+						entity.route = new ArrayList<WayPointData>()
+						entity.route.add(wayPoint)
+					}
+				}
+			}
+		} // for loop processing all percepts
+		entity.items = items
+		if (lastActionResult !== null) {
+//			System.out.println("======================> " + lastAction)
+			entity.lastAction = new ActionData(lastAction, lastActionParams, lastActionResult)
+		}
+		return stepNo
+	}
+
+	/*
+	 * Return a string with a summary of the player state: name, location, and battery level
+	 *
+	 */
+	static def reportState(entity : EntityData) : String {
+		var message : String = String.format("Report on entity %s (%s): at (%f, %f) with battery level %d and load %d",
+			entity.name,
+			entity.role,
+			entity.lat.doubleValue,
+			entity.lon.doubleValue,
+			entity.charge.intValue,
+			entity.load.intValue
+			)
+		return message
+	   }
+}

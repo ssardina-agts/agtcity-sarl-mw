@@ -46,7 +46,8 @@ import java.nio.file.Paths
 import org.json.JSONArray
 import java.io.File
 import java.io.FileWriter
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
+import massim.protocol.scenario.city.data.EntityData
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -75,6 +76,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	var eiMassimPlayerAgentsConfigFile : Path 		// Details of the EI agent to be register against connected entities
 	var connected : boolean = false
 
+	var stepNo: int = 0 // last step number seen
 
 	/* 
 	 * EISMASSim is based on the Environment Interface Standard (EIS), a proposed standard for agent-environment interaction. 
@@ -94,7 +96,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * (for all that have been authenticated in the game server)
 	 * 
 	 */
-	var players : Map<String, EntityDataPlus> = new HashMap<String, EntityDataPlus>()
+	var players : Map<String, EntityData> = new HashMap<String, EntityData>()
 
 	/*
 	 * Stores all the players in the game server that I will connect and control
@@ -134,10 +136,10 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 	
-	@Deprecated
-	def MT_addPlayerByName(playerName : String) {
-		MT_registerEntityByName(playerName)
-	}
+//	@Deprecated
+//	def MT_addPlayerByName(playerName : String) {
+//		MT_registerEntityByName(playerName)
+//	}
 
 
 
@@ -186,40 +188,40 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 
-	/*
-	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
-	 * 
-	 * Players will be associated with entities in the simulation and connection will happen per agent
-	 */
-	@Deprecated
-	def MT_registerPlayersFromConfig() : boolean {
-		if (eiMassimPlayerAgentsConfigFile !== null) {
-			try {
-				// Read from config file which agents will participate in the simulation
-				// Agents will be of a certain type entity (define in the EIS)
-	            var config : JSONObject = new JSONObject(
-					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
-				var players : JSONObject = config.optJSONObject("agents")
-	
-				if (players !== null) { // There are agents!
-					// register each player into the server					
-					for (agName : players.keySet) {
-	                    // Not sure if need all of these but better safe than sorry.
-						var agConf : JSONObject = players.getJSONObject(agName)
-						registerEIAgent( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
-					}
-				}
-				return true
-			} catch (e : IOException) {
-				e.printStackTrace()
-				return false
-			}
-		} else
-		{
-			error("Sorry, EI agent registration details are not yet loaded (missing agent JSON file)...")
-			return false
-		}
-	}
+//	/*
+//	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
+//	 * 
+//	 * Players will be associated with entities in the simulation and connection will happen per agent
+//	 */
+//	@Deprecated
+//	def MT_registerPlayersFromConfig() : boolean {
+//		if (eiMassimPlayerAgentsConfigFile !== null) {
+//			try {
+//				// Read from config file which agents will participate in the simulation
+//				// Agents will be of a certain type entity (define in the EIS)
+//	            var config : JSONObject = new JSONObject(
+//					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
+//				var players : JSONObject = config.optJSONObject("agents")
+//	
+//				if (players !== null) { // There are agents!
+//					// register each player into the server					
+//					for (agName : players.keySet) {
+//	                    // Not sure if need all of these but better safe than sorry.
+//						var agConf : JSONObject = players.getJSONObject(agName)
+//						registerEIAgent( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
+//					}
+//				}
+//				return true
+//			} catch (e : IOException) {
+//				e.printStackTrace()
+//				return false
+//			}
+//		} else
+//		{
+//			error("Sorry, EI agent registration details are not yet loaded (missing agent JSON file)...")
+//			return false
+//		}
+//	}
 
 
 
@@ -247,7 +249,7 @@ skill S_MassimTalking implements C_MassimTalking {
 		var allPercepts = ei.getAllPercepts(playerName)
 
 		// update player state with the first collection (only works if player is linked to just one entity)
-		players.get(playerName).update(allPercepts.values().get(0)) // update the agent data
+		MT_updatePlayerState(playerName, allPercepts.values().get(0)) // update the agent data
 		
 		return allPercepts
 	}
@@ -285,7 +287,7 @@ skill S_MassimTalking implements C_MassimTalking {
 		// the EI system register the agent
 		if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
 			debug("Agent *{0}* has been successfully associated with entity *{1}*", playerName, playerEntity)
-			this.players.put(playerName, new EntityDataPlus(playerName, playerClass, playerTeam))
+			this.players.put(playerName, CityAgentEntityManager.createEntity(playerName, playerClass, playerTeam))
 		} else {
 			warning("Unsuccessful association of agent *{0}* with entity *{1}*", playerName, playerEntity)
 		}
@@ -346,14 +348,35 @@ skill S_MassimTalking implements C_MassimTalking {
 	/** 
 	 * Provides a map from player names to the player state
 	 */	
-	def MT_getAllPlayerStates() : Map<String, EntityDataPlus> {
+	def MT_getAllPlayerStates() : Map<String, EntityData> {
 		return players
 	}
-	def MT_getPlayerState(playerName : String) : EntityDataPlus {
+	def MT_getPlayerState(playerName : String) : EntityData {
 		return players.get(playerName)
 	}
 
+	/**
+	 * Update the player state in place.
+	 */
+	def MT_updatePlayerState(playerName : String, percepts : Collection<Percept>): void {
+		val stepNo = CityAgentEntityManager.updateEntity(players.get(playerName), percepts)
+		if (this.stepNo < stepNo) {
+			this.stepNo = stepNo
+		}
+	}
 
+	def MT_reportPlayerState(playerName : String) : String {
+		return CityAgentEntityManager.reportState(players.get(playerName))
+	}
+
+	/** 
+	 * Retrieve the last step number sensed
+	 * 
+	 * @return - the last step number seen 
+	 */
+	def MT_getStepNo() : int {
+		return stepNo
+	}
 
 	// //////////////////////////////////////////////////////////////////////////
 	// //////////////////////////////////////////////////////////////////////////

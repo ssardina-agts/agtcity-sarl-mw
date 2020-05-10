@@ -66,8 +66,9 @@ agent SingleRandomAgent {
 
 	// These are the entities will control
 //	val myEntityConnections = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5",
-//		"connectionA6"]
-	val myEntityConnections = #["connectionA1", "connectionA5"]	// simpler testing, just 2 players
+	// "connectionA6"]
+//	val myEntityConnections = #["connectionA1", "connectionA5"] // simpler testing, just 2 players
+	val myEntityConnections = #["connectionA1"] // simpler testing, just 2 players
 
 
 	
@@ -176,14 +177,18 @@ agent SingleRandomAgent {
 				var allPercepts : Map<String, Collection<Percept>>
 				var percepts : Collection<Percept>
 				try {
+					debug("About to sense percepts for player {0}", playerName)
 					percepts = MT_sensePlayerPercepts(playerName) // This is blocking!
+					agent_says("I have just sensed player {0} at step {1}", playerName, MT_getStepNo())
 
 					// Updating the PlayerState of the player where percepts come from
 					// The skill S_MassimTalking already maintains a PlayerState object per player (MT_getPlayerState(playerName))
 					// ATTENTION: THis is already done by the MT once data is sensed, so it is really not necessary
-					//MT_getPlayerState(playerName).update(percepts) // update the agent data
+					debug("About to update entity state for for player {0}", playerName)
+					MT_updatePlayerState(playerName, percepts) // update the agent data
 					
-//					debug(MT_getPlayerState(playerName).reportState)	// in case we want to know the agent
+					debug("Finish updating entity state for for player {0}", playerName)
+
 					
 					aggregator.fillFacilitiesAndJobs(percepts)		
 					agent_shouts("Facilities and Jobs aggregated for entity {0}", playerName)
@@ -193,25 +198,27 @@ agent SingleRandomAgent {
 			
 
 					// update the last step if the percept just processed has a higher step number
-					if(last_step < MT_getPlayerState(playerName).step) last_step = MT_getPlayerState(playerName).step
+					last_step = MT_getStepNo()
 
 
-					agent_shouts("I am finished sensing the environment - Step {0} for player {1}",
-						MT_getPlayerState(playerName).step, playerName)
+					agent_shouts("I am finished sensing the environment - Step {0} for player {1}", MT_getStepNo(),
+						playerName)
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
 				} catch (e : Exception) {
-					error("Something bad has happened during perception for player **{0}**: {1}", playerName, e.toString)
+					error("Something bad has happened during perception for player **{0}**: {1}", playerName,
+						e.toString)
+					throw e
 				}
 			])
 
 			agent_shouts(
-				"Finished sensing the environment for all the player connections. Next report and act for step {0}!",
+				"Finished sensing the environment for all the player connections. Next report and act for step {0}!!!",
 				last_step)
 
 			// 1 - Report some information per player agent
 			MT_getPlayersNames().forEach([ playerName : String |
-				agent_says(MT_getPlayerState(playerName).reportState()) // report agent state
+				agent_says(MT_reportPlayerState(playerName)) // report agent state
 			])
 
 			// 2 - Each control player agent should travel to some random facility (if in route, continue)

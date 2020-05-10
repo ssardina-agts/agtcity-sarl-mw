@@ -48,7 +48,7 @@ import massim.protocol.scenario.city.data.StorageData
 import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
 import massim.protocol.scenario.city.data.MissionData
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
+import massim.protocol.scenario.city.data.EntityData
 
 /** 
  * @author boblo
@@ -63,8 +63,8 @@ class PerceptAggregator {
 	 * 
 	 * The are all hash maps mapping the name id to an object storing the corresponding information
 	 */
-	var players_team : HashMap<String, EntityDataPlus>
-	var players_opp : HashMap<String, EntityDataPlus>
+	var players_team : HashMap<String, EntityData>
+	var players_opp : HashMap<String, EntityData>
 	var actionResults : HashMap<String, ActionResult>
 	var money : double
 
@@ -95,7 +95,7 @@ class PerceptAggregator {
 	 * @param source - list of agents that received this percept from MASSIM. 
 	 * @param PlayerState - the observed entity
 	 */
-	def addPlayerTeam(source : String, teamEntity : EntityDataPlus) {
+	def addPlayerTeam(source : String, teamEntity : EntityData) {
 		players_team.put(source, teamEntity)
 	}
 
@@ -105,7 +105,7 @@ class PerceptAggregator {
 	 * @param source - list of agents that received this percept from MASSIM. 
 	 * @param PlayerState - the observed entity
 	 */
-	def addPlayerOpposition(source : String, entityAgent : EntityDataPlus) {
+	def addPlayerOpposition(source : String, entityAgent : EntityData) {
 		players_opp.put(source, entityAgent)
 	}
 
@@ -133,7 +133,14 @@ class PerceptAggregator {
 	}
 	
 
-	
+	/**
+	 * Updates the facility and job state.
+	 * 
+	 * 1. Filter out facilities and jobs from the game percept.
+	 * 2. Create/update the Java representation of them within this skill.
+	 * 
+	 * @param percepts received for the current step.
+	 */
 	def fillFacilitiesAndJobs(percepts : Collection<Percept>) {
 		percepts.forEach([ p : Percept |
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {

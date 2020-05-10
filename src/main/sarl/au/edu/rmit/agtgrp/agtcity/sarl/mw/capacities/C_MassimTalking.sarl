@@ -27,7 +27,7 @@ import eis.iilang.EnvironmentState
 import eis.iilang.Percept
 import eis.iilang.Action
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
+import massim.protocol.scenario.city.data.EntityData
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -43,16 +43,10 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.EntityDataPlus
 capacity C_MassimTalking {
 
 
+
 	// //////////////////////////////////////////////////////////////////////////
 	// MAIN TOOLS: INTERACTION WITH GAME SERVER
 	// //////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * 
-	 * Sets the configuration file containing the configuration of players in the game
-	 */
-	@Deprecated
-	def MT_setPlayerAgentsConfig(eiMassimPlayerAgentsConfigFile : Path)
 
 	/**
 	 * Create and start the Environment Interface and register all player connections
@@ -62,21 +56,13 @@ capacity C_MassimTalking {
 	def MT_initialize() : boolean
 
 
-
 	/** 
 	 * Register the entity named entityName to be controlled (no authentication done, just registration)
 	 * 
 	 * @param entityName - name of the entity to register for control
 	 */
 	def MT_registerEntityByName(entityName : String)
-	@Deprecated
-	def MT_addPlayerByName(playerName : String) 
 
-	/* 
-	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
-	 */
-	@Deprecated
-	def MT_registerPlayersFromConfig() : boolean
 
 	/* 
 	 * Make a player execute an action in the game server
@@ -106,14 +92,25 @@ capacity C_MassimTalking {
 	/** 
 	 * Provides a map from player names to the player state
 	 */	
-	def MT_getAllPlayerStates() : Map<String, EntityDataPlus>
-	def MT_getPlayerState(playerName : String) : EntityDataPlus
+	def MT_getAllPlayerStates() : Map<String, EntityData>
 
+	def MT_getPlayerState(playerName : String) : EntityData
+
+	def MT_updatePlayerState(playerName : String, percepts : Collection<Percept>) : void
+
+	def MT_reportPlayerState(playerName : String) : String
 
 	/*
 	 * Obtain the current state of the environment interface (paused, running, killed)
 	 */
 	def MT_getStatus() : EnvironmentState
+
+	/** 
+	 * Retrieve the last step number sensed
+	 * 
+	 * @return - the last step number seen 
+	 */
+	def MT_getStepNo() : int
 
 
 }
