@@ -75,8 +75,8 @@ capacity C_MassimTalking {
 	 * For each player's entity, a collection of percepts is returned
 	 * (generally, a player is of just one entity)
 	 */
-	def MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>>
-	def MT_sensePlayerPercepts(playerName : String) : Collection<Percept>
+	def MT_senseAllEntityPercepts(playerName : String) : Map<String, Collection<Percept>>
+	def MT_senseEntityPercepts(playerName : String) : Collection<Percept>
 
 
 
@@ -87,18 +87,18 @@ capacity C_MassimTalking {
 	/* 
 	 * Obtain set of player names that have been registered
 	 */
-	def MT_getPlayersNames() : Set<String>
+	def MT_getEntityNames() : Set<String>
 
 	/** 
 	 * Provides a map from player names to the player state
 	 */	
-	def MT_getAllPlayerStates() : Map<String, EntityData>
+	def MT_getAllEntityStates() : Map<String, EntityData>
 
-	def MT_getPlayerState(playerName : String) : EntityData
+	def MT_getEntityState(playerName : String) : EntityData
 
-	def MT_updatePlayerState(playerName : String, percepts : Collection<Percept>) : void
+	def MT_updateEntityState(playerName : String, percepts : Collection<Percept>) : void
 
-	def MT_reportPlayerState(playerName : String) : String
+	def MT_reportEntityState(playerName : String) : String
 
 	/*
 	 * Obtain the current state of the environment interface (paused, running, killed)

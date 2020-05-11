@@ -56,35 +56,32 @@ agent SingleRandomAgent {
 
 
 	val myName = "Single-RANDOM-Agent"
-	val agentLogLevel = 3 // debug = 4
+	val agentLogLevel = 4 // debug = 4 this is for the high-level agent, not for SARL
+
+	// Server information: registration configuration file and entities that this agent will control
+	val eiRegistrationFileName = "eismassimconfig.json" // the name of the registration file
+	//	val myEntityConnections = #["entityA1", "entityA2", "entityA3", "entityA4", "entityA5"]
+	val myConnectedEntities = #["entityA1", "entityA5"] // simpler testing, just 2 players
+
 
 	// Data kept by this single SARL agent: just the step number
 	var last_step : int
 	var facilities : Set<String>
 	var rand : Random
 	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
-
-	// These are the entities will control
-//	val myEntityConnections = #["connectionA1", "connectionA2", "connectionA3", "connectionA4", "connectionA5",
-	// "connectionA6"]
-//	val myEntityConnections = #["connectionA1", "connectionA5"] // simpler testing, just 2 players
-	val myEntityConnections = #["connectionA1"] // simpler testing, just 2 players
-
-
-	
 	
 	
 	/* 
 	 * SARL agent is initialized 
 	 *
-	 * The agent may control one more more game entities.
+	 * The SARL agent may control one more more game entities (trucks, motorcycles, drones, etc).
 	 * 
 	 * To do so, the agent will install a S_MassimTalking skill, which allows the agent to talk to the game server.
 	 * 
-	 * The skill requires an EI configuration file "eismassimconfig.json" containing all the server info and
-	 * all entity connections available (including username/password to authenticate) which should include at least the
-	 * connections in myEntityConnections will be the ones this SARL agent will control
-	 * 
+	 * The skill uses the Environment Interface (EI) for MASSIM which provides a high-level connection to the game server.
+	 * The skill needs an EI registration file "eismassimconfig.json" containing all the server info and
+	 * all entity connections available (including username/password to authenticate) 
+	 * We can tell the skill to control an sense among those available connections
 	 * 
 	 * Different EI config files can be kept in different folders under conf/
 	 * 
@@ -94,91 +91,104 @@ agent SingleRandomAgent {
 	on Initialize { // Should only be initializing with the EIS as a parameter.
 			var args = newArrayList(occurrence.parameters) // may receive config directory at creation
 			var eiConfigDir : String
-			val eiConfigFileName = "eismassimconfig.json"
 
 			rand = new Random()
 
-			// Create an information aggregator (where all percept info from percepts will be integrated and stored)
+			// Create an information aggregator (all percept info will be integrated here by the MW)
 			aggregator = new PerceptAggregator() 
 			
 			// Give reporting skill via console
 			setSkill(new S_ConsoleReporting(myName), C_Reporting)
-			setLogLevel(4)
+			setLogLevel(4)	// set debug level
 
 			/*
 			 * FIRST, collect the directory where the server and player configuration files to be used are
 			 */
-			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiConfigFileName)
+			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiRegistrationFileName)
 			if (args.length != 0) {
 				eiConfigDir = args.get(0) as String	// use the config dir given as CLI argument
 			} else {
 				// Ask the user which folder in conf/ is to be used to use the EI config file
 				eiConfigDir = ConfHandler.getConfDir()
 			}
-			val eiConfigurationFile = Paths.get(eiConfigDir, eiConfigFileName)
+			val eiRegistrationFile = Paths.get(eiConfigDir, eiRegistrationFileName)
 
 			debug("
 				***************************************************
 				Configuration settings: 
 				\t My SARL agent name: {0}
-				\t EI configuration file: {1}
-				***************************************************", myName, eiConfigurationFile)
+				\t EI registration file: {1}
+				***************************************************", myName, eiRegistrationFile)
 			
 			try {
 				/*
-				 * SECOND, install skill to talk to the server using EI config file (no actual connection to entities yet)
+				 * SECOND, install skill to talk to the server using EI registration file 
+				 * (no actual connection to entities yet, just recording of registration file to be used)
 				 * 
 				 */
-				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI CONFIG FILE {0}", eiConfigurationFile)
-				setSkill(new S_MassimTalking(eiConfigurationFile), C_MassimTalking)
+				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiRegistrationFile)
+				setSkill(new S_MassimTalking(eiRegistrationFile), C_MassimTalking)
 
 
 				/* 
-				 * Next, we initialize the Environment Interface (EIS)
-				 * This involves connecting to game server, authenticating entities, and registering players in EI
+				 * THIRD, we configure the skill by providing which specific entities this agent will control
+				 * 	The agents to control have to be among those listed in the registration file
+				 * 	No actual connection (or server authentication) happens at this step
 				 */
-				agent_says("PHASE 3: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiConfigFileName,
-					myEntityConnections.toString)
-				if (myEntityConnections !== null)
-					myEntityConnections.forEach [ entityName : String |
+				agent_says("PHASE 3: REGISTERING ENTITIES TO CONTROL: ", myConnectedEntities.toString)
+				if (myConnectedEntities !== null)
+					myConnectedEntities.forEach [ entityName : String |	// entityA1, entityA2, .../entityAn
 						MT_registerEntityByName(entityName) // register entities to control (no authentication yet)
+						agent_says("I have registered entity **{0}** for control and perception.", entityName)
 					]
+
+				/* 
+				 * FOURTH, we establish the connection to the game server via the EI 
+				 * * 
+				 * All entities registered for control are authenticated and connected to the server
+				 * 
+				 */
+				agent_says("PHASE 4: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiRegistrationFileName);
 				if (MT_initialize()) {
 					agent_says("The EI is now initialized, entities are being authenticated...")
 				} else {
 					agent_shouts("Something wrong when initializing the EI, I am finished...")
 					killMe
 				}
-	
-				agent_says("PHASE 4 (FINAL): EMIT E_sendEnviroment() to start sensing and acting")
+
+			/* 
+			 * FIFTH, finally all entities registered and connected for control and sensing.
+			 * 	So, send an event to start sending and controlling 
+			 * 
+			 */
+				agent_says("PHASE 4 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
 				in(2000)[emit(new E_SenseEnvironment())]	// wait 2 seconds to allow everyone to auhenticate to server
 			} catch (e : Exception) {
 				error("Sorry but I was not able to initialize the skill to talk to server! Message: {0}", e.message)
 				e.printStackTrace()
 				killMe
 			}
-			
 	}
 
 	/* 
 	 * Handle the process of sensing the environment
 	 */
 	on E_SenseEnvironment {
-		agent_shouts("Start sensing the environment")
+		agent_shouts("Start sensing the environment for the following entities I control: {0}", MT_getEntityNames)
 		var step = 0
 
 		// While the environment is running, wait for new percepts (read percepts for each player registered/connected)
-		while (MT_getStatus() == EnvironmentState.RUNNING) {
-			MT_getPlayersNames().forEach([ playerName : String |
+		while (MT_getStatus() == EnvironmentState.RUNNING && !MT_getEntityNames().empty) {
+			MT_getEntityNames().forEach([ playerName : String |
 
-				// all percepts for the player: (role/entity of agent --> collection of single percepts)
+				// All percepts for the player: (role/entity of agent --> collection of single percepts)
 				// In this game, players usually are of one role/entity, so we will store that single set of percepts
 				// in variable percepts (the first value of allPercepts)
 				var allPercepts : Map<String, Collection<Percept>>
 				var percepts : Collection<Percept>
 				try {
 					debug("About to sense percepts for player {0}", playerName)
-					percepts = MT_sensePlayerPercepts(playerName) // This is blocking!
+					percepts = MT_senseEntityPercepts(playerName) // This is blocking!
 					agent_says("I have just sensed player {0} at step {1}", playerName, MT_getStepNo())
 
 					// Updating the PlayerState of the player where percepts come from
@@ -208,22 +218,22 @@ agent SingleRandomAgent {
 						e.toString)
 					throw e
 				}
-			])
-
+			])	// FINISH sensing cycle for all entities - We have sensed every entity now
+	
 			agent_shouts(
 				"Finished sensing the environment for all the player connections. Next report and act for step {0}!!!",
 				last_step)
 
 			// 1 - Report some information per player agent
-			MT_getPlayersNames().forEach([ playerName : String |
-				agent_says(MT_reportPlayerState(playerName)) // report agent state
+			MT_getEntityNames().forEach([ playerName : String |
+				agent_says(MT_reportEntityState(playerName)) // report agent state
 			])
 
 			// 2 - Each control player agent should travel to some random facility (if in route, continue)
-			MT_getPlayersNames.forEach([ playerName : String |
-				if (MT_getPlayerState(playerName).routeLength > 0) {
+			MT_getEntityNames.forEach([ playerName : String |
+				if (MT_getEntityState(playerName).routeLength > 0) {
 					agent_says("Seems player **{0}** is already traveling: {1} steps to go!", playerName,
-						MT_getPlayerState(playerName).routeLength)
+						MT_getEntityState(playerName).routeLength)
 					performAction(playerName, new Action("continue"))
 				} else if (facilities !== null && facilities.length > 0) {
 					// Pick some random facility and go!
@@ -236,7 +246,7 @@ agent SingleRandomAgent {
 			])
 		}
 
-		agent_shouts("Environment Interface not running anymore, done sensing....")
+		agent_shouts("EI not running anymore or no agents to control, done...")
 	}
 
 

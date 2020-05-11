@@ -18,36 +18,31 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.skills
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.util.Map
-import java.util.Collection
-import java.util.HashMap
-import java.util.Set
-import javax.management.relation.RelationException
-import java.io.IOException
-
-import org.json.JSONObject
-
-import eis.exceptions.AgentException
-import eis.exceptions.ManagementException
-import eis.iilang.EnvironmentState
-import massim.eismassim.EnvironmentInterface
-import eis.iilang.Percept
-import eis.iilang.Action
-
-
-import io.sarl.core.Logging
-
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import eis.exceptions.ActException
-import java.util.HashSet
-import java.nio.file.Paths
-import org.json.JSONArray
+import eis.exceptions.AgentException
+import eis.exceptions.ManagementException
+import eis.iilang.Action
+import eis.iilang.EnvironmentState
+import eis.iilang.Percept
+import io.sarl.core.Logging
 import java.io.File
 import java.io.FileWriter
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.Collection
+import java.util.HashMap
+import java.util.HashSet
+import java.util.Map
+import java.util.Set
+import javax.management.relation.RelationException
+import massim.eismassim.EnvironmentInterface
 import massim.protocol.scenario.city.data.EntityData
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
+import org.json.JSONArray
+import org.json.JSONObject
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -55,14 +50,14 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
  * Skill implementing the C_MassimTalking capacity to conncet to MAC Agents in City MASSIM 2017 Game Server
  * 
  * - connect to game server (using configuration files)
- * - register players (using configuration files for credentials)
+ * - register entitys (using configuration files for credentials)
  * - perceive the environment (receive percepts)
- * - send actions to the game server (for the players registered) 
+ * - send actions to the game server (for the entitys registered) 
  * 
  * Uses the MASSIM EI interface from EISHUB (https://github.com/eishub/massim)
  * 
- * NOTE: we call agents to SARL agents; and players to agents in the MASSIM simulation.
- * Hence, a SARL agent, may register and control one more players in the simulation (even all)
+ * NOTE: we call agents to SARL agents; and entitys to agents in the MASSIM simulation.
+ * Hence, a SARL agent, may register and control one more entitys in the simulation (even all)
  */
 skill S_MassimTalking implements C_MassimTalking {
 	uses Logging
@@ -70,18 +65,15 @@ skill S_MassimTalking implements C_MassimTalking {
 	// /////////////////////////////////////////////////////////////////////////
 	// DATA
 	// //////////////////////////////////////////////////////////////////////////
-
-	// Server connection information
-	var eiMassimSeverConfigFile : Path				// Game server config fule (host, up, entity connections with credentials, etc.)
-	var eiMassimPlayerAgentsConfigFile : Path 		// Details of the EI agent to be register against connected entities
+	var eiRegistrationFile : Path	// Game server registration file (host, up, entity connections with credentials, etc.)
+	
 	var connected : boolean = false
-
 	var stepNo: int = 0 // last step number seen
 
 	/* 
 	 * EISMASSim is based on the Environment Interface Standard (EIS), a proposed standard for agent-environment interaction. 
 	 * 
-	 * EISMASSim maps the communication between players and the MASSim server, (i.e. sending and receiving XML-messages), 
+	 * EISMASSim maps the communication between entitys and the MASSim server, (i.e. sending and receiving XML-messages), 
 	 * to Java method calls. 
 	 * It also automatically establishes and maintains connections to a specified MASSim server.
 	 * In other words, EISMASSim is a proxy environment on the client side which handles communication with the 
@@ -92,14 +84,14 @@ skill S_MassimTalking implements C_MassimTalking {
 	var public ei : EnvironmentInterface // main handler for the skill (from massim.eismassim)
 
 	/* 
-	 * Stores the current PlayerState in the simulation per player name 
+	 * Store information about entities in the game (indexed by their name) 
 	 * (for all that have been authenticated in the game server)
 	 * 
 	 */
-	var players : Map<String, EntityData> = new HashMap<String, EntityData>()
+	var entities : Map<String, EntityData> = new HashMap<String, EntityData>()
 
 	/*
-	 * Stores all the players in the game server that I will connect and control
+	 * Stores all the entitys in the game server that I will connect and control
 	 */
 	var myEntities : Set<String> = new HashSet<String>
 
@@ -108,13 +100,13 @@ skill S_MassimTalking implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 	new (eiMassimConfigFile : Path, eiMassimAuthConfigFile : Path) {
 		super() // Call the super's constructor
-		this.eiMassimSeverConfigFile = eiMassimConfigFile
-		this.eiMassimPlayerAgentsConfigFile = eiMassimAuthConfigFile
+		this.eiRegistrationFile = eiMassimConfigFile
+		
 	}
 
 	new (eiMassimConfigFile : Path) {
 		super() // Call the super's constructor
-		this.eiMassimSeverConfigFile = eiMassimConfigFile
+		this.eiRegistrationFile = eiMassimConfigFile
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
@@ -122,28 +114,18 @@ skill S_MassimTalking implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/* 
-	 * Sets the configuration file containing the configuration of players in the game
+	 * Sets the configuration file containing the configuration of entitys in the game
 	 */
 	def MT_setPlayerAgentsConfig(eiMassimPlayerAgentsConfigFile : Path) {
-		this.eiMassimPlayerAgentsConfigFile = eiMassimPlayerAgentsConfigFile
+		
 	}
 
 	/**
-	 * Register the entity named playerName to control
+	 * Register the entity named entityName to control
 	 */
 	def MT_registerEntityByName(entityName : String) {
 		myEntities.add(entityName)
 	}
-
-	
-//	@Deprecated
-//	def MT_addPlayerByName(playerName : String) {
-//		MT_registerEntityByName(playerName)
-//	}
-
-
-
-
 
 
 	/*
@@ -152,19 +134,20 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * Creates the EI, connects all entities to game server, and register appropriate EI agents to control them
 	 */
 	def MT_initialize() : boolean {
-		if (eiMassimSeverConfigFile === null) {
+		if (eiRegistrationFile === null) {
 			warning("Trying to register the game server, but no information about it is registered! :-(")
 			return false
 		}
 
-		// Filter the set of entities to be controlled, if needed (otherwise just use them ALL)
-		var filtered_eiMassimSeverConfigFile : Path = eiMassimSeverConfigFile
+		// Filter the registration file wrt the set of registered entities  in the MW to be controlled (stored in myEntities)
+		// If myEntities is empty, then control ALL the ones listed in the registration file
+		var filtered_eiRegistrationFile : Path = eiRegistrationFile
 		if (!myEntities.empty) {
-			filtered_eiMassimSeverConfigFile = filterMassimConfigFile(eiMassimSeverConfigFile, myEntities)
+			filtered_eiRegistrationFile = filterRegistrationFile(eiRegistrationFile, myEntities)
 		}
 	
 		// TODO: if this fails (e.g., file is not there) it keeps going, does not throw exception!
-		ei = new EnvironmentInterface(filtered_eiMassimSeverConfigFile.toString)
+		ei = new EnvironmentInterface(filtered_eiRegistrationFile.toString)
 		try {
 				// This is where the EI is started and connections are established to server for entities
 				// Each entity is authenticated to server, and they are re-connected if they drop.       		
@@ -176,11 +159,14 @@ skill S_MassimTalking implements C_MassimTalking {
 				connected = false
 			}
 
-		// If we are connected, register all connected entities to receive information from them
-		// The EIS agent name will be called AGT_<entity name> (that is, the agent controlling the entity)
+		// If we are connected, register one EI agent "ei_entity" per entity authenticated
+		//
+		// So, the EI agent ei_entityA1 will manage entityA1 (with username agentA1, for example).
+		// In general an EI agent may control more than one entity, but we do a 1-to-1 match between
+		// EI agents and entities controlled in the game
 		if (connected)	{
 			ei.entities.forEach( [ entity : String | 
-				registerEIAgent(String.format("eismassim_%s", entity), entity, "unknown", "unknown")
+				registerEIAgent(String.format("%s", entity), entity, "unknown", "unknown")
 			])
 		}
 
@@ -188,78 +174,42 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 
-//	/*
-//	 * Registers players in the interface using configuration file eiMassimPlayerAgentsConfigFile
-//	 * 
-//	 * Players will be associated with entities in the simulation and connection will happen per agent
-//	 */
-//	@Deprecated
-//	def MT_registerPlayersFromConfig() : boolean {
-//		if (eiMassimPlayerAgentsConfigFile !== null) {
-//			try {
-//				// Read from config file which agents will participate in the simulation
-//				// Agents will be of a certain type entity (define in the EIS)
-//	            var config : JSONObject = new JSONObject(
-//					new String(Files.readAllBytes(eiMassimPlayerAgentsConfigFile)))
-//				var players : JSONObject = config.optJSONObject("agents")
-//	
-//				if (players !== null) { // There are agents!
-//					// register each player into the server					
-//					for (agName : players.keySet) {
-//	                    // Not sure if need all of these but better safe than sorry.
-//						var agConf : JSONObject = players.getJSONObject(agName)
-//						registerEIAgent( agName, agConf.getString("entity"), agConf.getString("team"), agConf.getString("class") )
-//					}
-//				}
-//				return true
-//			} catch (e : IOException) {
-//				e.printStackTrace()
-//				return false
-//			}
-//		} else
-//		{
-//			error("Sorry, EI agent registration details are not yet loaded (missing agent JSON file)...")
-//			return false
-//		}
-//	}
-
-
 
 	/* 
-	 * Make a player execute an action in the game server
+	 * Make an entity execute an action in the game server
 	 */
-	def MT_executeAction(playerName : String, action : Action) {
+	def MT_executeAction(entityName : String, action : Action) {
 		try {
-			ei.performAction(playerName, action)
+			ei.performAction(entityName, action)
 		} catch (e : ActException) {
-			error("I was not able to execute action {0} for agent {1}", action.getName(), playerName)
+			error("I was not able to execute action {0} for agent {1}", action.getName(), entityName)
 			e.printStackTrace
 		}
 	}
 
 	/* 
-	 * Sense all percepts for a player
+	 * Sense all percepts for an entity
 	 * 
-	 * For each player's entity, a collection of percepts is returned
-	 * (generally, a player is of just one entity)
+	 * For each entity's entity, a collection of percepts is returned
+	 * (generally, an entity is of just one entity)
 	 */
-	def MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>> {
+	def MT_senseAllEntityPercepts(entityName : String) : Map<String, Collection<Percept>> {
 
 		// This is where the sensing form the server happens via the EI
-		var allPercepts = ei.getAllPercepts(playerName)
+		var allPercepts = ei.getAllPercepts(entityName)
 
-		// update player state with the first collection (only works if player is linked to just one entity)
-		MT_updatePlayerState(playerName, allPercepts.values().get(0)) // update the agent data
+		// update entity state with the first collection (only works if entity is linked to just one entity)
+		MT_updateEntityState(entityName, allPercepts.values().get(0)) // update the agent data
 		
 		return allPercepts
 	}
 
 	/** 
-	 * This yields the percept of the first entity the player is of. 
-	 * In this game, players are of one entity so this is enough
+	 * This yields the percept of the first entity the entity is of. 
+	 * In this game, entity are of one entity so this is enough
 	 */
-	def MT_sensePlayerPercepts(playerName : String) : Collection<Percept> {
-		return MT_senseAllPlayerPercepts(playerName).values().get(0)
+	def MT_senseEntityPercepts(entityName : String) : Collection<Percept> {
+		return MT_senseAllEntityPercepts(entityName).values().get(0)
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
@@ -267,39 +217,45 @@ skill S_MassimTalking implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/* 
-	 * Register a player agent with the EIS and link it to some entity connection
+	 * Register a new EI Agent and link it to some entity connection to control/sense it
 	 */
-	private def registerEIAgent(playerName : String, playerEntity : String, playerTeam : String, playerClass : String) {
-		// First we register the agent name in the EI
+	private def registerEIAgent(eiAgent : String, entityName : String, entityTeam : String, entityRole : String) {
+		// FIRST, we register the new EI agent name in the EI
 		try {
-			ei.registerAgent(playerName)
+			ei.registerAgent(eiAgent)
 		} catch (e : AgentException) {
 			e.printStackTrace()
 		}
-		// Second we associate/link that agent to an entity connection (the entity connected to the game server)
+		// SECOND, we associate/link the EI agent to the entity connection entityName (representing some entity in the game server)
+		//		With this, the EI agent will be able to sense and control the entity
+		//		We do a 1-to-1 mapping from EI Agent toconnected entities
 		try {
-			ei.associateEntity(playerName, playerEntity);
+			ei.associateEntity(eiAgent, entityName);
 		} catch (e : RelationException) {
 			e.printStackTrace()
 		}
 
 		// TODO: how to check if the agent did really connect to the server? seems that even if the server is down
 		// the EI system register the agent
-		if (ei.getAssociatedEntities(playerName).contains(playerEntity)) {
-			debug("Agent *{0}* has been successfully associated with entity *{1}*", playerName, playerEntity)
-			this.players.put(playerName, CityAgentEntityManager.createEntity(playerName, playerClass, playerTeam))
+		if (ei.getAssociatedEntities(eiAgent).contains(entityName)) {
+			debug("EI agent *{0}* has been successfully associated with game entity *{1}*", eiAgent, entityName)
+			this.entities.put(eiAgent, CityAgentEntityManager.createEntity(eiAgent, entityRole, entityTeam))
 		} else {
-			warning("Unsuccessful association of agent *{0}* with entity *{1}*", playerName, playerEntity)
+			warning("Unsuccessful association of agent *{0}* with entity *{1}*", eiAgent, entityName)
 		}
 	}
 
 	/* 
-	 * Takes a JSON Massim Configuration File and filters the entities to those in filteredPlayers
+	 * Takes a JSON registration file and filters the entities listed to  keep only those in filteredPlayers
+	 * 
+	 * @param eiRegitrationFile an EI registration file (with server and entity information)
+	 * @param entities array of entities to keep
+	 * @returns a temporary file that is a projection of the original file
 	 */
-	private def filterMassimConfigFile(eiMassimSeverConfigFile : Path, filteredPlayers : String[]) : Path {
+	private def filterRegistrationFile(eiRegitrationFile : Path, entities : String[]) : Path {
 		var config : JSONObject
 		try {
-			config = new JSONObject(new String(Files.readAllBytes(Paths.get(eiMassimSeverConfigFile.toString))))
+			config = new JSONObject(new String(Files.readAllBytes(Paths.get(eiRegitrationFile.toString))))
 			// System.out.println(config.toString(4))
 
 	        // Filter the entities to the ones with name in global variable myEntities
@@ -311,7 +267,7 @@ skill S_MassimTalking implements C_MassimTalking {
 				val jsonEntity : JSONObject = jsonEntities.optJSONObject(i)
 				if(jsonEntity == null) continue
 				val name : String = jsonEntity.optString("name")
-				if (filteredPlayers.contains(name)) { // FILTER HAPPENS HERE!!
+				if (entities.contains(name)) { // FILTER HAPPENS HERE!!
 					jsonEntitiesFiltered.put(jsonEntity)
 				}
 			}
@@ -322,7 +278,7 @@ skill S_MassimTalking implements C_MassimTalking {
 			e.printStackTrace();
 		}
 
-		val newFile : File = java.io.File.createTempFile("filtered_eiMassimSeverConfigFile", ".json")
+		val newFile : File = File.createTempFile("filtered_eiMassimSeverConfigFile", ".json")
 		val writer : FileWriter = new FileWriter(newFile)
 		writer.write(config.toString(4))
 		writer.close()
@@ -341,32 +297,32 @@ skill S_MassimTalking implements C_MassimTalking {
 		return ei.getState()
 	}
 
-	def MT_getPlayersNames() : Set<String> {
-		return players.keySet()
+	def MT_getEntityNames() : Set<String> {
+		return entities.keySet()
 	}
 
 	/** 
-	 * Provides a map from player names to the player state
+	 * Provides a map from entity names to the entity state
 	 */	
-	def MT_getAllPlayerStates() : Map<String, EntityData> {
-		return players
+	def MT_getAllEntityStates() : Map<String, EntityData> {
+		return entities
 	}
-	def MT_getPlayerState(playerName : String) : EntityData {
-		return players.get(playerName)
+	def MT_getEntityState(entityName : String) : EntityData {
+		return entities.get(entityName)
 	}
 
 	/**
-	 * Update the player state in place.
+	 * Update the entity state in place.
 	 */
-	def MT_updatePlayerState(playerName : String, percepts : Collection<Percept>): void {
-		val stepNo = CityAgentEntityManager.updateEntity(players.get(playerName), percepts)
+	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>): void {
+		val stepNo = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
 		if (this.stepNo < stepNo) {
 			this.stepNo = stepNo
 		}
 	}
 
-	def MT_reportPlayerState(playerName : String) : String {
-		return CityAgentEntityManager.reportState(players.get(playerName))
+	def MT_reportEntityState(entityName : String) : String {
+		return CityAgentEntityManager.reportState(entities.get(entityName))
 	}
 
 	/** 
@@ -384,12 +340,12 @@ skill S_MassimTalking implements C_MassimTalking {
 	def install {
 		// Function invoked when the skill is installed in the owner.
 		// You should put all the initialization statements in this block of code.
-		info("Installing the skill to talk to MASSIM07 Agents in City 2017 Game Server")
+		info("Installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
 	}
 
 	def uninstall {
 		// Function invoked when the skill is uninstalled from the owner.
 		// You should put all the resource release statements in this block of code.
-		info("Un-installing the skill to talk to MASSIM07 Agents in City 2017 Game Server")
+		info("Un-installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
 	}
 }
