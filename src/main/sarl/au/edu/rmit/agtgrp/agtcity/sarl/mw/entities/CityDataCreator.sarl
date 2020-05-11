@@ -74,6 +74,7 @@ class CityDataCreator {
      * Constructs a new Facility object.
      */
     static def createFacility(p : Percept) : FacilityData {
+		// first three parameters of p have name, lot and lon. The rest is parameters 3+
 		val name = Util.extractString(p.parameters.get(0))
 		val lat = Util.extractDouble(p.parameters.get(1))
 		val lon = Util.extractDouble(p.parameters.get(2))
@@ -101,6 +102,7 @@ class CityDataCreator {
 					stockData.add(new StockData(itemName, itemPrice, itemQty))
 				}
 				return new ShopData(name, lat, lon, restock, stockData);
+				
 			}
 			case "storage": { // storage(name, lat, lon, cap, used, [item(name1, stored1, delivered1), ...])
 				val ^capacity = Util.extractInt(p.parameters.get(3))

@@ -31,25 +31,6 @@ import massim.protocol.messagecontent.SimStart
  * 
  */
 class Util {
-	// Three static data structures to store information:
-	// EntityBuffer: information about entities (e.g., agents) storing type, role, location
-	//								entity(agentA2,A,19.41915,-99.06416,drone)
-    // TeamBuffer: information about the team: name and money
-    // SimStartBuffer: information about the simulation: map name, simulation id, seed capital team name
-    public static def initDataBuffers {
-        EntityBuffer.init();
-        TeamBuffer.init();
-       	SimStartBuffer.init();
-    }
-
-    public static def populateDataBuffers(percepts : Collection<Percept>) {
-        EntityBuffer.populate(percepts)
-		TeamBuffer.populate(percepts)
-		if(!SimStartBuffer.filled) {
-			SimStartBuffer.populate(percepts) // only update once if not filled
-		}
-	}
-
 	public static def extractDouble(param : Parameter) : double {
         var p = param as Numeral
         return p.value.doubleValue

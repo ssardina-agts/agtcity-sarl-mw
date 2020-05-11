@@ -26,7 +26,7 @@ class BootMAS {
 		Boot.offline = true
 		Boot.verboseLevel = 7 // ALL
 		val basePackage = "au.edu.rmit.agtgrp.agtcity.sarl.mw.agents"
-		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent", "SchedulerAgent"]
+		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent"]
 
 		// Boot a specific one and that' s it
 		// Boot.startJanus(typeof(DummyMultiCarController))

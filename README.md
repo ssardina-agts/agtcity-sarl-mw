@@ -184,9 +184,9 @@ A set of classes are provided to support aggregating many percepts (for differen
 So, the idea is to sense all players and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
 ----------------------------
-## EXAMPLE AGENTS 
+## SuperSingleAgent Demo Controller 
 
-This package comes with two minimal examples that basically show how to sense the environment, report some information, and move players around randomly.
+This package comes with a minimal example that basically shows how to sense the environment, report some information, and move players around randomly.
 
 They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
 
@@ -196,7 +196,7 @@ The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtci
 mvn exec:java
 ```
 
-### SuperSingleAgent ###
+###  ###
 
 This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
 
@@ -225,23 +225,6 @@ java -cp target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar io.janusproj
 
 
 One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
-
-
-### Demo Scheduler
-
-This is the demo agent developed by Bob and Keiran to test the infrastructure and based on the Java-based demo that came with the server. 
-
-The system is run by running the **SchedulerAgent** who spawns one **DummyAgent** per player to be connected to the game:
-
-```shell
-mvn exec:java -Dexec.args=SchedulerAgent
-```
-
-and then select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally by scheduler SARL agent.
-
-**Scheduler** agent reads all percepts from all players, "aggregates" them all (because there is a lot of redundancy in the percepts; all agents receive a lot of the same information, and then emits events for each separate data (e.g., items, locations, etc). All communication to the environment/game server is done by this agent.
-
-All **DummyAgents** can catch those events and emit events that are subclasses of **E_AgentAction** (e.g., **GotoFacility**) to instruct the **SchedulerAgent** to submit it to the environment/game server for the corresponding player being managed by the **DummyAgent**.
 
 
 
