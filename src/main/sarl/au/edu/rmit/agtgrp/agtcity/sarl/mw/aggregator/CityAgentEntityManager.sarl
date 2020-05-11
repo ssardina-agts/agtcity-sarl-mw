@@ -34,17 +34,38 @@ import massim.protocol.scenario.city.data.ActionData
 
 /**
   * Responsible for the creation of Java objects from EiSMASSimPercept information provided by MASSIM gameserver.
+  * 
+ * EntityData(Integer currentBattery, Integer maxBattery, Integer currentLoad, Integer maxLoad,
+ * Integer vision, Integer skill, Integer speed,
+ * ActionData lastAction,
+ * String facilityName, List<WayPointData> route, List<ItemAmountData> items,
+ * String agentName, String team, String role, double lat, double lon) {
   */
 class CityAgentEntityManager {
 
-	/**
+	public static val ENTITY_TYPES = newHashSet("entity")
+
+	/** 
 	 * Constructs a new Agent Entity object. We don't know anything about this agent yet.
-	 * TODO: except name etc, to fix
 	 */
 	static def createEntity(playerName : String, playerRole : String, playerTeam : String) : EntityData {
-		 return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null, 
-		 	playerName, playerTeam, playerRole, -1, -1);
-//		return new EntityData();
+		return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null, playerName, playerTeam, playerRole,
+			-1, -1);
+	}
+
+	/** 
+	 * Constructs a new Agent Entity object. This is all we find out about entities perceived by other entities.
+	 * For example team mates or opponents.
+	 */
+	static def createEntity(p : Percept) : EntityData {
+
+		val playerName = Util.extractString(p.parameters.get(0))
+		val playerTeam = Util.extractString(p.parameters.get(1))
+		val lat = Util.extractDouble(p.parameters.get(2))
+		val lon = Util.extractDouble(p.parameters.get(3))
+		val playerRole = Util.extractString(p.parameters.get(4))
+		return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null, playerName, playerTeam, playerRole,
+			lat, lon);
 	}
 
 	/**
