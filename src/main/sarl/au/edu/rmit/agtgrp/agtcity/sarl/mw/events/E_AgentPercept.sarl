@@ -18,8 +18,8 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.events
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ActionResult
 import java.util.Set
+import massim.protocol.scenario.city.data.ActionData
 
 /** 
  * E_AgentPercept superclass used to pass on all percepts from MASSIM. 
@@ -53,11 +53,11 @@ event E_TeamInfo extends E_AgentInfo {
  * @param actionResult, object containing data relating to the previous action and it's result. 
  */
 event E_ActionStatusInfo extends E_AgentInfo { 
-	var actionResult : ActionResult
+	var actionData : ActionData
 
-	new(sources : Set<String>, actionResultt : ActionResult) {
+	new(sources : Set<String>, actionData : ActionData) {
 		super(sources)
-		this.actionResult = actionResult
+		this.actionData = actionData
 	}
 }
 
