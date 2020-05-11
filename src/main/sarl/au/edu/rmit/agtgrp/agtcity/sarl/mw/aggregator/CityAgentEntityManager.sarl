@@ -1,7 +1,7 @@
 /**
  * SARL-MASSIM - Interface between the SARL agent-oriented language
- * and the MASSIM 2017 server
- * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * and the MASSIM 2018+ game server
+ * Copyright (C) 2017-2020 The SARL-MASSIM Authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,44 +18,56 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
-import java.util.HashMap
-import eis.iilang.ParameterList
 import eis.iilang.Function
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
+import eis.iilang.ParameterList
 import eis.iilang.Percept
-
-import java.util.List
 import java.util.ArrayList
+import java.util.Collection
+import massim.protocol.scenario.city.data.ActionData
 import massim.protocol.scenario.city.data.EntityData
 import massim.protocol.scenario.city.data.ItemAmountData
-import java.util.Collection
 import massim.protocol.scenario.city.data.WayPointData
-import massim.protocol.scenario.city.data.ActionData
 
 /**
-  * Responsible for the creation of Java objects from EiSMASSimPercept information provided by MASSIM gameserver.
-  * 
+ * 
+ * Responsible for the creation of Java objects from EiSMASSimPercept information provided by MASSIM gameserver:
+ * https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md
+ * 
+ * It relies on EntityData class from massim.protocol.scenario.city.data.EntityData:
+ * https://github.com/ssardina-agts/agtcity-server/blob/master/protocol/src/main/java/massim/protocol/scenario/city/data/EntityData.java
+ * 
  * EntityData(Integer currentBattery, Integer maxBattery, Integer currentLoad, Integer maxLoad,
- * Integer vision, Integer skill, Integer speed,
- * ActionData lastAction,
- * String facilityName, List<WayPointData> route, List<ItemAmountData> items,
- * String agentName, String team, String role, double lat, double lon) {
-  */
+ * 				Integer vision, Integer skill, Integer speed,
+ * 				ActionData lastAction,
+ * 				String facilityName, List<WayPointData> route, List<ItemAmountData> items,
+ * 				String agentName, String team, String role, double lat, double lon)
+ */
 class CityAgentEntityManager {
 
 	public static val ENTITY_TYPES = newHashSet("entity")
 
 	/** 
-	 * Constructs a new Agent Entity object. We don't know anything about this agent yet.
+	 * Constructs a new record for an Entity from basic information
+	 * 
+	 * @param entityName - the name of the entity as in registration file
+	 * @param entityRole - the role of the entity
+	 * @param entityTeam - the team of the entity
+	 * 
+	 * @return an EntityData with the basic info filled
 	 */
-	static def createEntity(playerName : String, playerRole : String, playerTeam : String) : EntityData {
-		return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null, playerName, playerTeam, playerRole,
+	static def createEntity(entityName : String, entityRole : String, entityTeam : String) : EntityData {
+		return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null, entityName, entityTeam, entityRole,
 			-1, -1);
 	}
 
 	/** 
-	 * Constructs a new Agent Entity object. This is all we find out about entities perceived by other entities.
+	 * Constructs a new record for an Entity from a percept entity(name, team, lat, lon, role)
+	 *  
+	 * This is all we find out about entities perceived by other entities.
 	 * For example team mates or opponents.
+	 * 
+	 * @param p - a single percept of type entity of form entity(name, team, lat, lon, role)
+	 * @return an EntityData with the basic info filled
 	 */
 	static def createEntity(p : Percept) : EntityData {
 
@@ -69,7 +81,14 @@ class CityAgentEntityManager {
 	}
 
 	/**
-	 * Takes an entity and updates its internal representation
+	 * Takes an entity and updates its internal representation based on the collection of percepts
+	 * The structure of all possible percepts in the collection can be found here:
+	 * https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md
+	 * 
+	 * @param entity - the EntityData to be updated
+	 * @param precepts - the collection of percepts received from the server
+	 * @return the step number in the percepts 
+	 * @return entity fields updated
 	 */
 	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : int {
 		var items : ArrayList<ItemAmountData> // item --> quantity
@@ -80,7 +99,7 @@ class CityAgentEntityManager {
 		var stepNo : int = -1
 		
 
-		// Populate Entity fields
+		// Navigate all the individual percepts and populate Entity fields
 		for (p : percepts) {
 				switch p.name {
 				case "step": {
@@ -151,7 +170,6 @@ class CityAgentEntityManager {
 		} // for loop processing all percepts
 		entity.items = items
 		if (lastActionResult !== null) {
-//			System.out.println("======================> " + lastAction)
 			entity.lastAction = new ActionData(lastAction, lastActionParams, lastActionResult)
 		}
 		return stepNo
@@ -160,6 +178,8 @@ class CityAgentEntityManager {
 	/*
 	 * Return a string with a summary of the player state: name, location, and battery level
 	 *
+	 * @param the entity we want to report
+	 * @return a String with a reporting statement of the entity current (basic) state
 	 */
 	static def reportState(entity : EntityData) : String {
 		var message : String = String.format("Report on entity %s (%s): at (%f, %f) with battery level %d and load %d",
