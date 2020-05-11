@@ -70,12 +70,9 @@ capacity C_MassimTalking {
 	def MT_executeAction(playerName : String, action : Action)
 
 	/*
-	 * Sense all percepts for a player
+	 * Sense all percepts for an entity. Each percept is a single unit of info, like lat(X)
 	 * 
-	 * For each player's entity, a collection of percepts is returned
-	 * (generally, a player is of just one entity)
 	 */
-	def MT_senseAllEntityPercepts(playerName : String) : Map<String, Collection<Percept>>
 	def MT_senseEntityPercepts(playerName : String) : Collection<Percept>
 
 

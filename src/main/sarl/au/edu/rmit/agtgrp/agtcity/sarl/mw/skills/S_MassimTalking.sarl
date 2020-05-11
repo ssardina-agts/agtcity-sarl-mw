@@ -187,29 +187,19 @@ skill S_MassimTalking implements C_MassimTalking {
 		}
 	}
 
-	/* 
-	 * Sense all percepts for an entity
-	 * 
-	 * For each entity's entity, a collection of percepts is returned
-	 * (generally, an entity is of just one entity)
-	 */
-	def MT_senseAllEntityPercepts(entityName : String) : Map<String, Collection<Percept>> {
-
-		// This is where the sensing form the server happens via the EI
-		var allPercepts = ei.getAllPercepts(entityName)
-
-		// update entity state with the first collection (only works if entity is linked to just one entity)
-		MT_updateEntityState(entityName, allPercepts.values().get(0)) // update the agent data
-		
-		return allPercepts
-	}
 
 	/** 
 	 * This yields the percept of the first entity the entity is of. 
 	 * In this game, entity are of one entity so this is enough
 	 */
 	def MT_senseEntityPercepts(entityName : String) : Collection<Percept> {
-		return MT_senseAllEntityPercepts(entityName).values().get(0)
+		// This is where the sensing form the server happens via the EI
+		var entityPercepts = ei.getAllPercepts(entityName).values().get(0)
+
+		// update entity state with the first collection (only works if entity is linked to just one entity)
+		MT_updateEntityState(entityName, entityPercepts) // update the agent data
+
+		return entityPercepts 
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
