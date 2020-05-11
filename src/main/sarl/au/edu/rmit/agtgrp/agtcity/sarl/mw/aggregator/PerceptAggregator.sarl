@@ -18,7 +18,6 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.ActionResult
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.CityDataCreator
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ActionStatusInfo
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ChargingStationInfo
@@ -50,6 +49,9 @@ import massim.protocol.scenario.city.data.WorkshopData
 import massim.protocol.scenario.city.data.MissionData
 import massim.protocol.scenario.city.data.EntityData
 import massim.protocol.scenario.city.data.ItemData
+import massim.protocol.scenario.city.data.ActionData
+import eis.iilang.Parameter
+import eis.iilang.ParameterList
 
 /** 
  * @author boblo
@@ -66,7 +68,7 @@ class PerceptAggregator {
 	 */
 	var players_team : HashMap<String, EntityData>
 	var players_opp : HashMap<String, EntityData>
-	var actionResults : HashMap<String, ActionResult>
+	var actionResults : HashMap<String, ActionData>
 	var money : double
 
 
@@ -185,20 +187,29 @@ class PerceptAggregator {
 	 */
 	def addActionResults(source : String, percepts : Collection<Percept>){
 		
-		var action : String
-		var success : String
+		var actionName : String
+		var actionParams = new ArrayList<String>
+		var actionResult : String
 		
 		for(p : percepts){
 			switch(p.name){
-				case "lastAction" : {
-					action = Util.extractString(p.parameters.get(0))
+				case "lastAction": { // lastAction(type) - type is the name of the last action executed
+					actionName = Util.extractString(p.parameters.get(0))
 				}
-				case "lastActionResult" : {
-					success = Util.extractString(p.parameters.get(0))
+				case "lastActionParams": { // lastActionParams([param1, ...])
+					if (p.parameters.get(0) !== null) { // the action may not have had any parameter and is null
+						val params = p.parameters.get(0) as ParameterList // [param1, param2...]
+						for (param : params) { // build a list of stack data
+							actionParams.add(Util.extractString(param))
+						}
+					}
+				}
+				case "lastActionResult": { // lastActionResult(result)
+					actionResult = Util.extractString(p.parameters.get(0))
 				}
 			}
 		}
-		this.actionResults.put(source, new ActionResult(action, success))
+		this.actionResults.put(source, new ActionData(actionName, actionParams, actionResult))
 	}
 	
 	
