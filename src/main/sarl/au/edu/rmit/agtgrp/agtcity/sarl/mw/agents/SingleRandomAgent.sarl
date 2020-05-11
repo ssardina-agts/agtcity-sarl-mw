@@ -198,7 +198,7 @@ agent SingleRandomAgent {
 					// MT_updatePlayerState(playerName, percepts) // update the agent data
 
 					
-					aggregator.fillFacilitiesAndJobs(percepts)		
+					aggregator.updateAggregatedGameState(percepts, MT_getStepNo())
 					agent_shouts("Facilities and Jobs aggregated for entity {0}", playerName)
 					
 					facilities = aggregator.getFacilitiesNames()

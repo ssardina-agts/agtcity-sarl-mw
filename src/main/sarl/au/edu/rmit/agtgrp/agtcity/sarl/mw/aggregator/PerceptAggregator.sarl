@@ -49,6 +49,7 @@ import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
 import massim.protocol.scenario.city.data.MissionData
 import massim.protocol.scenario.city.data.EntityData
+import massim.protocol.scenario.city.data.ItemData
 
 /** 
  * @author boblo
@@ -68,8 +69,35 @@ class PerceptAggregator {
 	var actionResults : HashMap<String, ActionResult>
 	var money : double
 
-	var jobs : HashMap<String, JobData>	// holds regular jobs, missions (subclass Mission) and auction jobs (subclass AuctionJobData)
+
+
+	/**
+	 * Entities in the game, as perceived by the entities controlled by the middleware skill.
+	 * Be sure to check the last step anything in here was seen, it may be outdated due to lack of visibility.
+	 */
+	var entities : HashMap<String, EntityData>
+
+	/**
+	 * Jobs data, extracted from the percepts of the entities controlled by the middleware skill.
+	 * Regular jobs, missions (subclass Mission) and auction jobs (subclass AuctionJobData)
+	 */
+	var jobs : HashMap<String, JobData>
+
+	/**
+	 * Facilities in the game as perceived by the entities controlled by the middleware skill.
+	 */
 	var facilities : HashMap<String, FacilityData>
+
+	/**
+	 * Items data, extracted from the percepts of the entities controlled by the middleware.
+	 * These can be requested in jobs, bought in stores, assembled, stored in storages or dumped at dumps.
+	 */
+	var items : HashMap<String, ItemData>
+
+	/**
+	 * The last step that a given piece of game information was observed.
+	 */
+	var stepLastSeen : HashMap<String, Integer>
 
 	
 	/**
@@ -80,10 +108,13 @@ class PerceptAggregator {
 		this.players_opp = new HashMap()
 		this.actionResults = new HashMap()
 		this.money = 0
-		
+
+		this.entities = new HashMap()
 		this.jobs = new HashMap()
-		
 		this.facilities = new HashMap()
+		this.items = new HashMap()
+
+		this.stepLastSeen = new HashMap()
 	}
 	
 	
@@ -109,20 +140,6 @@ class PerceptAggregator {
 		players_opp.put(source, entityAgent)
 	}
 
-
-	/** 
-	 * Add the information relating to all opposition agents from EntityBuffer
-	 * 
-	 */
-	 // TODO: can we get rid of this? Do we need EntityBuffer complex data?
-//	def addPlayerOpposition() {
-//		for (e : EntityBuffer.entities.keySet) {
-//			if (!this.players_team.keySet.contains(e)) { // add only if they are not agents of the team
-//				addPlayerOpposition(e, (EntityBuffer.entities.get(e)))
-//			}
-//		}
-//	}
-
 	/**
 	 * Store the amount of money the team has.
 	 * 
@@ -134,21 +151,27 @@ class PerceptAggregator {
 	
 
 	/**
-	 * Updates the facility and job state.
+	 * Updates the aggregated game state.
 	 * 
-	 * 1. Filter out facilities and jobs from the game percept.
+	 * 1. Filter out facilities, jobs, entities, items from the game percept.
 	 * 2. Create/update the Java representation of them within this skill.
 	 * 
 	 * @param percepts received for the current step.
 	 */
-	def fillFacilitiesAndJobs(percepts : Collection<Percept>) {
+	def updateAggregatedGameState(percepts : Collection<Percept>, step : int) {
 		percepts.forEach([ p : Percept |
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
 				val facility = CityDataCreator.createFacility(p)
 				this.facilities.put(facility.name, facility)
+				this.stepLastSeen.put(facility.name, step)
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
 				val job = CityDataCreator.createJob(p)
 				this.jobs.put(job.getId(), job)
+				this.stepLastSeen.put(job.getId(), step)
+			} else if (CityAgentEntityManager.ENTITY_TYPES.contains(p.name)) {
+				val entity = CityAgentEntityManager.createEntity(p)
+				this.entities.put(entity.getName(), entity)
+				this.stepLastSeen.put(entity.getName(), step)
 			}
 		]);
 
@@ -356,6 +379,25 @@ class PerceptAggregator {
 			filtered_jobs.put(job.getId(), job as T)
 		])
 		return filtered_jobs
+	}
+
+	/**
+	 * Step last seen getters for all relevant data types.
+	 */
+	def getStepLastSeen(d : FacilityData) : int {
+		return getStepLastSeen(d.getName())
+	}
+
+	def getStepLastSeen(d : JobData) : int {
+		return getStepLastSeen(d.getId())
+	}
+
+	def getStepLastSeen(d : EntityData) : int {
+		return getStepLastSeen(d.getName())
+	}
+
+	def getStepLastSeen(id : String) : int {
+		return this.stepLastSeen.containsKey(id) ? this.stepLastSeen.get(id) : -1
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
