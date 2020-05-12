@@ -18,7 +18,6 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.entities.CityDataCreator
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ActionStatusInfo
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ChargingStationInfo
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_DumpInfo

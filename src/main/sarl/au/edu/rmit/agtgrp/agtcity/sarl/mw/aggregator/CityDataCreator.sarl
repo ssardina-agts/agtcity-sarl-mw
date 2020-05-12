@@ -16,9 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package au.edu.rmit.agtgrp.agtcity.sarl.mw.entities
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import eis.iilang.Function
 import eis.iilang.ParameterList
 import eis.iilang.Percept
