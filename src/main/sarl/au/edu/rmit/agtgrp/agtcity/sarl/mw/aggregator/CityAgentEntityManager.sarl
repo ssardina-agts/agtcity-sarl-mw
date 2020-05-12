@@ -27,6 +27,11 @@ import massim.protocol.scenario.city.data.ActionData
 import massim.protocol.scenario.city.data.EntityData
 import massim.protocol.scenario.city.data.ItemAmountData
 import massim.protocol.scenario.city.data.WayPointData
+import java.lang.reflect.Field
+import java.util.Set
+import java.util.Map
+import java.util.stream.Collectors
+import java.util.Collections
 
 /**
  * 
@@ -45,6 +50,17 @@ import massim.protocol.scenario.city.data.WayPointData
 class CityAgentEntityManager {
 
 	public static val ENTITY_TYPES = newHashSet("entity")
+
+	public val ENTITY_ATTRIBUTES : Map<String, Field>
+	
+	new() {
+		ENTITY_ATTRIBUTES = newHashMap()
+		val field_stream = EntityData.getDeclaredFields().stream()
+		field_stream.forEach([f : Field |
+			f.setAccessible(true)
+			ENTITY_ATTRIBUTES.put(f.getName(), f)
+		])
+	}
 
 	/** 
 	 * Constructs a new record for an Entity from basic information
@@ -81,6 +97,110 @@ class CityAgentEntityManager {
 	}
 
 	/**
+	 * Take a percept, determine what type it is, and update the entity in place
+	 * 
+	 * @param entity the entity to update
+	 * @param p the percept with the new data
+	 * 
+	 * @return boolean whether or not this attribute was new information
+	 */
+	private def updateCityEntityAttribute(entity : EntityData, p : Percept) : boolean {
+		val name : String = p.name
+		val field : Field = ENTITY_ATTRIBUTES.get(name)
+		var value : Object
+
+		if ("route".equals(name)) {
+			var params = p.parameters.get(0);
+			var wps = params as ParameterList
+			for (w : wps) {
+				var f = w as Function
+				var routeLat = Util.extractDouble(f.parameters.get(1))
+				var routeLon = Util.extractDouble(f.parameters.get(2))
+				var wayPoint = new WayPointData(-1, routeLat, routeLon)
+				// TODO: do we need an index?
+				var index = Util.extractInt(f.parameters.get(0));
+				entity.route = new ArrayList<WayPointData>()
+				entity.route.add(wayPoint)
+			}
+		} else if ("hasItem".equals(name)) { // hasItem(name, qty)
+			value = new ArrayList<ItemAmountData>()
+			var itemName = Util.extractString(p.parameters.get(0))
+			var itemQty = Util.extractInt(p.parameters.get(1))
+			(value as ArrayList<ItemAmountData>).add(new ItemAmountData(itemName, itemQty))
+		} else if ("lastActionParams".equals(name)) {
+			// lastActinParams([param1, param2, ...])
+			value = new ArrayList<String>()
+			if (p.parameters.get(0) !== null) { // the action may not have had any parameter and is null
+				val params = p.parameters.get(0) as ParameterList // [param1, param2...]
+					for (param : params) { // build a list of stack data
+					(value as ArrayList<String>).add(Util.extractString(param))
+				}
+			}
+		} else if (field.getType() === typeof(int)) {
+			value = Util.extractInt(p.parameters.get(0))
+		} else if (field.getType() === typeof(String)) {
+			value = Util.extractString(p.parameters.get(0))
+		} else if (field.getType() === typeof(double)) {
+			value = Util.extractDouble(p.parameters.get(0))
+		}
+		
+		if (field.get(entity) === null) {
+			field.set(entity, value)
+			return true
+		} else if (field.getType().isPrimitive() && field.get(entity) == value) {
+			return false
+		} else if (field.get(entity).equals(value)) {
+			return false
+		} else {
+			field.set(entity, value)
+			return true
+		}
+	}
+
+	/** 
+	 * Takes an entity and updates its internal representation based on the collection of percepts
+	 * The structure of all possible percepts in the collection can be found here:
+	 * https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md
+	 * 
+	 * @param entity - the EntityData to be updated
+	 * @param precepts - the collection of percepts received from the server
+	 * @return entity fields names that were updated
+	 */
+	def updateEntity(entity : EntityData, percepts : Collection<Percept>) : Set<String> {
+		val attr_changed = newHashSet()
+		/* Collect the percepts relevant to the entity. */
+		var entityPercepts = percepts
+			.stream()
+			.filter([ percept : Percept |
+				ENTITY_ATTRIBUTES.containsKey(percept.name)
+			]).collect(Collectors.toList())
+		
+		/* Check that we received the right number of attributes. */
+		if (entityPercepts.length != ENTITY_ATTRIBUTES.size()) {
+			val expecting = ENTITY_ATTRIBUTES.values().stream().map([f | return f.getName()]).collect(Collectors.toList())
+			val received = entityPercepts.stream().map([p|return p.name]).collect(Collectors.toList())
+			Collections.sort(expecting)
+			Collections.sort(received)
+			System.out.println("WARNING: The entity attributes received from the server are different to what was expected.")
+			System.out.println("We expected:")
+			System.out.println(String.join("\n", expecting))
+			
+			System.out.println("Server percept only has:")
+			System.out.println(String.join("\n", received))
+		}
+
+		/* Compare and update attributes, maintain list of what changed. */
+		entityPercepts.forEach([p : Percept |
+			if (updateCityEntityAttribute(entity, p)) {
+				attr_changed.add(p.name)
+			}
+		])
+		
+		return attr_changed
+	}
+		
+
+	/** 
 	 * Takes an entity and updates its internal representation based on the collection of percepts
 	 * The structure of all possible percepts in the collection can be found here:
 	 * https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md
@@ -90,7 +210,7 @@ class CityAgentEntityManager {
 	 * @return the step number in the percepts 
 	 * @return entity fields updated
 	 */
-	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : int {
+	def updateEntityBasic(entity : EntityData, percepts : Collection<Percept>) : int {
 		var items : ArrayList<ItemAmountData> // item --> quantity
 		var lastAction : String
 		var lastActionParams = new ArrayList<String> 
@@ -100,7 +220,7 @@ class CityAgentEntityManager {
 		
 
 		// Navigate all the individual percepts and populate Entity fields
-		for (p : percepts) {
+		for (p : percepts) {			
 				switch p.name {
 				case "step": {
 					stepNo = Util.extractInt(p.parameters.get(0))
@@ -175,7 +295,7 @@ class CityAgentEntityManager {
 		return stepNo
 	}
 
-	/*
+	/* 
 	 * Return a string with a summary of the player state: name, location, and battery level
 	 *
 	 * @param the entity we want to report
