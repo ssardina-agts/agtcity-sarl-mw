@@ -18,15 +18,12 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities
 
-import java.nio.file.Path
-import java.util.Map
-import java.util.Collection
-import java.util.Set
-
+import eis.iilang.Action
 import eis.iilang.EnvironmentState
 import eis.iilang.Percept
-import eis.iilang.Action
-
+import java.util.Collection
+import java.util.Map
+import java.util.Set
 import massim.protocol.scenario.city.data.EntityData
 
 /** 
@@ -66,14 +63,18 @@ capacity C_MassimTalking {
 
 	/* 
 	 * Make a player execute an action in the game server
+	 * 
+	 * @param entityName - the entity that is to execute the action
+	 * @param action - the action to send to the game server for the entity
+	 * @return true if the action was sent successfully
 	 */
-	def MT_executeAction(playerName : String, action : Action)
+	def MT_executeAction(entityName : String, action : Action) : boolean
 
 	/*
 	 * Sense all percepts for an entity. Each percept is a single unit of info, like lat(X)
 	 * 
 	 */
-	def MT_senseEntityPercepts(playerName : String) : Collection<Percept>
+	def MT_senseEntityPercepts(entityName : String) : Collection<Percept>
 
 
 
@@ -91,11 +92,11 @@ capacity C_MassimTalking {
 	 */	
 	def MT_getAllEntityStates() : Map<String, EntityData>
 
-	def MT_getEntityState(playerName : String) : EntityData
+	def MT_getEntityState(entityName : String) : EntityData
 
-	def MT_updateEntityState(playerName : String, percepts : Collection<Percept>) : void
+	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>) : void
 
-	def MT_reportEntityState(playerName : String) : String
+	def MT_reportEntityState(entityName : String) : String
 
 	/*
 	 * Obtain the current state of the environment interface (paused, running, killed)

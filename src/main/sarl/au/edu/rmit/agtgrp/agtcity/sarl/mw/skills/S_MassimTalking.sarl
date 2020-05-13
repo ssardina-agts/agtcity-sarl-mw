@@ -178,10 +178,12 @@ skill S_MassimTalking implements C_MassimTalking {
 		return connected
 	}
 
-
-
 	/* 
-	 * Make an entity execute an action in the game server
+	 * Make a player execute an action in the game server
+	 * 
+	 * @param entityName - the entity that is to execute the action
+	 * @param action - the action to send to the game server for the entity
+	 * @return true if the action was sent successfully
 	 */
 	def MT_executeAction(entityName : String, action : Action) {
 		try {
@@ -189,7 +191,9 @@ skill S_MassimTalking implements C_MassimTalking {
 		} catch (e : ActException) {
 			error("I was not able to execute action {0} for agent {1}", action.getName(), entityName)
 			e.printStackTrace
+			return false
 		}
+		return true
 	}
 
 
