@@ -90,7 +90,6 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * (for all that have been authenticated in the game server)
 	 * 
 	 */
-	val entityManager : CityAgentEntityManager
 	var entities : Map<String, EntityData> = new HashMap<String, EntityData>()
 
 	/*
@@ -104,14 +103,12 @@ skill S_MassimTalking implements C_MassimTalking {
 	new (eiMassimConfigFile : Path, eiMassimAuthConfigFile : Path) {
 		super() // Call the super's constructor
 		this.eiRegistrationFile = eiMassimConfigFile
-		entityManager = new CityAgentEntityManager()
 		
 	}
 
 	new (eiMassimConfigFile : Path) {
 		super() // Call the super's constructor
 		this.eiRegistrationFile = eiMassimConfigFile
-		entityManager = new CityAgentEntityManager()
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
@@ -314,7 +311,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * Update the entity state in place.
 	 */
 	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>): void {
-		val attributesUpdated = entityManager.updateEntity(entities.get(entityName), percepts)
+		val attributesUpdated = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
 		
 		System.out.println("UPDATED ENTITY, FIELDS CHANGED:")
 		System.out.println(String.join(",", attributesUpdated))
