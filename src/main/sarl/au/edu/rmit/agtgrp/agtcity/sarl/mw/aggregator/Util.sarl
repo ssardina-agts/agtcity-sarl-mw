@@ -25,6 +25,7 @@ import eis.iilang.ParameterList
 import eis.iilang.Percept
 import java.util.Collection
 import massim.protocol.messagecontent.SimStart
+import java.util.List
 
 /** 
  * @author boblo
@@ -103,6 +104,26 @@ class Util {
 			}
 		}
 		return "unknown"
+	}
+
+	/**
+	 * Crude utility to determine if two lists have the same elements.
+	 *
+	 * @param list1 first of two lists to compare
+	 * @param list2 second of two lists to compare
+	 * @return boolean true if lists are the same
+	 */
+	static def equal(list1 : List<String>, list2 : List<String>) : boolean {
+		if (list1 === null && list2 === null)
+			return true
+		if (list1 === null || list2 === null)
+			return false
+		if (list1.size() != list2.size())
+			return false
+
+		val result : List<String> = newArrayList(list2)
+		result.removeAll(list1)
+		return result.size() == 0
 	}
 
 
