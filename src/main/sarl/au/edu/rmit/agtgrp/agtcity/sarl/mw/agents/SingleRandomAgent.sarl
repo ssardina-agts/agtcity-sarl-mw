@@ -77,7 +77,7 @@ agent SingleRandomAgent {
 
 
 	// Data kept by this single SARL agent: just the step number
-	var last_step : int
+	var last_step : int = -1
 	var facilities : Set<String>
 	var rand : Random
 	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
@@ -196,10 +196,19 @@ agent SingleRandomAgent {
 				// In this game, players usually are of one role/entity, so we will store that single set of percepts
 				// in variable percepts (the first value of allPercepts)
 				try {
-					debug("About to sense percepts for step {0}+ in player {0}", last_step, entityName)
+					debug("About to sense percepts for step {0} in player {0}", last_step+1, entityName)
 					var percepts : Collection<Percept> percepts = MT_senseEntityPercepts(entityName) // This is BLOCKING!!
 					
+					// TODO: Change this to debug log
+					//var plist = percepts.stream().map([p | return p.name]).collect(Collectors.toList)
+					//System.out.println(String.join(",", plist))
+
 					agent_says("I have just sensed player {0} at step {1}", entityName, MT_getStepNo())
+
+					// First step has Sim-Start percepts
+					// https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
+					if(MT_getStepNo() == 0) aggregator.recordSimStartData(percepts)
+
 
 					// Updating the PlayerState of the player where percepts come from
 					// ATTENTION: This step is already done by the MT once data is sensed, so it is technically not necessary
@@ -218,7 +227,7 @@ agent SingleRandomAgent {
 					last_step = MT_getStepNo()
 					agent_shouts("I am finished sensing the environment - Step {0} for player {1}", MT_getStepNo(),
 						entityName)
-//					emit(new E_EntitySensed(last_step, entityName, percepts))
+					emit(new E_EntitySensed(last_step, entityName, percepts))
 
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
@@ -227,11 +236,10 @@ agent SingleRandomAgent {
 						e.toString)
 					throw e
 				}
-			])}	// FINISH sensing cycle for all entities - We have sensed every entity now
-			
-		agent_shouts(
-			"Finished sensing the environment for all the player connections. Next report and act for step {0}!!!",
-			last_step)
+			]) // FINISH sensing cycle for all entities - We have sensed every entity now
+			agent_shouts("Finished sensing the environment for all the player connections. Next report and act for step {0}!!!",
+				last_step)
+		} // end of game & sensing finished
 	} // end of on E_SenseEnvironment
 
 
@@ -240,6 +248,7 @@ agent SingleRandomAgent {
 	 */
 	on E_EntitySensed {
 		val entity = occurrence.entityName
+		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entity)
 		
 		agent_says(MT_reportEntityState(entity)) 
 
