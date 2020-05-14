@@ -28,9 +28,12 @@ import massim.protocol.scenario.city.data.ChargingStationData
 import massim.protocol.scenario.city.data.DumpData
 import massim.protocol.scenario.city.data.FacilityData
 import massim.protocol.scenario.city.data.ItemAmountData
+import massim.protocol.scenario.city.data.ItemData
 import massim.protocol.scenario.city.data.JobData
 import massim.protocol.scenario.city.data.MissionData
+import massim.protocol.scenario.city.data.NameData
 import massim.protocol.scenario.city.data.ResourceNodeData
+import massim.protocol.scenario.city.data.RoleData
 import massim.protocol.scenario.city.data.ShopData
 import massim.protocol.scenario.city.data.StockData
 import massim.protocol.scenario.city.data.StorageData
@@ -61,8 +64,58 @@ class CityDataCreator {
 		"mission"
 	)
 
-    /**
-     * Constructs a new Facility object.
+	/** 
+	 * Constructs an Role object
+	 * 
+	 * @param percept representing a Role
+	 * @return RoleData as described in eismassim
+	 */
+	static def createRole(p : Percept) : RoleData {
+		return new RoleData(
+			Util.extractString(p.parameters.get(0)), // name
+			Util.extractInt(p.parameters.get(1)), // baseSpeed
+			Util.extractInt(p.parameters.get(2)), // maxSpeed
+			Util.extractInt(p.parameters.get(3)), // baseLoad
+			Util.extractInt(p.parameters.get(4)), // maxLoad
+			Util.extractInt(p.parameters.get(5)), // baseSkill
+			Util.extractInt(p.parameters.get(6)), // maxSkill
+			Util.extractInt(p.parameters.get(7)), // baseVision
+			Util.extractInt(p.parameters.get(8)), // maxVision
+			Util.extractInt(p.parameters.get(9)), // baseBattery
+			Util.extractInt(p.parameters.get(10)) // maxBattery
+		)
+	}
+
+	/**
+	 * Constructs an Item object
+	 * 
+	 * @param percept representing an Item
+	 * @return ItemData as described in eismassim
+	 */
+	static def createItem(p : Percept) : ItemData {
+		val roles  : List<NameData> = newArrayList();
+		val parts : List<NameData> = newArrayList();
+		val name = Util.extractString(p.parameters.get(0))
+		val volume = Util.extractInt(p.parameters.get(1))
+
+		// Populate the roles required for this item (to be assembled)
+		val roleFunc = p.parameters.get(2) as Function
+		val roleList = roleFunc.parameters.get(0) as ParameterList
+		for (r : roleList) {
+			roles.add(new NameData(Util.extractString(r)))
+		}
+
+		// Populate the part items required for this item (to be built)
+		val partsFunc = p.parameters.get(3) as Function
+		val partsList = partsFunc.parameters.get(0) as ParameterList
+		for (part : partsList) {
+			parts.add(new NameData(Util.extractString(part)))
+		}
+		return new ItemData(name, volume, roles, parts)
+	}
+
+	/** 
+	 * Constructs a new Facility object.
      */
     static def createFacility(p : Percept) : FacilityData {
 		// first three parameters of p have name, lot and lon. The rest is parameters 3+

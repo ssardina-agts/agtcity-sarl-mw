@@ -30,6 +30,9 @@ import massim.protocol.scenario.city.data.WayPointData
 import java.util.Set
 import java.util.stream.Collectors
 import java.util.Collections
+import java.util.List
+import java.util.stream.Collector
+import java.util.Map
 
 /**
  * 
@@ -47,12 +50,41 @@ import java.util.Collections
  */
 class CityAgentEntityManager {
 
+	/**
+	 * The name of the percept this manager operates with.
+	 */
 	public static val ENTITY_TYPES = newHashSet("entity")
 
-	public static val ENTITY_ATTRIBUTES : Set<String> =
-		EntityData.getDeclaredFields().stream().map([f|f.getName()]).collect(Collectors.toSet())
-
-	public static val ENTITY_LAST_ACTION_ATTRIBUTES : Set<String> = newHashSet("lastActionParams", "lastActionResult")
+	/**
+	 * The percepts/attributes related to entity.
+	 * 
+	 * Unfortunately the attributes in EntityData don't directly translate to percept names.
+	 * - (items vs hasItem, loadMax vs maxLoad, chargeMax vs maxCharge)
+	 * - additional lastActionParams, lastActionResult
+	 * If they did we could use:
+	 * public static val ENTITY_ATTRIBUTES = EntityData.getDeclaredFields().stream().map([f|f.getName()]).collect(Collectors.toSet())
+	 */
+	public static val ENTITY_ATTRIBUTES : Set<String> = newHashSet(
+		"charge",
+		"maxBattery",
+		"facility",
+		"hasItem",
+		"lastAction",
+		"lastActionParams",
+		"lastActionResult",
+		"lat",
+		"load",
+		"maxLoad",
+		"lon",
+		"name",
+		"role",
+		"route",
+		"routeLength",
+		"skill",
+		"speed",
+		"team",
+		"vision"
+	)
 
 	/** 
 	 * Constructs a new record for an Entity from basic information
@@ -99,28 +131,19 @@ class CityAgentEntityManager {
 	 * @return entity fields names that were updated
 	 */
 	static def updateEntity(entity : EntityData, percepts : Collection<Percept>) : Set<String> {
+		/* Records entity attributes that are identified as changed. */
 		val attr_changed = newHashSet()
+		val items : List<ItemAmountData> = newArrayList()
+
 		/* Collect the percepts relevant to the entity. */
 		val entityPercepts = percepts
 			.stream()
 			.filter([ percept : Percept |
-				ENTITY_ATTRIBUTES.contains(percept.name) || ENTITY_LAST_ACTION_ATTRIBUTES.contains(percept.name)
+				ENTITY_ATTRIBUTES.contains(percept.name)
 			]).collect(Collectors.toList())
 		
-		/* Check that we received the right number of attributes. */
-		if (entityPercepts.length != ENTITY_ATTRIBUTES.size() + ENTITY_LAST_ACTION_ATTRIBUTES.size()) {
-			var expecting = ENTITY_ATTRIBUTES.toList()
-			expecting.addAll(ENTITY_LAST_ACTION_ATTRIBUTES)
-			var received = entityPercepts.stream().map([p | return p.name]).collect(Collectors.toList())
-			Collections.sort(expecting)
-			Collections.sort(received)
-			System.out.println("WARNING: The entity attributes received from the server are different to what was expected.")
-			System.out.println("We expected:")
-			System.out.println(String.join("\n", expecting))
-			
-			System.out.println("Server percept only has:")
-			System.out.println(String.join("\n", received))
-		}
+		/* Check that we received all expected attributes. */
+		reportAnyMissingPercepts(entityPercepts)
 
 		/* Compare and update entity attributes, maintain list of what changed. */
 		for (p : entityPercepts) {
@@ -142,7 +165,7 @@ class CityAgentEntityManager {
 						attr_changed.add("charge")
 					}
 				}
-				case "chargeMax": {
+				case "maxBattery": {
 					val chargeMax = Util.extractInt(p.parameters.get(0))
 					if (chargeMax != entity.chargeMax) {
 						entity.chargeMax = chargeMax
@@ -156,7 +179,7 @@ class CityAgentEntityManager {
 						attr_changed.add("load")
 					}
 				}
-				case "loadMax": {
+				case "maxLoad": {
 					val loadMax = Util.extractInt(p.parameters.get(0))
 					if (loadMax != entity.loadMax) {
 						entity.loadMax = loadMax
@@ -232,28 +255,38 @@ class CityAgentEntityManager {
 						attr_changed.add("routeLength")
 					}
 				}
-				case "hasItem": { // hasItem(name, qty)
+				case "hasItem": { // hasItem(name, qty), potentially more than one
 					var itemName = Util.extractString(p.parameters.get(0))
 					var itemQty = Util.extractInt(p.parameters.get(1))
-					// TODO
-					//items.add(new ItemAmountData(itemName, itemQty))
+					items.add(new ItemAmountData(itemName, itemQty))
 				}
 				case "role": {
-					entity.role = Util.extractString(p.parameters.get(0))
+					val role = Util.extractString(p.parameters.get(0))
+					/* Safely checking equality in event of both being null. */
+					if ((role !== null && !role.equals(entity.role)) ||
+						(entity.role !== null && !entity.role.equals(role))) {
+						entity.role = role
+						attr_changed.add("role")
+					}
 				}
 				case "team": {
-					entity.team = Util.extractString(p.parameters.get(0))
+					val team = Util.extractString(p.parameters.get(0))
+					/* Safely checking equality in event of both being null. */
+					if ((team !== null && !team.equals(entity.team)) ||
+						(entity.team !== null && !entity.team.equals(team))) {
+						entity.team = team
+						attr_changed.add("team")
+					}
 				}
 				case "route": {
 					var params = p.parameters.get(0);
 					var wps = params as ParameterList
 					for (w : wps) {
 							var f = w as Function
+						var index = Util.extractInt(f.parameters.get(0));
 						var routeLat = Util.extractDouble(f.parameters.get(1))
 						var routeLon = Util.extractDouble(f.parameters.get(2))
-						var wayPoint = new WayPointData(-1, routeLat, routeLon)
-						// TODO: do we need an index?
-						var index = Util.extractInt(f.parameters.get(0));
+						var wayPoint = new WayPointData(index, routeLat, routeLon)
 						entity.route = new ArrayList<WayPointData>()
 						entity.route.add(wayPoint)
 					}
@@ -274,7 +307,64 @@ class CityAgentEntityManager {
 				}
 			}
 		}
+		// lastly we must check items - they are not in a list structure.
+		// instead they are simply spread across all percepts as a percept for each item carried.
+		if (!equal(entity.items, items)) {
+			entity.items = items
+			attr_changed.add("items")
+		}
+
+		// report the attributes changed
 		return attr_changed
+	}
+
+	/**
+	 * Crude ItemAmountData comparison.
+	 * 
+	 * If both null, we will consider them equal.
+	 * If only one null, they are not equal.
+	 * If the are different sizes, they are not equal.
+	 * Otherwise, do a full comparison.
+	 * 
+	 * @param list1 one of two lists to compare
+	 * @param list2 two of two lists to compare
+	 * @return boolean true if they are equal
+	 */
+	static def equal(list1 : List<ItemAmountData>, list2 : List<ItemAmountData>) : boolean {
+		if (list1 === null && list2 === null) {
+			return true
+		} else if (list1 === null || list2 === null) {
+			return false
+		} else if (list1.size() != list2.size()) {
+			return false
+		}
+
+		val intoMap : Collector<ItemAmountData, ?, Map<String, Integer>> =
+			Collectors.toMap([i|i.getName()], [ i | i.getAmount()])
+		val map1 = list1.stream().collect(intoMap)
+		val map2 = list2.stream().collect(intoMap)
+
+		if (map1.equals(map2)) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	private static def reportAnyMissingPercepts(percepts : List<Percept>) {
+		if (percepts.length != ENTITY_ATTRIBUTES.size()) {
+			var expecting = ENTITY_ATTRIBUTES.toList()
+			var received = percepts.stream().map([p|return p.name]).collect(Collectors.toList())
+			Collections.sort(expecting)
+			Collections.sort(received)
+			System.out.println(
+				"WARNING: The entity attributes received from the server are different to what was expected.")
+			//System.out.println("We expected:")
+			//System.out.println(String.join("\n", expecting))
+			expecting.removeAll(received)
+			System.out.println("The percept we received is missing:")
+			System.out.println(String.join("\n", expecting))
+		}
 	}
 
 	/* 

@@ -182,7 +182,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * @param action - the action to send to the game server for the entity
 	 * @return true if the action was sent successfully
 	 */
-	def MT_executeAction(entityName : String, action : Action) {
+	def MT_executeAction(entityName : String, action : Action) : boolean {
 		try {
 			ei.performAction(entityName, action)
 		} catch (e : ActException) {
