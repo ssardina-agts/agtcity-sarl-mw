@@ -123,7 +123,7 @@ class State {
 	}
 
 	/**
-	 * Adds sim start data to aggregator maintained data-structures.
+	 * Adds sim-start data to aggregator maintained data-structures.
 	 * https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
 	 */
 	def recordSimStartData(percepts : Collection<Percept>) {
@@ -184,9 +184,10 @@ class State {
 			}
 		}
 	}
-	
-	
-	
+
+//	def static stateDifference(state0 : State, state1 : State) {
+//		
+//	}
 	
 	
 	
@@ -215,7 +216,7 @@ class State {
 	/** 
 	 * Get opposition entities with basic details.
 	 * 
-	 * @return entity hashmap name -> EntityData
+	 * @return entity HashMap name -> EntityData
 	 */
 	def getOppositionEntities() : HashMap<String, EntityData> {
 		return getMatchingEntities([ entity : EntityData |
@@ -228,7 +229,7 @@ class State {
 	 * Get entities matching a predicate with basic details.
 	 * 
 	 * @param filter a predicate to filter by
-	 * @return entity hashmap name -> EntityData
+	 * @return entity HashMap name -> EntityData
 	 */
 	def getMatchingEntities(filter : Predicate<EntityData>) : HashMap<String, EntityData> {
 		val filtered_entities  : HashMap<String, EntityData> = newHashMap()
@@ -252,7 +253,7 @@ class State {
 	}
 
 	/** 
-	 * Get the set of facilitiesnames
+	 * Get the set of facility names
 	 * 
 	 * @returns the set of names of known facilities
 	 */
@@ -308,7 +309,7 @@ class State {
 	/**
 	 * Get all wells
 	 *
-	 * @returns a hashmap of known well facilities
+	 * @returns a HashMap of known well facilities
 	 */
 	def getWells() : HashMap<String, WellData> {
 		return getFacilities(typeof(WellData))
@@ -327,7 +328,7 @@ class State {
 	 * Get all facilities of a given type
 	 *
 	 * @param type the class type of the facilities to return
-	 * @returns a hashmap of facilities matching type T
+	 * @returns a HsahMap of facilities matching type T
 	 */
 	private def <T extends FacilityData> getFacilities(type : Class<T>) : HashMap<String, T> {
 		val filtered_facilities : HashMap<String, T> = new HashMap();
@@ -386,7 +387,7 @@ class State {
 	 * Get all jobs of a given type
 	 *
 	 * @param type the class type of the jobs to return
-	 * @returns a hashmap of jobs matching type T
+	 * @returns a HashMap of jobs matching type T
 	 */
 	private def <T extends JobData> getJobs(type : Class<T>) : HashMap<String, T> {
 		val filtered_jobs : HashMap<String, T> = new HashMap();
@@ -425,6 +426,31 @@ class State {
 	def getStepLastSeen(id : String) : int {
 		return this.stepLastSeen.containsKey(id) ? this.stepLastSeen.get(id) : -1
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	EVENT CREATION FROM DATA

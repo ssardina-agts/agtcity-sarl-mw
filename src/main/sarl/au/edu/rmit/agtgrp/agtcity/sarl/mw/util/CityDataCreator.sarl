@@ -43,8 +43,8 @@ import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
 
 /**
-  * Responsible for the creation of java objects from eismassim Percept information provided by
-  * the massim city server.
+  * Responsible for the creation of Java objects from EISMassim Percept information provided by
+  * the game city server.
   */
 class CityDataCreator {
 
