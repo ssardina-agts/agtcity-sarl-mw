@@ -259,6 +259,8 @@ class CityAgentEntityManager {
 					var itemName = Util.extractString(p.parameters.get(0))
 					var itemQty = Util.extractInt(p.parameters.get(1))
 					items.add(new ItemAmountData(itemName, itemQty))
+					// cannot check if changed here as items are spread across many percepts, check below
+					
 				}
 				case "role": {
 					val role = Util.extractString(p.parameters.get(0))
@@ -307,8 +309,9 @@ class CityAgentEntityManager {
 				}
 			}
 		}
-		// lastly we must check items - they are not in a list structure.
-		// instead they are simply spread across all percepts as a percept for each item carried.
+		
+		// Lastly, we must check changes in items being carried by entity 
+		// items carried are not in one percept in a list, they ar spread across many percepts
 		if (!equal(entity.items, items)) {
 			entity.items = items
 			attr_changed.add("items")
