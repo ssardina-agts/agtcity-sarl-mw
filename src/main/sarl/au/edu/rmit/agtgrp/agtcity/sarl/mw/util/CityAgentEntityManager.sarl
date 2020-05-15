@@ -23,16 +23,17 @@ import eis.iilang.ParameterList
 import eis.iilang.Percept
 import java.util.ArrayList
 import java.util.Collection
+import java.util.Collections
+import java.util.HashSet
+import java.util.List
+import java.util.Set
+import java.util.stream.Collectors
 import massim.protocol.scenario.city.data.ActionData
 import massim.protocol.scenario.city.data.EntityData
 import massim.protocol.scenario.city.data.ItemAmountData
 import massim.protocol.scenario.city.data.WayPointData
-import java.util.Set
-import java.util.stream.Collectors
-import java.util.Collections
-import java.util.List
-import java.util.stream.Collector
-import java.util.Map
+
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util
 
 /**
  * 
@@ -143,6 +144,7 @@ class CityAgentEntityManager {
 			]).collect(Collectors.toList())
 		
 		/* Check that we received all expected attributes. */
+		// #TODO: do we need this here? We definitively don't want to printout plain but method may be useful
 		reportAnyMissingPercepts(entityPercepts)
 
 		/* Compare and update entity attributes, maintain list of what changed. */
@@ -312,7 +314,7 @@ class CityAgentEntityManager {
 		
 		// Lastly, we must check changes in items being carried by entity 
 		// items carried are not in one percept in a list, they ar spread across many percepts
-		if (!equal(entity.items, items)) {
+		if (!Util.equalHasItems(entity.items, items)) {
 			entity.items = items
 			attr_changed.add("items")
 		}
@@ -321,38 +323,57 @@ class CityAgentEntityManager {
 		return attr_changed
 	}
 
-	/**
-	 * Crude ItemAmountData comparison.
+
+	/** 
+	 * Get the data that has changed from one EntityData to another 
 	 * 
-	 * If both null, we will consider them equal.
-	 * If only one null, they are not equal.
-	 * If the are different sizes, they are not equal.
-	 * Otherwise, do a full comparison.
-	 * 
-	 * @param list1 one of two lists to compare
-	 * @param list2 two of two lists to compare
-	 * @return boolean true if they are equal
+	 * @param entity0 - the previous EntityData 
+	 * @param entity1 - the new EntityData
+	 * @return a set of Strings stating which data has changed from entity0 to entity1
 	 */
-	static def equal(list1 : List<ItemAmountData>, list2 : List<ItemAmountData>) : boolean {
-		if (list1 === null && list2 === null) {
-			return true
-		} else if (list1 === null || list2 === null) {
-			return false
-		} else if (list1.size() != list2.size()) {
-			return false
-		}
+	static def getEntityDifferences(entity0 : EntityData, entity1 : EntityData) : HashSet<String> {
+		val changes = newHashSet()
 
-		val intoMap : Collector<ItemAmountData, ?, Map<String, Integer>> =
-			Collectors.toMap([i|i.getName()], [ i | i.getAmount()])
-		val map1 = list1.stream().collect(intoMap)
-		val map2 = list2.stream().collect(intoMap)
+		if(entity0.name !== entity1.name) changes.add("name")
+		if(entity0.team !== entity1.team) changes.add("team")
+		if(entity0.role !== entity1.role) changes.add("role")
+		if(entity0.chargeMax !== entity1.chargeMax) changes.add("maxBattery")
+		if(entity0.charge !== entity1.charge) changes.add("charge")
+		if(entity0.loadMax !== entity1.loadMax) changes.add("maxLoad")
+		if(entity0.vision !== entity1.vision) changes.add("vision")
+		if(entity0.^skill !== entity1.^skill) changes.add("skill")
+		if(entity0.speed !== entity1.speed) changes.add("speed")
+		if(entity0.lat !== entity1.lat) changes.add("lat")
+		if(entity0.lon !== entity1.lon) changes.add("lon")
+		if(entity0.facility !== entity1.facility) changes.add("facility")
 
-		if (map1.equals(map2)) {
-			return true
-		} else {
-			return false
-		}
+		// TODO: I think the WayPointData needs .equal and .hashCode()
+		if(entity0.route.equals(entity1.route)) changes.add("route")
+		if(entity0.routeLength !== entity1.routeLength) changes.add("routeLength")
+
+		// TODO: This is needed because EntityData uses List<ItemAmount> instead of a Set...
+		if(!Util.equalHasItems(entity0.items, entity1.items)) changes.add("items")
+
+		// TODO: I think the ActionNData needs .equal and .hashCode()
+		if(entity0.lastAction.equals(entity1.lastAction)) changes.add("lastAction")
+
+
+		return changes
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	private static def reportAnyMissingPercepts(percepts : List<Percept>) {
 		if (percepts.length != ENTITY_ATTRIBUTES.size()) {

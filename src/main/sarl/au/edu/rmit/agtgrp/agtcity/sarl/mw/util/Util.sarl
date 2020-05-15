@@ -21,16 +21,14 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.util
 import eis.iilang.Identifier
 import eis.iilang.Numeral
 import eis.iilang.Parameter
-import eis.iilang.ParameterList
 import eis.iilang.Percept
 import java.util.Collection
-import massim.protocol.messagecontent.SimStart
 import java.util.List
+import massim.protocol.scenario.city.data.ItemAmountData
+import java.util.stream.Collector
+import java.util.Map
+import java.util.stream.Collectors
 
-/** 
- * @author boblo
- * 
- */
 class Util {
 	public static def extractDouble(param : Parameter) : double {
         var p = param as Numeral
@@ -126,6 +124,39 @@ class Util {
 		return result.size() == 0
 	}
 
+	/** 
+	 * Crude ItemAmountData comparison.
+	 * 
+	 * If both null, we will consider them equal.
+	 * If only one null, they are not equal.
+	 * If the are different sizes, they are not equal.
+	 * Otherwise, do a full comparison.
+	 * 
+	 * @param list1 one of two lists to compare
+	 * @param list2 two of two lists to compare
+	 * @return boolean true if they are equal
+	 */
+	static def equalHasItems(list1 : List<ItemAmountData>, list2 : List<ItemAmountData>) : boolean {
+		if (list1 === null && list2 === null) {
+			return true
+		} else if (list1 === null || list2 === null) {
+			return false
+		} else if (list1.size() != list2.size()) {
+			return false
+		}
+
+		val intoMap : Collector<ItemAmountData, ?, Map<String, Integer>> = Collectors.toMap([i|i.getName()], [ i |
+			i.getAmount()
+		])
+		val map1 = list1.stream().collect(intoMap)
+		val map2 = list2.stream().collect(intoMap)
+
+		if (map1.equals(map2)) {
+			return true
+		} else {
+			return false
+		}
+	}
 
 
 
