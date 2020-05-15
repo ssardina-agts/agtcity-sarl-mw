@@ -177,7 +177,7 @@ Both are used by the demo **SchedulerAgent** to inform the dummy agents of the p
 There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
 
 
-### Aggregator (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator`)
+### Aggregator (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.util`)
 
 A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server. 
 

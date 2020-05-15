@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.util
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ActionStatusInfo
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_ChargingStationInfo
@@ -52,11 +52,10 @@ import massim.protocol.scenario.city.data.WorkshopData
 import java.util.function.Predicate
 
 /** 
- * @author boblo
- * 
- * Class used to collect all of the percepts from all of the agents in MASSIM to minimize event emission.
+ * Class used to represent a state of the simulation as seen by entities
+ * The SARL agent may build or update a state from the percepts received for the many entities it controls
  */
-class PerceptAggregator {
+class State {
 
 	/*
 	 * These data structures keep track of all the information known so far from the game, as received

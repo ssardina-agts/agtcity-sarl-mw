@@ -18,8 +18,8 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.skills
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.CityAgentEntityManager
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import eis.exceptions.ActException
 import eis.exceptions.AgentException
