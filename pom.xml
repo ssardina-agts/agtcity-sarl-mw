@@ -64,7 +64,7 @@
 
         <!--  EIS-MASSIM Environment Interface Standard -->
         <!-- https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md -->
-        <eismassim.version>d9293b8de62a667468b06ee396d322ea243830e1</eismassim.version>
+        <eismassim.version>66be70eea5701418e58d3a6ae1830d095bb0690b</eismassim.version>
     </properties>
 
 
