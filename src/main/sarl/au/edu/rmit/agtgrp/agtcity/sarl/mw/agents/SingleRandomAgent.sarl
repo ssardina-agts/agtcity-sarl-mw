@@ -139,7 +139,7 @@ agent SingleRandomAgent {
 				 * 
 				 */
 				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiRegistrationFile)
-				setSkill(new S_MassimTalking(eiRegistrationFile), C_MassimTalking)
+				setSkill(new S_MassimTalking(eiRegistrationFile, false), C_MassimTalking)
 
 
 				/* 
@@ -250,7 +250,7 @@ agent SingleRandomAgent {
 		val entity = occurrence.entityName
 		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entity)
 		
-		agent_says(MT_reportEntityState(entity)) 
+		reportState(entity)
 
 		// 2 - Each control player agent should travel to some random facility (if in route, continue)
 		if (MT_getEntityState(entity).routeLength > 0) {
@@ -267,6 +267,32 @@ agent SingleRandomAgent {
 		} else {
 			agent_shouts("I just don't know any facility to go yet, sorry...!")
 		}
+	}
+	
+	
+	def reportState(entity : String) {
+		val reportText = String.format("
+		========================== REPORT FOR ENTITY %s ==========================
+		REPORT OF ENTITY: %s	
+		Playing in map **%s** for **%d** simulation steps  
+		Team money: %d (seed capital was: %d) 
+		Team name: %s			
+		========================== REPORT FOR ENTITY %s ========================== 
+		",
+		entity,
+		MT_reportEntityState(entity),
+		aggregator.mapName,
+		aggregator.simulationLength,
+		aggregator.money,
+		aggregator.seedCapital, 
+		aggregator.team,
+		entity
+		)
+		
+		agent_says(reportText) 
+		
+		
+		
 	}
 	
 }
