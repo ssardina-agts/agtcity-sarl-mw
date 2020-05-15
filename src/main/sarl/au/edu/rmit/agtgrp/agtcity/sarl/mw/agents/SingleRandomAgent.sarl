@@ -21,7 +21,6 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw.agents
 
 // MASSIM EIS imports
 
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.PerceptAggregator
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
@@ -41,6 +40,7 @@ import java.nio.file.Paths
 import java.util.Collection
 import java.util.Random
 import java.util.Set
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State
 
 event E_SenseEnvironment
 
@@ -80,7 +80,8 @@ agent SingleRandomAgent {
 	var last_step : int = -1
 	var facilities : Set<String>
 	var rand : Random
-	var aggregator : PerceptAggregator // used to collect all the (common) percepts from all agents (provided by MW)
+	var state : State // used to collect all the (common) percepts from all agents (provided by MW)
+	var statePrevious : State // used to collect all the (common) percepts from all agents (provided by MW)
 	
 	
 	/* 
@@ -107,7 +108,7 @@ agent SingleRandomAgent {
 			rand = new Random()
 
 			// Create an information aggregator (all percept info will be integrated here by the MW)
-			aggregator = new PerceptAggregator() 
+			state = new State() 
 			
 			// Give reporting skill via console
 			setSkill(new S_ConsoleReporting(myName), C_Reporting)
@@ -207,7 +208,7 @@ agent SingleRandomAgent {
 
 					// First step has Sim-Start percepts
 					// https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
-					if(MT_getStepNo() == 0) aggregator.recordSimStartData(percepts)
+					if(MT_getStepNo() == 0) state.recordSimStartData(percepts)
 
 
 					// Updating the PlayerState of the player where percepts come from
@@ -216,10 +217,10 @@ agent SingleRandomAgent {
 					// That state can be accessed via MT_getPlayerState(playerName)
 					// MT_updatePlayerState(playerName, percepts) // update the agent data
 					
-					aggregator.updateAggregatedGameState(percepts, MT_getStepNo())
+					state.updateAggregatedGameState(percepts, MT_getStepNo())
 					agent_shouts("Facilities and Jobs aggregated for entity {0}", entityName)
 					
-					facilities = aggregator.getFacilitiesNames()
+					facilities = state.getFacilitiesNames()
 					agent_shouts("Set of facilities known: {0}", facilities)
 			
 
@@ -281,11 +282,11 @@ agent SingleRandomAgent {
 		",
 		entity,
 		MT_reportEntityState(entity),
-		aggregator.mapName,
-		aggregator.simulationLength,
-		aggregator.money,
-		aggregator.seedCapital, 
-		aggregator.team,
+		state.mapName,
+		state.simulationLength,
+		state.money,
+		state.seedCapital, 
+		state.team,
 		entity
 		)
 		
