@@ -19,6 +19,7 @@
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.skills
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.CityAgentEntityManager
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import eis.exceptions.ActException
 import eis.exceptions.AgentException
@@ -38,13 +39,13 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.Map
 import java.util.Set
+import java.util.stream.Collectors
 import javax.management.relation.RelationException
 import massim.eismassim.EnvironmentInterface
+import massim.eismassim.Log
 import massim.protocol.scenario.city.data.EntityData
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.stream.Collectors
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.aggregator.Util
 
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
@@ -70,8 +71,9 @@ skill S_MassimTalking implements C_MassimTalking {
 	var eiRegistrationFile : Path	// Game server registration file (host, up, entity connections with credentials, etc.)
 	
 	var connected : boolean = false
-	var stepNo: int = 0 // last step number seen
+	var stepNo : int = 0 // last step number seen
 
+	
 	/* 
 	 * EISMASSim is based on the Environment Interface Standard (EIS), a proposed standard for agent-environment interaction. 
 	 * 
@@ -100,15 +102,10 @@ skill S_MassimTalking implements C_MassimTalking {
 	// /////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTORS
 	// //////////////////////////////////////////////////////////////////////////
-	new (eiMassimConfigFile : Path, eiMassimAuthConfigFile : Path) {
+	new (eiMassimConfigFile : Path, eiLogOn : boolean = true) {
 		super() // Call the super's constructor
 		this.eiRegistrationFile = eiMassimConfigFile
-		
-	}
-
-	new (eiMassimConfigFile : Path) {
-		super() // Call the super's constructor
-		this.eiRegistrationFile = eiMassimConfigFile
+		massim.eismassim.Log.setLogOn(eiLogOn)	// set EI LogOn: if True, XML messages will be print out
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
@@ -192,7 +189,6 @@ skill S_MassimTalking implements C_MassimTalking {
 		}
 		return true
 	}
-
 
 	/** 
 	 * This yields the percept of the first entity the entity is of. 
@@ -283,7 +279,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
-	// GETTERS
+	// GETTERS & SETTERS
 	// //////////////////////////////////////////////////////////////////////////
 
 	/* 
@@ -306,6 +302,22 @@ skill S_MassimTalking implements C_MassimTalking {
 	def MT_getEntityState(entityName : String) : EntityData {
 		return entities.get(entityName)
 	}
+
+
+	/**
+	 * Get and set the log status of the EIMASSim module
+	 * 
+	 * If on, printouts of XML packages will be printed
+	 * 
+	 */
+	public def MT_getEILogOn() : boolean {
+		return Log.isLogOn();
+	}
+
+	public def MT_setEILogOn(x : boolean) : void {
+		
+	}
+
 
 	/**
 	 * Update the entity state in place.
