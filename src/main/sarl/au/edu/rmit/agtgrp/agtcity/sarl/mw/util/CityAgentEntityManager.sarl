@@ -275,16 +275,16 @@ class CityAgentEntityManager {
 						attr_changed.add("team")
 					}
 				}
-				case "route": {
+				case "route": { // route([wp(index, lat, lon), ...])
 					var params = p.parameters.get(0);
 					var wps = params as ParameterList
+					entity.route = new ArrayList<WayPointData>()
 					for (w : wps) {
-							var f = w as Function
+						var f = w as Function
 						var index = Util.extractInt(f.parameters.get(0));
 						var routeLat = Util.extractDouble(f.parameters.get(1))
 						var routeLon = Util.extractDouble(f.parameters.get(2))
 						var wayPoint = new WayPointData(index, routeLat, routeLon)
-						entity.route = new ArrayList<WayPointData>()
 						entity.route.add(wayPoint)
 					}
 				}
@@ -429,13 +429,13 @@ class CityAgentEntityManager {
 				entity.load.intValue, entity.loadMax.intValue
 			),
 			String.format("lastAction %s", entity.lastAction),
-			String.format("route: %s", entity.route),
-//			String.format("route: %s", entity.route === null ? "none" : entity.route
-//				.stream()
-//				.map([ wp |
-//					"("+wp.lat + ", " + wp.lon + ")"
-//				]).collect(Collectors.joining(", "))
-//			),
+//			String.format("route: %s", entity.route),	// to directly use .toString()
+			String.format("route: %s", entity.route === null ? "none" : entity.route
+				.stream()
+				.map([ wp |
+					wp.index + ":" + "(" + wp.lat + ", " + wp.lon + ")"
+				]).collect(Collectors.joining(", "))
+			),
 			String.format("routeLength %d", entity.routeLength.intValue),
 			String.format("charge %d", entity.charge.intValue),
 			String.format("vision %d", entity.vision.intValue),
