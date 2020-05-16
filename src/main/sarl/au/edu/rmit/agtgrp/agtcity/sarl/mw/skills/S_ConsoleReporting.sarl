@@ -55,7 +55,7 @@ skill S_ConsoleReporting implements C_Reporting {
 		params2.addAll(params)
 		params2.add(agentName)
 
-		info(String.format("**{%d}**: %s", params2.size-1, message), params2.toArray())
+		info(String.format("%s", message), params2.toArray())
 	}
 
 
@@ -72,6 +72,7 @@ skill S_ConsoleReporting implements C_Reporting {
 	def install {
 		// Function invoked when the skill is installed in the owner.
 		// You should put all the initialization statements in this block of code.
+		setLoggingName(this.agentName)
 		info_with_agent("Installing the Console Reporting skill")
 	}
 
