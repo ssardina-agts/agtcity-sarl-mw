@@ -127,11 +127,11 @@ agent SingleRandomAgent {
 			val eiRegistrationFile = Paths.get(eiConfigDir, eiRegistrationFileName)
 
 			debug("
-				***************************************************
-				Configuration settings: 
-				\t My SARL agent name: {0}
-				\t EI registration file: {1}
-				***************************************************", myName, eiRegistrationFile)
+***************************************************
+Configuration settings:
+\t My SARL agent name: {0}
+\t EI registration file: {1}
+***************************************************", myName, eiRegistrationFile)
 			
 			try {
 				/*
@@ -270,16 +270,21 @@ agent SingleRandomAgent {
 		}
 	}
 	
-	
+	/**
+	 * The current state of an entity.
+	 * This is printed every step for each entity this SARL agent controls.
+	 *
+	 * @param entity to report for
+	 */
 	def reportState(entity : String) {
 		val reportText = String.format("
-		========================== REPORT FOR ENTITY %s ==========================
-		REPORT OF ENTITY: %s	
-		Playing in map **%s** for **%d** simulation steps  
-		Team money: %d (seed capital was: %d) 
-		Team name: %s			
-		========================== REPORT FOR ENTITY %s ========================== 
-		",
+========================== REPORT FOR ENTITY %s ==========================
+REPORT OF ENTITY: %s
+Playing in map **%s** for **%d** simulation steps
+Team money: %d (seed capital was: %d)
+Team name: %s
+======================== END REPORT FOR ENTITY %s ========================
+",
 		entity,
 		MT_reportEntityState(entity),
 		state.mapName,

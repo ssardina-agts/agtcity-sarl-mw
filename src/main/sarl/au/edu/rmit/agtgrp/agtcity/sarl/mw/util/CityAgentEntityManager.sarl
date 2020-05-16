@@ -34,6 +34,7 @@ import massim.protocol.scenario.city.data.ItemAmountData
 import massim.protocol.scenario.city.data.WayPointData
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util
+import java.util.stream.Stream
 
 /**
  * 
@@ -392,20 +393,68 @@ class CityAgentEntityManager {
 	}
 
 	/* 
-	 * Return a string with a summary of the player state: name, location, and battery level
+	 * Return a formatted table with a summary of the player state
 	 *
 	 * @param the entity we want to report
 	 * @return a String with a reporting statement of the entity current (basic) state
 	 */
 	static def reportState(entity : EntityData) : String {
-		var message : String = String.format("Report on entity %s (%s): at (%f, %f) with battery level %d and load %d",
-			entity.name,
-			entity.role,
-			entity.lat.doubleValue,
-			entity.lon.doubleValue,
-			entity.charge.intValue,
-			entity.load.intValue
+
+		/* Columns in the printed formatted table. */
+		val columns = 2
+		/* Width of each column. */
+		val columnWidth = "40"
+
+		/* The entity attributes to print. */
+		var tableItems : String[] = #[
+			String.format("name %s", entity.name),
+			String.format("role %s", entity.role),
+			String.format("team %s", entity.team),
+			String.format("at (%f, %f) %s",
+				entity.lat.doubleValue, entity.lon.doubleValue,
+				(entity.facility === null || entity.facility.isEmpty) ? "" : String.format("(%s)", entity.facility)
+			),
+			String.format("charge %d (max %d)",
+				entity.charge.intValue, entity.chargeMax.intValue
+			),
+			String.format("load %d (max %d)",
+				entity.load.intValue, entity.loadMax.intValue
+			),
+			String.format("lastAction %s", entity.lastAction.type),
+			String.format("params %s", entity.lastAction.params),
+			String.format("result %s", entity.lastAction.result),
+			String.format("route: %s", entity.route === null ? "none" : entity.route
+				.stream()
+				.map([ wp |
+					"("+wp.lat + ", " + wp.lon + ")"
+				]).collect(Collectors.joining(", "))
+			),
+			String.format("routeLength %d", entity.routeLength.intValue),
+			String.format("charge %d", entity.charge.intValue),
+			String.format("vision %d", entity.vision.intValue),
+			String.format("skill %d", entity.^skill.intValue),
+			String.format("speed %d", entity.speed.intValue),
+			String.format("items: %s\n", entity.items === null ? "none" : entity.items
+				.stream()
+				.map([ i |
+					"["+i.name + ", " + i.amount + "]"
+				]).collect(Collectors.joining(", "))
 			)
-		return message
-	   }
+		]
+
+		/* Build a format string to layout the table correctly. */
+		var formatString = Stream
+			.iterate(0, [n | n + 1])
+			.limit(tableItems.size())
+			.map([x |
+				val tableEntry = "%" + (x + 1) + "$-" + columnWidth + "s"
+				if (x % columns == 0)
+					return "\n" + tableEntry
+				else
+					return tableEntry
+			]).collect(Collectors.joining())
+
+		/* Return the complete report formatted as a table. */
+		return String.format(formatString, tableItems)
+	}
 }
