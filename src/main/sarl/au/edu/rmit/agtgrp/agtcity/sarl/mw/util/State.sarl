@@ -175,7 +175,7 @@ class State {
 //		if(state0.simulationLength !== state1.simulationLength) changes.add("simulationLength ")
 //		if(state0.team!== state1.team) changes.add("team")
 
-		// Add changes on entities
+		// For every entity seen, record what parts of the entity has changed (lon, charge, etc)
 		state1.entities.keySet.forEach([ entity : String |
 			System.out.println(state1.entities.get(entity))
 			
@@ -183,6 +183,16 @@ class State {
 			CityAgentEntityManager.getEntityDifferences(state0.entities.get(entity), state1.entities.get(entity))
 			if (!changes_entity.empty) changes.put(entity, changes_entity)
 		])
+
+
+		var change_facilities =new HashSet<String>
+		state1.facilities.keySet.forEach([ facility : String |
+			System.out.println(state1.facilities.get(facility))
+
+			if(!state1.facilities.get(facility).equals(state0.facilities.get(facility))) change_facilities.add(facility)
+		])
+		if (!change_facilities.empty) changes.put("facilities", change_facilities)
+		
 		
 		return changes 
 	}
