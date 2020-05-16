@@ -66,6 +66,7 @@ agent SingleRandomAgent {
 	uses C_Reporting, C_MassimTalking
 	uses Schedules
 
+	val reportEILog = true	// true if XML messages from server need to be printed out
 
 	val myName = "Single-RANDOM-Agent"
 	val agentLogLevel = 4 // debug = 4 this is for the high-level agent, not for SARL
@@ -73,15 +74,15 @@ agent SingleRandomAgent {
 	// Server information: registration configuration file and entities that this agent will control
 	val eiRegistrationFileName = "eismassimconfig.json" // the name of the registration file
 	//	val myEntityConnections = #["entityA1", "entityA2", "entityA3", "entityA4", "entityA5"]
-	val myConnectedEntities = #["entityA1", "entityA5"] // simpler testing, just 2 players
+	val myConnectedEntities = #["entityA1"] // simpler testing, just 2 players
 
 
 	// Data kept by this single SARL agent: just the step number
 	var last_step : int = -1
 	var facilities : Set<String>
 	var rand : Random
-	var state : State // used to collect all the (common) percepts from all agents (provided by MW)
-	var statePrevious : State // used to collect all the (common) percepts from all agents (provided by MW)
+	var state : State = new State()// used to track the current state as per percepts received
+	var statePrevious : State = new State()  // previous state
 	
 	
 	/* 
@@ -109,6 +110,7 @@ agent SingleRandomAgent {
 
 			// Create an information aggregator (all percept info will be integrated here by the MW)
 			state = new State() 
+			statePrevious = new State()
 			
 			// Give reporting skill via console
 			setSkill(new S_ConsoleReporting(myName), C_Reporting)
@@ -127,11 +129,11 @@ agent SingleRandomAgent {
 			val eiRegistrationFile = Paths.get(eiConfigDir, eiRegistrationFileName)
 
 			debug("
-***************************************************
-Configuration settings:
-\t My SARL agent name: {0}
-\t EI registration file: {1}
-***************************************************", myName, eiRegistrationFile)
+				***************************************************
+				Configuration settings: 
+				\t My SARL agent name: {0}
+				\t EI registration file: {1}
+				***************************************************", myName, eiRegistrationFile)
 			
 			try {
 				/*
@@ -140,7 +142,7 @@ Configuration settings:
 				 * 
 				 */
 				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiRegistrationFile)
-				setSkill(new S_MassimTalking(eiRegistrationFile, false), C_MassimTalking)
+				setSkill(new S_MassimTalking(eiRegistrationFile, reportEILog), C_MassimTalking)
 
 
 				/* 
@@ -191,6 +193,8 @@ Configuration settings:
 
 		// While the environment is running, wait for new percepts (read percepts for each player registered/connected)
 		while (MT_getStatus() == EnvironmentState.RUNNING && !MT_getEntityNames().empty) {
+			agent_says("Changes in sate: {0}", state.getStateDifference(statePrevious))
+			statePrevious = state
 			MT_getEntityNames().forEach([ entityName : String |
 
 				// All percepts for the player: (role/entity of agent --> collection of single percepts)
@@ -218,7 +222,7 @@ Configuration settings:
 					// MT_updatePlayerState(playerName, percepts) // update the agent data
 					
 					state.updateAggregatedGameState(percepts, MT_getStepNo())
-					agent_shouts("Facilities and Jobs aggregated for entity {0}", entityName)
+					agent_shouts("State updated with percepts from entity {0}", entityName)
 					
 					facilities = state.getFacilitiesNames()
 					agent_shouts("Set of facilities known: {0}", facilities)
@@ -278,13 +282,14 @@ Configuration settings:
 	 */
 	def reportState(entity : String) {
 		val reportText = String.format("
-========================== REPORT FOR ENTITY %s ==========================
-REPORT OF ENTITY: %s
-Playing in map **%s** for **%d** simulation steps
-Team money: %d (seed capital was: %d)
-Team name: %s
-======================== END REPORT FOR ENTITY %s ========================
-",
+		========================== REPORT FOR ENTITY %s ==========================
+		REPORT OF ENTITY: %s	
+		Playing in map **%s** for **%d** simulation steps  
+		Team money: %d (seed capital was: %d) 
+		Team name: %s	
+		Entities known: %s		
+		========================== REPORT FOR ENTITY %s ========================== 
+		",
 		entity,
 		MT_reportEntityState(entity),
 		state.mapName,
@@ -292,6 +297,7 @@ Team name: %s
 		state.money,
 		state.seedCapital, 
 		state.team,
+		state.entities.keySet(),
 		entity
 		)
 		

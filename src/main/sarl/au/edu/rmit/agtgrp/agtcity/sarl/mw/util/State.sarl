@@ -50,6 +50,7 @@ import massim.protocol.scenario.city.data.StorageData
 import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
 import java.util.function.Predicate
+import java.util.Map
 
 /** 
  * Class used to represent a state of the simulation as seen by entities
@@ -70,41 +71,19 @@ class State {
 	public var team : String
 	public var money : int
 
-
-
 	/**
-	 * Entities in the game, as perceived by the entities controlled by the middleware skill.
-	 * Be sure to check the last step anything in here was seen, it may be outdated due to lack of visibility.
-	 */
-	var entities : HashMap<String, EntityData>
-
-	/**
-	 * Jobs data, extracted from the percepts of the entities controlled by the middleware skill.
-	 * Regular jobs, missions (subclass Mission) and auction jobs (subclass AuctionJobData)
-	 */
-	var jobs : HashMap<String, JobData>
-
-	/**
-	 * Facilities in the game as perceived by the entities controlled by the middleware skill.
-	 */
-	var facilities : HashMap<String, FacilityData>
-
-	/**
-	 * Items data, extracted from the percepts of the entities controlled by the middleware.
-	 * These can be requested in jobs, bought in stores, assembled, stored in storages or dumped at dumps.
-	 */
-	var items : HashMap<String, ItemData>
-
-	/**
-	 * Roles data, extracted from the percepts of the entities controlled by the middleware.
-	 * These describe each of the roles or vehicles available in the game.
-	 */
-	var roles : HashMap<String, RoleData>
+	 * Different complex information indexed by their name
+ */
+	public var entities : HashMap<String, EntityData>
+	public var jobs : HashMap<String, JobData>
+	public var facilities : HashMap<String, FacilityData>
+	public var items : HashMap<String, ItemData>
+	public var roles : HashMap<String, RoleData>
 
 	/**
 	 * The last step that a given piece of game information was observed.
-	 */
-	var stepLastSeen : HashMap<String, Integer>
+ */
+	public var stepLastSeen : HashMap<String, Integer>
 
 	
 	/**
@@ -185,10 +164,30 @@ class State {
 		}
 	}
 
-//	def static stateDifference(state0 : State, state1 : State) {
-//		
-//	}
-	
+	def static getStateDifference(state0 : State, state1 : State) : Map<String, HashSet<String>> {
+		var changes : Map<String, HashSet<String>> = new HashMap<String, HashSet<String>> 
+		
+		// Nothing of this is meant to change from step to step
+//		if(state0.money !== state1.money) changes.add("money")
+//		if(state0.id !== state1.id) changes.add("id")
+//		if(state0.mapName !== state1.mapName) changes.add("mapName")
+//		if(state0.seedCapital !== state1.seedCapital) changes.add("seedCapital")
+//		if(state0.simulationLength !== state1.simulationLength) changes.add("simulationLength ")
+//		if(state0.team!== state1.team) changes.add("team")
+
+		// Add changes on entities
+		state1.entities.keySet.forEach([ entity : String |
+			val changes_entity = 
+			CityAgentEntityManager.getEntityDifferences(state0.entities.get(entity), state1.entities.get(entity))
+			if (!changes_entity.empty) changes.put(entity, changes_entity)
+		])
+		
+		return changes 
+	}
+
+	def getStateDifference(state : State) : Map<String, HashSet<String>> {
+		return State.getStateDifference(state, this)
+	}
 	
 	
 	
