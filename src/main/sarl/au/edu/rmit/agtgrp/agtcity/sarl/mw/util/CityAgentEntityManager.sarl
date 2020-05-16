@@ -98,7 +98,7 @@ class CityAgentEntityManager {
 	 * @return an EntityData with the basic info filled
 	 */
 	static def createEntity(entityName : String, entityRole : String, entityTeam : String) : EntityData {
-		return new EntityData(-1, -1, -1, -1, -1, -1, -1, new ActionData(null, null, null), null, null, null,
+		return new EntityData(-1, -1, -1, -1, -1, -1, -1, null, null, null, null,
 			entityName, entityTeam, entityRole,
 			-1, -1);
 	}
@@ -365,7 +365,7 @@ class CityAgentEntityManager {
 		//  This is needed because EntityData uses List<ItemAmount>, so we need a special equals() that ignores order
 		if(!Util.equalHasItems(entity0.items, entity1.items)) changes.add("items")
 
-		if(!entity1.lastAction.equals(entity0.lastAction)) changes.add("lastAction")
+		if(entity1.lastAction !== null && !entity1.lastAction.equals(entity0.lastAction)) changes.add("lastAction")
 
 
 		return changes

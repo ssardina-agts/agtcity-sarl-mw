@@ -92,7 +92,7 @@ class State {
 	new() {
 		this.money = 0
 
-		this.entities = new HashMap()
+		this.entities = new HashMap()	// other entities seen (only some attributes are observed)
 		this.jobs = new HashMap()
 		this.facilities = new HashMap()
 		this.items = new HashMap()
@@ -146,15 +146,15 @@ class State {
 	 */
 	def updateAggregatedGameState(percepts : Collection<Percept>, step : int) {
 		for (p : percepts) {
-			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) {
+			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) { // p = chargingStation(..) dump(...) shop(...)
 				val facility = CityDataCreator.createFacility(p)
 				this.facilities.put(facility.name, facility)
 				this.stepLastSeen.put(facility.name, step)
-			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) {
+			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) { //	p = job(...) or auction(..) or mission(..)
 				val job = CityDataCreator.createJob(p)
 				this.jobs.put(job.getId(), job)
 				this.stepLastSeen.put(job.getId(), step)
-			} else if (CityAgentEntityManager.ENTITY_TYPES.contains(p.name)) {
+			} else if (CityAgentEntityManager.ENTITY_TYPES.contains(p.name)) {	// p = entity(....)
 				val entity = CityAgentEntityManager.createEntity(p)
 				this.entities.put(entity.getName(), entity)
 				this.stepLastSeen.put(entity.getName(), step)
@@ -177,6 +177,8 @@ class State {
 
 		// Add changes on entities
 		state1.entities.keySet.forEach([ entity : String |
+			System.out.println(state1.entities.get(entity))
+			
 			val changes_entity = 
 			CityAgentEntityManager.getEntityDifferences(state0.entities.get(entity), state1.entities.get(entity))
 			if (!changes_entity.empty) changes.put(entity, changes_entity)
