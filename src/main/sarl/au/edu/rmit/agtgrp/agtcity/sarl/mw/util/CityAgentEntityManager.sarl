@@ -136,7 +136,10 @@ class CityAgentEntityManager {
 		/* Records entity attributes that are identified as changed. */
 		val attr_changed = newHashSet()
 		val items : List<ItemAmountData> = newArrayList()
-
+		var lastActionType : String
+		val lastActionParams = newArrayList()
+		var lastActionResult : String
+		
 		/* Collect the percepts relevant to the entity. */
 		val entityPercepts = percepts
 			.stream()
@@ -211,36 +214,25 @@ class CityAgentEntityManager {
 					}
 				}
 				case "lastAction": {
-					val lastAction = Util.extractString(p.parameters.get(0))
-					/* Safely checking equality in event of both being null. */
-					if ((lastAction !== null && !lastAction.equals(entity.name)) ||
-						(entity.lastAction !== null && !entity.lastAction.equals(lastAction))) {
-						entity.lastAction.type = lastAction
-						attr_changed.add("lastAction")
-					}
+					lastActionType = Util.extractString(p.parameters.get(0))
+					// last action data has 3 parts: type/name, params, result
+					// so we first collect, then compare (see below)
 				}
 				case "lastActionParams": {
 					// lastActionParams([param1, param2, ...])
-					val lastActionParams = newArrayList()
 					if (p.parameters.get(0) !== null) {	// the action may not have had any parameter and is null
 						val params = p.parameters.get(0) as ParameterList // [param1, param2...]
 						for (param : params) { // build a list of stack data
 							lastActionParams.add(Util.extractString(param))
 						}
 					}
-					if(!Util.equal(lastActionParams, entity.lastAction.params)) {
-						entity.lastAction.params = lastActionParams
-						attr_changed.add("lastAction")
-					}
+					// last action data has 3 parts: type/name, params, result
+					// so we first collect, then compare (see below)
 				}
 				case "lastActionResult": {
-					val lastActionResult = Util.extractString(p.parameters.get(0))
-					/* Safely checking equality in event of both being null. */
-					if ((lastActionResult !== null && !lastActionResult.equals(entity.lastAction.result)) ||
-						(entity.lastAction.result !== null && !entity.lastAction.result.equals(lastActionResult))) {
-						entity.lastAction.result = lastActionResult
-						attr_changed.add("lastAction")
-					}
+					lastActionResult = Util.extractString(p.parameters.get(0))
+					// last action data has 3 parts: type/name, params, result
+					// so we first collect, then compare (see below)
 				}
 				case "facility": {
 					val facility = Util.extractString(p.parameters.get(0))
@@ -319,6 +311,13 @@ class CityAgentEntityManager {
 			entity.items = items
 			attr_changed.add("items")
 		}
+
+		val lastAction = new ActionData(lastActionType, lastActionParams, lastActionResult)
+		if (!lastAction.equals(entity.lastAction)) {
+			entity.lastAction = lastAction 
+			attr_changed.add("lastAction")
+		}
+
 
 		// report the attributes changed
 		return attr_changed
@@ -412,7 +411,7 @@ class CityAgentEntityManager {
 		/* Columns in the printed formatted table. */
 		val columns = 2
 		/* Width of each column. */
-		val columnWidth = "40"
+		val columnWidth = "50"
 
 		/* The entity attributes to print. */
 		var tableItems : String[] = #[
@@ -429,15 +428,14 @@ class CityAgentEntityManager {
 			String.format("load %d (max %d)",
 				entity.load.intValue, entity.loadMax.intValue
 			),
-			String.format("lastAction %s", entity.lastAction.type),
-			String.format("params %s", entity.lastAction.params),
-			String.format("result %s", entity.lastAction.result),
-			String.format("route: %s", entity.route === null ? "none" : entity.route
-				.stream()
-				.map([ wp |
-					"("+wp.lat + ", " + wp.lon + ")"
-				]).collect(Collectors.joining(", "))
-			),
+			String.format("lastAction %s", entity.lastAction),
+			String.format("route: %s", entity.route),
+//			String.format("route: %s", entity.route === null ? "none" : entity.route
+//				.stream()
+//				.map([ wp |
+//					"("+wp.lat + ", " + wp.lon + ")"
+//				]).collect(Collectors.joining(", "))
+//			),
 			String.format("routeLength %d", entity.routeLength.intValue),
 			String.format("charge %d", entity.charge.intValue),
 			String.format("vision %d", entity.vision.intValue),
