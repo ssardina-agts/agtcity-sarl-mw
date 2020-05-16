@@ -304,19 +304,6 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 
-	/**
-	 * Get and set the log status of the EIMASSim module
-	 * 
-	 * If on, printouts of XML packages will be printed
-	 * 
-	 */
-	public def MT_getEILogOn() : boolean {
-		return Log.isLogOn();
-	}
-
-	public def MT_setEILogOn(x : boolean) : void {
-		
-	}
 
 
 	/**
