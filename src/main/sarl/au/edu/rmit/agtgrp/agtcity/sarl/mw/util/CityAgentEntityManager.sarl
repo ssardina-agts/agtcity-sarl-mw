@@ -34,7 +34,6 @@ import massim.protocol.scenario.city.data.ItemAmountData
 import massim.protocol.scenario.city.data.WayPointData
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util
-import java.util.stream.Stream
 
 /**
  * 
@@ -450,16 +449,14 @@ class CityAgentEntityManager {
 		]
 
 		/* Build a format string to layout the table correctly. */
-		var formatString = Stream
-			.iterate(0, [n | n + 1])
-			.limit(tableItems.size())
-			.map([x |
-				val tableEntry = "%" + (x + 1) + "$-" + columnWidth + "s"
-				if (x % columns == 0)
-					return "\n" + tableEntry
-				else
-					return tableEntry
-			]).collect(Collectors.joining())
+		var formatString = ""
+		for (var n : int = 0; n < tableItems.size(); n++) {
+			val tableEntry = "%" + (n + 1) + "$-" + columnWidth + "s"
+			if (n % columns == 0) {
+				formatString += "\n"
+			}
+			formatString += tableEntry
+		}
 
 		/* Return the complete report formatted as a table. */
 		return String.format(formatString, tableItems)
