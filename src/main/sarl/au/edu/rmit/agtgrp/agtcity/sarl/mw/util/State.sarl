@@ -51,6 +51,7 @@ import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
 import java.util.function.Predicate
 import java.util.Map
+import java.util.Map.Entry
 
 /** 
  * Class used to represent a state of the simulation as seen by entities
@@ -344,19 +345,11 @@ class State {
 	private def <T extends FacilityData> getFacilities(type : Class<T>) : HashMap<String, T> {
 		val filtered_facilities : HashMap<String, T> = new HashMap();
 		// extract only facilities of desired type
-		val stream_facilities =
-			facilities
-				.values()
-				.stream()
-				.filter([ facility : FacilityData |
-					// check if this facility is of type we asked for
-					return type.isInstance(facility)
-				])
-
-		// add all facilities of requested type to a hashmap and return
-		stream_facilities.map([ facility : FacilityData |
-			filtered_facilities.put(facility.getName(), facility as T)
-		])
+		for(facility : facilities.values()) {
+			if (type.isInstance(facility)) {
+				filtered_facilities.put(facility.name, facility as T);
+			}
+		}
 		return filtered_facilities
 	}
 
@@ -403,19 +396,11 @@ class State {
 	private def <T extends JobData> getJobs(type : Class<T>) : HashMap<String, T> {
 		val filtered_jobs : HashMap<String, T> = new HashMap();
 		// extract only jobs of desired type
-		val stream_jobs =
-			jobs
-			.values()
-			.stream()
-			.filter([ job : JobData |
-				// check if this facility is of type we asked for
-				return type.isInstance(job)
-			])
-
-		// add all jobs of requested type to a hashmap and return
-		stream_jobs.map([ job : JobData |
-			filtered_jobs.put(job.getId(), job as T)
-		])
+		for (job : jobs.values()) {
+			if (type.isInstance(jobs)) {
+				filtered_jobs.put(job.getId(), job as T);
+			}
+		}
 		return filtered_jobs
 	}
 
