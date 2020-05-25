@@ -252,23 +252,35 @@ agent SingleRandomAgent {
 	 * Handled the case when an entity has completed a perception
 	 */
 	on E_EntitySensed {
-		val entity = occurrence.entityName
-		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entity)
+		val entityName = occurrence.entityName
+		val entity = MT_getEntityState(entityName)
+		val shops = state.getShops()
+		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entityName)
 		
-		reportState(entity)
+		reportState(entityName)
 
 		// 2 - Each control player agent should travel to some random facility (if in route, continue)
-		if (MT_getEntityState(entity).routeLength > 0) {
-			agent_says("Seems player **{0}** is already traveling: {1} steps to go!", entity,
-				MT_getEntityState(entity).routeLength)
-			if (!MT_executeAction(entity, new Action("continue")))
-				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entity)
-		} else if (facilities !== null && facilities.length > 0) {
+		if (MT_getEntityState(entityName).routeLength > 0) {
+			agent_says("Seems player **{0}** is already traveling: {1} steps to go!", entityName,
+				MT_getEntityState(entityName).routeLength)
+			if (!MT_executeAction(entityName, new Action("continue")))
+				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
+		} else if(entity.facility !== null && shops.containsKey(entity.facility)) {
+			// We are at a shop, maybe we can buy some item?
+			val stock = shops.get(entity.facility).stocks
+			val item = stock.get(rand.nextInt(stock.size() - 1))
+			val quantity = "1"
+			if (!MT_executeAction(entityName, new Action("buy",new Identifier(item.name), new Identifier(quantity))))
+				agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
+			agent_says("I will ask player **{1}** to to buy {0}", item.name, entityName)
+		} else if (shops.size() > 0) {
 			// Pick some random facility and go!
-			val destination = facilities.get(rand.nextInt(facilities.length - 1))
-			if (!MT_executeAction(entity, new Action("goto", new Identifier(destination))))
-				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination, entity)
-			agent_says("I will send player **{1}** to location {0}", destination, entity)
+			// val destination = facilities.get(rand.nextInt(facilities.length - 1))
+			// Pick a random shop and go
+			val destination = shops.values().get(rand.nextInt(shops.size() - 1))
+			if (!MT_executeAction(entityName, new Action("goto", new Identifier(destination.name))))
+				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination, entityName)
+			agent_says("I will send player **{1}** to location {0}", destination, entityName)
 		} else {
 			agent_shouts("I just don't know any facility to go yet, sorry...!")
 		}
