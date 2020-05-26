@@ -201,10 +201,52 @@ class State {
 	def getStateDifference(state : State) : Map<String, HashSet<String>> {
 		return State.getStateDifference(state, this)
 	}
-	
-	
-	
-	
+
+	/**
+	 * Structured Report of the current state.
+	 *
+	 * @return report structured as a table
+	 */
+	def report() : String {
+		/* Columns in the printed formatted table. */
+		val columns = 1
+		/* Width of each column. */
+		val columnWidth = "50"
+
+		var tableItems : List<String> = newArrayList()
+
+		for(role : roles.values()) {
+			tableItems.add(role.toString())
+		}
+		for(entity : entities.values()) {
+			tableItems.add(entity.toString())
+		}
+		for(facility : facilities.values()) {
+			tableItems.add(facility.toString())
+		}
+		for(item : items.values()) {
+			tableItems.add(item.toString())
+		}
+		for( job : jobs.values()) {
+			tableItems.add(job.toString())
+		}
+
+		var formatString = ""
+		for (var n : int = 0; n < tableItems.size(); n++) {
+			val tableEntry = "%" + (n + 1) + "$-" + columnWidth + "s"
+			if (n % columns == 0) {
+				formatString += "\n"
+			}
+			formatString += tableEntry
+		}
+
+		/* Return the complete report formatted as a table. */
+		return String.format(formatString, tableItems.toArray())
+	}
+
+
+
+
 	///////////////////////////////////////////////////////////////////////////////
 	//	GETTERS
 	// /////////////////////////////////////////////////////////////////////////////
@@ -244,14 +286,13 @@ class State {
 	 * @return entity HashMap name -> EntityData
 	 */
 	def getMatchingEntities(filter : Predicate<EntityData>) : HashMap<String, EntityData> {
-		val filtered_entities  : HashMap<String, EntityData> = newHashMap()
-		val stream_entities = entities
-			.values()
-			.stream()
-			.filter(filter)
-		stream_entities.map([ entity : EntityData |
-			filtered_entities.put(entity.getName(), entity)
-		])
+		val filtered_entities : HashMap<String, EntityData> = newHashMap()
+		for (entity : entities.values()) {
+			/* Return only entities matching the provided predicate. */
+			if (filter.test(entity)) {
+				filtered_entities.put(entity.name, entity);
+			}
+		}
 		return filtered_entities
 	}
 

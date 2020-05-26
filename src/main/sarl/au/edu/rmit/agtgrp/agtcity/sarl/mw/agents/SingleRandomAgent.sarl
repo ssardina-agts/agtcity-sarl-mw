@@ -259,6 +259,8 @@ agent SingleRandomAgent {
 		
 		reportState(entityName)
 
+		agent_says(state.report());
+
 		// 2 - Each control player agent should travel to some random facility (if in route, continue)
 		if (MT_getEntityState(entityName).routeLength > 0) {
 			agent_says("Seems player **{0}** is already traveling: {1} steps to go!", entityName,
