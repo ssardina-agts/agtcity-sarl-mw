@@ -111,7 +111,8 @@ class CityDataCreator {
 		for (part : partsList) {
 			parts.add(new NameData(Util.extractString(part)))
 		}
-		return new ItemData(name, volume, roles, parts)
+		// Constructor has a different order to EIS percept params
+		return new ItemData(name, volume, parts, roles)
 	}
 
 	/** 
