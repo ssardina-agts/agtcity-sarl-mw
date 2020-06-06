@@ -289,25 +289,28 @@ skill S_MassimTalking implements C_MassimTalking {
 	/* 
 	 * Obtain the current state of the environment interface (paused, running, killed)
 	 */
+	@Pure
 	def MT_getStatus() : EnvironmentState {
 		return ei.getState()
 	}
 
+	@Pure
 	def MT_getEntityNames() : Set<String> {
 		return entities.keySet()
 	}
 
 	/** 
 	 * Provides a map from entity names to the entity state
-	 */	
+	 */
+	@Pure
 	def MT_getAllEntityStates() : Map<String, EntityData> {
 		return entities
 	}
+
+	@Pure
 	def MT_getEntityState(entityName : String) : EntityData {
 		return entities.get(entityName)
 	}
-
-
 	
 
 	/**
@@ -331,6 +334,7 @@ skill S_MassimTalking implements C_MassimTalking {
 		}
 	}
 
+	@Pure
 	def MT_reportEntityState(entityName : String) : String {
 		return CityAgentEntityManager.reportState(entities.get(entityName))
 	}
@@ -340,6 +344,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * 
 	 * @return - the last step number seen 
 	 */
+	@Pure
 	def MT_getStepNo() : int {
 		return stepNo
 	}
