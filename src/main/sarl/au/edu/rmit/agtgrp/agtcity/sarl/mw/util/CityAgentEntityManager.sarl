@@ -308,7 +308,6 @@ class CityAgentEntityManager {
 			attr_changed.add("items")
 		}
 
-		System.out.println(lastActionType)
 		if (lastActionType !== null) {
 			val lastAction = new ActionData(lastActionType, lastActionParams, lastActionResult)
 			if (!lastAction.equals(entity.lastAction)) {

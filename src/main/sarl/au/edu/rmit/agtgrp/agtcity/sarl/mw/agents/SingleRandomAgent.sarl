@@ -70,7 +70,7 @@ agent SingleRandomAgent {
 
 	val agentLogLevel = 4 // debug = 4 this is for the high-level agent, not for SARL
 	val reportEILog = false	// true if XML messages from server need to be printed out
-	val reportState = false // Report current state of entity and state tracking
+	val reportState = true // Report current state of entity and state tracking
 	
 
 	// Server information: registration configuration file and entities that this agent will control
@@ -176,7 +176,7 @@ agent SingleRandomAgent {
 			 * 
 			 * So, send an event to start sending and controlling 
 			 */
-				agent_says("PHASE 4 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
+				agent_says("PHASE 5 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
 				in(2000)[emit(new E_SenseEnvironment())]	// wait 2 seconds to allow everyone to auhenticate to server
 			} catch (e : Exception) {
 				error("Sorry but I was not able to initialize the skill to talk to server! Message: {0}", e.message)
@@ -196,6 +196,8 @@ agent SingleRandomAgent {
 
 			agent_says("Changes in sate: {0}", state.getStateDifference(statePrevious))
 			statePrevious = state
+			state = new State()
+//			statePrevious = state.clone() as State
 			MT_getEntityNames().forEach([ entityName : String |
 
 				// All percepts for the player: (role/entity of agent --> collection of single percepts)
@@ -262,7 +264,7 @@ agent SingleRandomAgent {
 		val entity = MT_getEntityState(entityName)
 		val shops = state.getShops()	// shops we know about
 		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entityName)
-		
+
 		if (reportState) {
 			reportState(entityName)
 			agent_says(state.report());

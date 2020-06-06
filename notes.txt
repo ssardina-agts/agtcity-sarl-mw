@@ -1,0 +1,4 @@
+ShopData{restock=3, stocks=[StockData{name='item0', price=93, amount=12}, StockData{name='item1', price=38, amount=15}, StockData{name='item2', price=136, amount=16}, StockData{name='item3', price=42, amount=13}], name='shop2', lat=48.84608, lon=2.34014}
+
+
+ShopData{restock=3, stocks=[StockData{name='item0', price=93, amount=13}, StockData{name='item1', price=38, amount=15}, StockData{name='item2', price=136, amount=16}, StockData{name='item3', price=42, amount=13}], name='shop2', lat=48.84608, lon=2.34014}
