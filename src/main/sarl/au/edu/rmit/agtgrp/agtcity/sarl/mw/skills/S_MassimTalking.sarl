@@ -18,9 +18,9 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw.skills
 
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.CityAgentEntityManager
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_MassimTalking
 import eis.exceptions.ActException
 import eis.exceptions.AgentException
 import eis.exceptions.ManagementException
@@ -39,7 +39,6 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.Map
 import java.util.Set
-import java.util.stream.Collectors
 import javax.management.relation.RelationException
 import massim.eismassim.EnvironmentInterface
 import massim.eismassim.Log
@@ -53,7 +52,7 @@ import org.json.JSONObject
  * Skill implementing the C_MassimTalking capacity to conncet to MAC Agents in City MASSIM 2017 Game Server
  * 
  * - connect to game server (using configuration files)
- * - register entitys (using configuration files for credentials)
+ * - register entities (using configuration files for credentials)
  * - perceive the environment (receive percepts)
  * - send actions to the game server (for the entitys registered) 
  * 
@@ -88,16 +87,21 @@ skill S_MassimTalking implements C_MassimTalking {
 	var public ei : EnvironmentInterface // main handler for the skill (from massim.eismassim)
 
 	/* 
+	 * Stores all the entities in the game server that I will connect and control
+	 */
+	var myEntities : Set<String> = new HashSet<String>
+
+	
+	/* 
 	 * Store information about entities in the game (indexed by their name) 
 	 * (for all that have been authenticated in the game server)
 	 * 
 	 */
 	var entities : Map<String, EntityData> = new HashMap<String, EntityData>()
 
-	/*
-	 * Stores all the entitys in the game server that I will connect and control
-	 */
-	var myEntities : Set<String> = new HashSet<String>
+	var entitiesLastChanges : Map<String, Set<String>> = new HashMap<String, Set<String>>()
+
+
 
 	// /////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTORS
@@ -105,7 +109,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	new (eiMassimConfigFile : Path, eiLogOn : boolean = true) {
 		super() // Call the super's constructor
 		this.eiRegistrationFile = eiMassimConfigFile
-		massim.eismassim.Log.setLogOn(eiLogOn)	// set EI LogOn: if True, XML messages will be print out
+		Log.setLogOn(eiLogOn)	// set EI LogOn: if True, XML messages will be print out
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
@@ -314,7 +318,9 @@ skill S_MassimTalking implements C_MassimTalking {
 	 */
 	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>): void {
 		val attributesUpdated = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
-		
+
+		// record what has changed for that entity
+		entitiesLastChanges.put(entityName, attributesUpdated)
 		
 		debug(String.format("Fields changed when updating the state of entity *%s*: %s", entityName, String.join(",", attributesUpdated)))
 		

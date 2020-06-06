@@ -177,45 +177,7 @@ class State implements Cloneable  {
 		}
 	}
 
-	/**
-	 * Get the set of changes from state0 to state1, indexed by type (facilities, entities)
-	 * 
-	 * @param state0 previous state
-	 * @param state1 next sate
-	 */
-	def static getStateDifference(state0 : State, state1 : State) : Map<String, HashSet<String>> {
-		var changes : Map<String, HashSet<String>> = new HashMap<String, HashSet<String>> 
-		
-		// Nothing of this is meant to change from step to step
-//		if(state0.money !== state1.money) changes.add("money")
-//		if(state0.id !== state1.id) changes.add("id")
-//		if(state0.mapName !== state1.mapName) changes.add("mapName")
-//		if(state0.seedCapital !== state1.seedCapital) changes.add("seedCapital")
-//		if(state0.simulationLength !== state1.simulationLength) changes.add("simulationLength ")
-//		if(state0.team!== state1.team) changes.add("team")
-
-		// For every entity seen, record what parts of the entity has changed (lon, charge, etc)
-		state1.entities.keySet.forEach([ entity : String |
-			val changes_entity = 
-			CityAgentEntityManager.getEntityDifferences(state0.entities.get(entity), state1.entities.get(entity))
-			if (!changes_entity.empty) changes.put(entity, changes_entity)
-		])
-
-
-		var change_facilities = new HashSet<String>
-		state1.facilities.keySet.forEach([ facility : String |
-			if(!state1.facilities.get(facility).equals(state0.facilities.get(facility))) change_facilities.add(facility)
-		])
-		if (!change_facilities.empty) changes.put("facilities", change_facilities)
-		
-		
-		return changes 
-	}
-
-	def getStateDifference(state : State) : Map<String, HashSet<String>> {
-		return State.getStateDifference(this, state)
-	}
-
+	
 	/**
 	 * Structured Report of the current state.
 	 *
