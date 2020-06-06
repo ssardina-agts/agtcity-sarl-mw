@@ -210,7 +210,6 @@ class CityAgentEntityManager {
 					}
 				}
 				case "lastAction": {
-					System.out.println("====================> " + p)
 					lastActionType = Util.extractString(p.parameters.get(0))
 					// last action data has 3 parts: type/name, params, result
 					// so we first collect, then compare (see below)

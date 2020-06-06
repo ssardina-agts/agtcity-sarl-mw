@@ -70,6 +70,8 @@ agent SingleRandomAgent {
 
 	val agentLogLevel = 4 // debug = 4 this is for the high-level agent, not for SARL
 	val reportEILog = false	// true if XML messages from server need to be printed out
+	val reportState = false // Report current state of entity and state tracking
+	
 
 	// Server information: registration configuration file and entities that this agent will control
 	val eiRegistrationFileName = "eismassimconfig.json" // the name of the registration file
@@ -139,7 +141,6 @@ agent SingleRandomAgent {
 				/*
 				 * SECOND, install skill to talk to the server using EI registration file 
 				 * (no actual connection to entities yet, just recording of registration file to be used)
-				 * 
 				 */
 				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiRegistrationFile)
 				setSkill(new S_MassimTalking(eiRegistrationFile, reportEILog), C_MassimTalking)
@@ -159,9 +160,8 @@ agent SingleRandomAgent {
 
 				/* 
 				 * FOURTH, we establish the connection to the game server via the EI 
-				 * * 
-				 * All entities registered for control are authenticated and connected to the server
 				 * 
+				 * All entities registered for control are authenticated and connected to the server
 				 */
 				agent_says("PHASE 4: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiRegistrationFileName);
 				if (MT_initialize()) {
@@ -173,8 +173,8 @@ agent SingleRandomAgent {
 
 			/* 
 			 * FIFTH, finally all entities registered and connected for control and sensing.
-			 * 	So, send an event to start sending and controlling 
 			 * 
+			 * So, send an event to start sending and controlling 
 			 */
 				agent_says("PHASE 4 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
 				in(2000)[emit(new E_SenseEnvironment())]	// wait 2 seconds to allow everyone to auhenticate to server
@@ -194,7 +194,7 @@ agent SingleRandomAgent {
 		// While the environment is running, wait for new percepts (read percepts for each player registered/connected)
 		while (MT_getStatus() == EnvironmentState.RUNNING && !MT_getEntityNames().empty) {
 
-//			agent_says("Changes in sate: {0}", state.getStateDifference(statePrevious))
+			agent_says("Changes in sate: {0}", state.getStateDifference(statePrevious))
 			statePrevious = state
 			MT_getEntityNames().forEach([ entityName : String |
 
@@ -263,9 +263,10 @@ agent SingleRandomAgent {
 		val shops = state.getShops()	// shops we know about
 		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entityName)
 		
-		// Report current state of entity and state tracking		
-		reportState(entityName)
-		agent_says(state.report());
+		if (reportState) {
+			reportState(entityName)
+			agent_says(state.report());
+		}
 
 		/**
 		 * If it is traveling, continue
