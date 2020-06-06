@@ -84,7 +84,6 @@ agent SingleRandomAgent {
 	var facilities : Set<String>
 	var rand : Random
 	var state : State = new State()// used to track the current state as per percepts received
-	var statePrevious : State = new State()  // previous state
 	
 	
 	/* 
@@ -112,7 +111,6 @@ agent SingleRandomAgent {
 
 			// Create an information aggregator (all percept info will be integrated here by the MW)
 			state = new State() 
-			statePrevious = new State()
 			
 			// Give reporting skill via console
 			setSkill(new S_ConsoleReporting(myName), C_Reporting)
@@ -247,36 +245,41 @@ agent SingleRandomAgent {
 	} // end of on E_SenseEnvironment
 
 
-
-
-
-
+	on E_EntitySensed [reportState] {
+			reportState(occurrence.entityName)
+			agent_says(state.report());
+	}
 
 	/* 
-	 * Handled the case when an entity has completed a perception
+	 * When the agent is traveling, just continue
 	 */
-	on E_EntitySensed {
+	on E_EntitySensed [MT_getEntityState(entityName).routeLength > 0] {
+		val entityName = occurrence.entityName
+		val entity = MT_getEntityState(entityName)
+
+		agent_says("Seems player **{0}** is already traveling: {1} steps to go!", entityName, entity.routeLength)
+		if (!MT_executeAction(entityName, new Action("continue")))
+			agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
+
+	}
+
+	/* 
+	 * When the agent is not traveling:
+	 * 
+	 * If it is in a shop facility, buy something
+	 * If we know of a shop, start going there
+	 * Otherwise, do nothing (wait for a shop to be known)
+	 */
+	on E_EntitySensed [MT_getEntityState(entityName).routeLength == 0]  {
 		val entityName = occurrence.entityName
 		val entity = MT_getEntityState(entityName)
 		val shops = state.getShops()	// shops we know about
 		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entityName)
 
-		if (reportState) {
-			reportState(entityName)
-			agent_says(state.report());
-		}
-
-		/**
-		 * If it is traveling, continue
-		 * If it is in a shop facility, buy something
-		 * If we know of a shop, start going there
-		 * Otherwise, do nothing (wait for a shop to be known)
-		 */
-		if (entity.routeLength > 0) {	// entity is traveling on route
-			agent_says("Seems player **{0}** is already traveling: {1} steps to go!", entityName, entity.routeLength)
-			if (!MT_executeAction(entityName, new Action("continue")))
-				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
-		} else if (entity.facility !== null && shops.containsKey(entity.facility) && entity.lastAction.type != "buy") { // we are at a shop, by some item?
+		if (entity.facility !== null 
+			&& shops.containsKey(entity.facility) 
+			&& entity.lastAction.type != "buy"
+		) { // we are at a shop, by some item?
 			val stock = shops.get(entity.facility).stocks
 			val item = stock.get(rand.nextInt(stock.size() - 1))
 			val quantity = "1"

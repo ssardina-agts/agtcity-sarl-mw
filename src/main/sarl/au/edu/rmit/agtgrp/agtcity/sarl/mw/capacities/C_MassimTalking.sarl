@@ -92,6 +92,7 @@ capacity C_MassimTalking {
 	 */	
 	def MT_getAllEntityStates() : Map<String, EntityData>
 
+	@Pure
 	def MT_getEntityState(entityName : String) : EntityData
 
 	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>) : void
