@@ -1,6 +1,6 @@
 ## SARL-AGTCITY-MW
 
-### Middleware between the SARL agent-oriented language and the MASSIM 2017 server
+### Middleware between the SARL agent-oriented language and the MASSIM RMIT 2018+ server
 
 Copyright (C) 2017 The SARL-AGTCITY-MW Authors.
 See [AUTHORS.md](https://bitbucket.org/sarlrmit/massim17/src/master/AUTHORS.md)

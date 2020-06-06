@@ -1,6 +1,6 @@
 /** 
  * SARL-MASSIM - Interface between the SARL agent-oriented language 
- * and the MASSIM 2017 server
+ * and the MASSIM RMIT 2018+ server
  * Copyright (C) 2017 The SARL-MASSIM Authors.
  * 
  * This program is free software: you can redistribute it and/or modify
