@@ -198,7 +198,7 @@ skill S_MassimTalking implements C_MassimTalking {
 		// This is where the sensing form the server happens via the EI
 		var entityPercepts = ei.getAllPercepts(entityName).values().get(0)
 
-		// update entity state with the first collection (only works if entity is linked to just one entity)
+		// Update entity state with the first collection (only works if entity is linked to just one entity)
 		MT_updateEntityState(entityName, entityPercepts) // update the agent data
 
 		return entityPercepts 
@@ -304,19 +304,21 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 
-
+	
 
 	/**
-	 * Update the entity state in place.
+	 * Update an specific entity state given set of percepts.
+	 * 
+	 * @param entityName: the name of the entity to update
+	 * @percepts: collection of percepts
 	 */
 	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>): void {
 		val attributesUpdated = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
 		
-		System.out.println("UPDATED ENTITY, FIELDS CHANGED:")
-		System.out.println(String.join(",", attributesUpdated))
 		
-		val stepPercept = percepts.stream().filter([p | "step".equals(p.name)]).collect(Collectors.toList())
-		val stepNo = Util.extractInt(stepPercept.get(0).parameters.get(0))
+		debug(String.format("Fields changed when updating the state of entity *%s*: %s", entityName, String.join(",", attributesUpdated)))
+		
+		val stepNo = Util.getStepNo(percepts)
 		
 		if (this.stepNo < stepNo) {
 			this.stepNo = stepNo

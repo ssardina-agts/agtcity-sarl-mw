@@ -139,17 +139,14 @@ class CityAgentEntityManager {
 		val lastActionParams = newArrayList()
 		var lastActionResult : String
 		
-		/* Collect the percepts relevant to the entity. */
+		/* Collect the percepts relevant to the entity */
 		val entityPercepts = percepts
 			.stream()
 			.filter([ percept : Percept |
 				ENTITY_ATTRIBUTES.contains(percept.name)
 			]).collect(Collectors.toList())
 		
-		/* Check that we received all expected attributes. */
-		// #TODO: do we need this here? We definitively don't want to printout plain but method may be useful
-		reportAnyMissingPercepts(entityPercepts)
-
+	
 		/* Compare and update entity attributes, maintain list of what changed. */
 		for (p : entityPercepts) {
 			switch p.name {
@@ -213,6 +210,7 @@ class CityAgentEntityManager {
 					}
 				}
 				case "lastAction": {
+					System.out.println("====================> " + p)
 					lastActionType = Util.extractString(p.parameters.get(0))
 					// last action data has 3 parts: type/name, params, result
 					// so we first collect, then compare (see below)
@@ -311,10 +309,13 @@ class CityAgentEntityManager {
 			attr_changed.add("items")
 		}
 
-		val lastAction = new ActionData(lastActionType, lastActionParams, lastActionResult)
-		if (!lastAction.equals(entity.lastAction)) {
-			entity.lastAction = lastAction 
-			attr_changed.add("lastAction")
+		System.out.println(lastActionType)
+		if (lastActionType !== null) {
+			val lastAction = new ActionData(lastActionType, lastActionParams, lastActionResult)
+			if (!lastAction.equals(entity.lastAction)) {
+				entity.lastAction = lastAction
+				attr_changed.add("lastAction")
+			}
 		}
 
 
@@ -378,24 +379,26 @@ class CityAgentEntityManager {
 	
 	
 	
+		
 	
-	
-	
-	
-
-	private static def reportAnyMissingPercepts(percepts : List<Percept>) {
+	/**
+	 * Get the set of missing percepts' names that are missing from a collection of percepts received
+	 * (e.g., when the agent carries nothing, hasItem() percept won't be received)
+	 * 
+	 * @param percepts - a collection of percepts
+	 * @return a set of percepts type names
+	 */
+	private static def getMissingPercepts(percepts : List<Percept>) : Set<String> {
+		val missingPercepts = new HashSet()
+		
 		if (percepts.length != ENTITY_ATTRIBUTES.size()) {
-			var expecting = ENTITY_ATTRIBUTES.toList()
-			var received = percepts.stream().map([p|return p.name]).collect(Collectors.toList())
-			Collections.sort(expecting)
-			Collections.sort(received)
-			System.out.println(
-				"WARNING: The entity attributes received from the server are different to what was expected.")
-			//System.out.println("We expected:")
-			//System.out.println(String.join("\n", expecting))
+			var expecting = ENTITY_ATTRIBUTES.toSet()
+			var received = percepts.stream().map([p|return p.name]).collect(Collectors.toSet())
+			
 			expecting.removeAll(received)
-			System.out.println("The percept we received is missing:")
-			System.out.println(String.join("\n", expecting))
+			missingPercepts.add(expecting)
+
+			return expecting
 		}
 	}
 
