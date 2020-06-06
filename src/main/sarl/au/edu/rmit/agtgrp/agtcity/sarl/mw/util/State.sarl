@@ -34,7 +34,9 @@ import java.util.Collection
 import java.util.HashMap
 import java.util.HashSet
 import java.util.List
+import java.util.Map
 import java.util.Set
+import java.util.function.Predicate
 import massim.protocol.scenario.city.data.AuctionJobData
 import massim.protocol.scenario.city.data.ChargingStationData
 import massim.protocol.scenario.city.data.DumpData
@@ -49,9 +51,6 @@ import massim.protocol.scenario.city.data.ShopData
 import massim.protocol.scenario.city.data.StorageData
 import massim.protocol.scenario.city.data.WellData
 import massim.protocol.scenario.city.data.WorkshopData
-import java.util.function.Predicate
-import java.util.Map
-import java.util.Map.Entry
 
 /** 
  * Class used to represent a state of the simulation as seen by entities
@@ -71,6 +70,7 @@ class State {
 	public var simulationLength : int
 	public var team : String
 	public var money : int
+	public var stepNo : int
 
 	/**
 	 * Different complex information indexed by their name
@@ -105,6 +105,8 @@ class State {
 	/**
 	 * Adds sim-start data to aggregator maintained data-structures.
 	 * https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
+	 * 
+	 * @param percepts - a collection of small percepts that encodes a sim-start message
 	 */
 	def recordSimStartData(percepts : Collection<Percept>) {
 		for(p : percepts){
@@ -145,20 +147,25 @@ class State {
 	 * 
 	 * @param percepts received for the current step.
 	 */
-	def updateAggregatedGameState(percepts : Collection<Percept>, step : int) {
+	def updateAggregatedGameState(percepts : Collection<Percept>) {
+		val stepNo = Util.getStepNo(percepts)
+		
+		if (stepNo < this.stepNo) return	// old step no
+		
+		this.stepNo = stepNo
 		for (p : percepts) {
 			if (CityDataCreator.FACILITY_TYPES.contains(p.name)) { // p = chargingStation(..) dump(...) shop(...)
 				val facility = CityDataCreator.createFacility(p)
 				this.facilities.put(facility.name, facility)
-				this.stepLastSeen.put(facility.name, step)
+				this.stepLastSeen.put(facility.name, stepNo)
 			} else if (CityDataCreator.JOB_TYPES.contains(p.name)) { //	p = job(...) or auction(..) or mission(..)
 				val job = CityDataCreator.createJob(p)
 				this.jobs.put(job.getId(), job)
-				this.stepLastSeen.put(job.getId(), step)
+				this.stepLastSeen.put(job.getId(), stepNo)
 			} else if (CityAgentEntityManager.ENTITY_TYPES.contains(p.name)) {	// p = entity(....)
 				val entity = CityAgentEntityManager.createEntity(p)
 				this.entities.put(entity.getName(), entity)
-				this.stepLastSeen.put(entity.getName(), step)
+				this.stepLastSeen.put(entity.getName(), stepNo)
 			} else if (p.name.equals("massium")) {
 				this.money = Util.extractInt(p.parameters.get(0))
 			}
