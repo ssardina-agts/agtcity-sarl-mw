@@ -194,10 +194,6 @@ agent SingleRandomAgent {
 		// While the environment is running, wait for new percepts (read percepts for each player registered/connected)
 		while (MT_getStatus() == EnvironmentState.RUNNING && !MT_getEntityNames().empty) {
 
-			agent_says("Changes in sate: {0}", state.getStateDifference(statePrevious))
-			statePrevious = state
-			state = new State()
-//			statePrevious = state.clone() as State
 			MT_getEntityNames().forEach([ entityName : String |
 
 				// All percepts for the player: (role/entity of agent --> collection of single percepts)
