@@ -24,8 +24,8 @@ See general [HOWTO SARL Projects](https://gist.github.com/ssardina/43d6e6f469921
     * Tested with SUN Java 1.8 and OpenJDK 11.
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
 * SARL modules and execution engine - Maven [repo](http://mvnrepository.com/artifact/io.sarl.maven).
-* The generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
 * The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server). 
+    * It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
     * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. 
     * The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
