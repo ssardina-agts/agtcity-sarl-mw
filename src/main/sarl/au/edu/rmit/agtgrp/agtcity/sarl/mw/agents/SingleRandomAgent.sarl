@@ -1,6 +1,6 @@
 /** 
  * SARL-MASSIM - Interface between the SARL agent-oriented language 
- * and the MASSIM 2017-2020 server
+ * and the MASSIM RMIT 2018+ server
  * 
  * Copyright (C) 2017-2020 The SARL-MASSIM Authors.
  * 
@@ -26,24 +26,30 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.capacities.C_Reporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State
+
 import eis.exceptions.PerceiveException
 import eis.iilang.Action
 import eis.iilang.EnvironmentState
 import eis.iilang.Identifier
 import eis.iilang.Percept
+
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
 import io.sarl.core.Schedules
+
 import java.nio.file.Paths
 import java.util.Collection
 import java.util.Random
 import java.util.Set
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State
 
 event E_SenseEnvironment
 
+/**
+ * Signal the sensing of some entity (i.e., player agent in the game) at a given step number
+ */
 event E_EntitySensed {
 	var stepNo : int
 	var entityName : String
@@ -58,7 +64,7 @@ event E_EntitySensed {
 }
 
 /** 
- * This is a monolithic SARL agent to manage ALL the entity agents in the  game simulation.
+ * This is a monolithic SARL agent to manage ALL the entity agents of a team in the game simulation.
  */
 @SuppressWarnings("potential_field_synchronization_problem")
 agent SingleRandomAgent {
@@ -68,18 +74,18 @@ agent SingleRandomAgent {
 
 	val myName = "Single-RANDOM-Agent"
 
-	val agentLogLevel = 4 // debug = 4 this is for the high-level agent, not for SARL
-	val reportEILog = false	// true if XML messages from server need to be printed out
-	val reportState = true // Report current state of entity and state tracking
+	val agentLogLevel = 4 		// debug = 4 this is for the high-level agent, not for SARL
+	val reportEILog = false	// Report XML messages from server 
+	val reportState = false 	// Report current state of entity and state tracking
 	
 
-	// Server information: registration configuration file and entities that this agent will control
-	val eiRegistrationFileName = "eismassimconfig.json" // the name of the registration file
-	//	val myEntityConnections = #["entityA1", "entityA2", "entityA3", "entityA4", "entityA5"]
-	val myConnectedEntities = #["entityA1"] // simpler testing, just 2 players
+	// Server configuration file: server info (port/host + options) & entities credentials
+	val eiRegistrationFileName = "eismassimconfig.json" 
 
+	// Entities to register in the server and control
+	val myConnectedEntities = #["entityA1"] 
 
-	// Data kept by this single SARL agent: just the step number
+	// Data kept by this single SARL agent
 	var last_step : int = -1
 	var facilities : Set<String>
 	var rand : Random
@@ -109,44 +115,41 @@ agent SingleRandomAgent {
 
 			rand = new Random()
 
-			// Create an information aggregator (all percept info will be integrated here by the MW)
+			// Create a state object (all percept info will be integrated here by the MW)
 			state = new State() 
 			
-			// Give reporting skill via console
-			setSkill(new S_ConsoleReporting(myName), C_Reporting)
-			setLogLevel(agentLogLevel) // set debug level
+			setLogLevel(agentLogLevel) // set debug level for Logging built-in capacity
+			setSkill(new S_ConsoleReporting(myName), C_Reporting) // Give reporting skill via console to agent
 
-			/*
-			 * FIRST, collect the directory where the server and player configuration files to be used are
+			/**
+			 * 1. FIRST, collect the directory where the server configuration file eiRegistrationFile is located
+			 * If none is given as CLI argument, search inside conf/ folder and make user select one
 			 */
 			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiRegistrationFileName)
-			if (args.length != 0) {
+			if (args.length != 0) 
 				eiConfigDir = args.get(0) as String	// use the config dir given as CLI argument
-			} else {
+			else 
 				// Ask the user which folder in conf/ is to be used to use the EI config file
-				eiConfigDir = ConfHandler.getConfDir()
-			}
+				eiConfigDir = ConfHandler.getConfDir() 	// ask user which folder in conf/ to use
 			val eiRegistrationFile = Paths.get(eiConfigDir, eiRegistrationFileName)
-
 			debug("\n***************************************************\n" +
 				  	"Configuration settings:\n" + 
 					"\t My SARL agent name: {0}\n" +
 					"\t EI registration file: {1}\n" +
 					"***************************************************", myName, eiRegistrationFile)
-		
-			
+
 			try {
-				/*
-				 * SECOND, install skill to talk to the server using EI registration file 
+
+				/** 
+				 * 2. SECOND, install Massim-Talking skill to talk to the  game server using EI registration file 
 				 * (no actual connection to entities yet, just recording of registration file to be used)
 				 */
 				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiRegistrationFile)
 				setSkill(new S_MassimTalking(eiRegistrationFile, reportEILog), C_MassimTalking)
 
-
-				/* 
-				 * THIRD, we configure the skill by providing which specific entities this agent will control
-				 * 	The agents to control have to be among those listed in the registration file
+				/** 
+				 * 3. THIRD, configure the skill by providing which specific entities this SARL agent will control
+				 * 	The entities to control have to be among those listed in the registration file
 				 * 	No actual connection (or server authentication) happens at this step
 				 */
 				agent_says("PHASE 3: REGISTERING ENTITIES TO CONTROL: ", myConnectedEntities.toString)
@@ -156,8 +159,8 @@ agent SingleRandomAgent {
 						agent_says("I have registered entity **{0}** for control and perception.", entityName)
 					]
 
-				/* 
-				 * FOURTH, we establish the connection to the game server via the EI 
+				/** 
+				 * 4. FOURTH, we establish the connection to the game server via the EI 
 				 * 
 				 * All entities registered for control are authenticated and connected to the server
 				 */
@@ -169,11 +172,10 @@ agent SingleRandomAgent {
 					killMe
 				}
 
-			/* 
-			 * FIFTH, finally all entities registered and connected for control and sensing.
-			 * 
-			 * So, send an event to start sending and controlling 
-			 */
+				/** 
+				 * 5. FIFTH, finally with all entities registered and connected, emit an event to start 
+				 * sensing and controlling those entities 
+				 */
 				agent_says("PHASE 5 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
 				in(2000)[emit(new E_SenseEnvironment())]	// wait 2 seconds to allow everyone to auhenticate to server
 			} catch (e : Exception) {
@@ -194,11 +196,11 @@ agent SingleRandomAgent {
 
 			MT_getEntityNames().forEach([ entityName : String |
 
-				// All percepts for the player: (role/entity of agent --> collection of single percepts)
-				// In this game, players usually are of one role/entity, so we will store that single set of percepts
-				// in variable percepts (the first value of allPercepts)
 				try {
-					debug("About to sense percepts for step {0} in player {0}", last_step+1, entityName)
+					// Collect all percepts received by the entity -- will block until percept is received from server
+					// In general, all percepts for the entity: (role of agent --> collection of single percepts)
+					// In this game, players usually are of one role, so an entity will receive just one set of single percepts
+					debug("About to sense percepts for step {0} in player {1}", last_step + 1, entityName)
 					var percepts : Collection<Percept> percepts = MT_senseEntityPercepts(entityName) // This is BLOCKING!!
 					
 					// TODO: Change this to debug log
@@ -207,28 +209,30 @@ agent SingleRandomAgent {
 
 					agent_says("I have just sensed player {0} at step {1}", entityName, MT_getStepNo())
 
-					// First step has Sim-Start percepts
+					// If this is first step, then percepts has SIM-START percepts, collect them all in state
 					// https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
 					if(MT_getStepNo() == 0) state.recordSimStartData(percepts)
 
 
-					// Updating the PlayerState of the player where percepts come from
+					// Updating the state of the entity where percepts come from
 					// ATTENTION: This step is already done by the MT once data is sensed, so it is technically not necessary
-					// The skill S_MassimTalking already maintains and updates upon sensing a PlayerState object per connected player 
-					// That state can be accessed via MT_getPlayerState(playerName)
-					// MT_updatePlayerState(playerName, percepts) // update the agent data
+					// The skill S_MassimTalking already maintains and updates upon sensing the state of connected  entities
+					// That state can be accessed via MT_getEntityState(entityName) as an EntityData object
+					// MT_updateEntityState(playerName, percepts) // manually update the entity data
 					
+					// Aggregate the percepts just sensed into the current state object
 					state.updateAggregatedGameState(percepts)
 					agent_shouts("State updated with percepts from entity {0}", entityName)
 					
 					facilities = state.getFacilitiesNames()
 					agent_shouts("Set of facilities known: {0}", facilities)
 			
-
 					// update the last step if the percept just processed has a higher step number
 					last_step = MT_getStepNo()
-					agent_shouts("I am finished sensing the environment - Step {0} for player {1}", MT_getStepNo(),
+					agent_shouts("I am finished sensing the environment - Step {0} for entity {1}", MT_getStepNo(),
 						entityName)
+						
+					// Finally, emit that the entity has sensed a new set of percepts (and continue with next entity)	
 					emit(new E_EntitySensed(last_step, entityName, percepts))
 
 				} catch (e : PerceiveException) {
@@ -239,15 +243,19 @@ agent SingleRandomAgent {
 					throw e
 				}
 			]) // FINISH sensing cycle for all entities - We have sensed every entity now
-			agent_shouts("Finished sensing the environment for all the player connections. Next report and act for step {0}!!!",
+			agent_shouts("Finished sensing the environment for all the entities connected. Next report and act for step {0}!!!",
 				last_step)
 		} // end of game & sensing finished
 	} // end of on E_SenseEnvironment
 
 
-	on E_EntitySensed [reportState] {
+	on E_EntitySensed {
 			reportState(occurrence.entityName)
-			agent_says(state.report());
+	}
+
+	on E_EntitySensed [reportState] {
+		agent_says("Here is the aggregated state after entity {0} has sensed: \n {1}",
+			occurrence.entityName, state.report());
 	}
 
 	/* 

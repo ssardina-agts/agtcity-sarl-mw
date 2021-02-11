@@ -29,12 +29,12 @@ import massim.protocol.scenario.city.data.EntityData
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
- * Capacity to communicate with MAC 2018 game server.
+ * Capacity to communicate with MAC 2018+ game server.
  * 
  * - connect to game server (using configuration files)
- * - register players (using configuration files for credentials)
+ * - register entities (using configuration files for credentials)
  * - perceive the environment (receive percepts)
- * - send actions to the game server (for the players registered) 
+ * - send actions to the game server (for the entities registered) 
  * 
  */
 capacity C_MassimTalking {
@@ -46,7 +46,7 @@ capacity C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Create and start the Environment Interface and register all player connections
+	 * Create and start the Environment Interface and register all entity connections
 	 * 
 	 * @return - true if initialization was successful
 	 */
@@ -62,7 +62,7 @@ capacity C_MassimTalking {
 
 
 	/* 
-	 * Make a player execute an action in the game server
+	 * Make a entity execute an action in the game server
 	 * 
 	 * @param entityName - the entity that is to execute the action
 	 * @param action - the action to send to the game server for the entity
@@ -83,12 +83,12 @@ capacity C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/* 
-	 * Obtain set of player names that have been registered
+	 * Obtain set of entity names that have been registered
 	 */
 	def MT_getEntityNames() : Set<String>
 
 	/** 
-	 * Provides a map from player names to the player state
+	 * Provides a map from entity names to the entity state
 	 */	
 	def MT_getAllEntityStates() : Map<String, EntityData>
 

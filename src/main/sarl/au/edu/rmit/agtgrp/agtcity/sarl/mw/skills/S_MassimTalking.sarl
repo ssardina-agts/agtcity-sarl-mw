@@ -116,13 +116,6 @@ skill S_MassimTalking implements C_MassimTalking {
 	// MAIN TOOLS: INTERACTION WITH GAME SERVER
 	// //////////////////////////////////////////////////////////////////////////
 
-	/* 
-	 * Sets the configuration file containing the configuration of entitys in the game
-	 */
-	def MT_setPlayerAgentsConfig(eiMassimPlayerAgentsConfigFile : Path) {
-		
-	}
-
 	/**
 	 * Register the entity named entityName to control
 	 */
