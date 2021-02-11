@@ -4,45 +4,40 @@ This is the SARL Middleware infrastructure (MW) to control an agent team in the 
 
 The MW can be used to develop SARL agent controllers for Agents in City, providing convenient capacities and skills to sense and act in the game server.
 
-
 You can see the infrastructure working by clicking on the following video:
 
 [![click to watch video](https://multiagentcontest.org/2016/banner.jpg)](https://youtu.be/nFR7Strp9ms).
-
 
 **Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
 
 This framework can be [accessible via JitPack](https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw) by adding the corresponding dependency and repository on the `pom.xml` (see below). 
 
-See general [HOWTO SARL Projects](https://gist.github.com/ssardina/43d6e6f469921e5f692b37304f952d43) guide and [SARL FAQ and Issues](https://gist.github.com/ssardina/ba59838bd6f2c2a64896e79533f35054).
-
-
 -----------------------------
-## PREREQUISITES
+## PRE-REQUISITES
 
-* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8+.
+* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8+. 
     * Tested with SUN Java 1.8 and OpenJDK 11.
 * Maven project management and comprehension tool (to meet dependencies, compile, package, run).
-* SARL modules and execution engine - Maven [repo](http://mvnrepository.com/artifact/io.sarl.maven).
-* The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server). 
-    * It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
-    * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. 
+* The [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server) (not the official 2018 server). This updated edition that brings back _items_ to _shop_ as in the 2017 version.
+
+The following  dependencies are resolved via Maven and JitPack automatically:
+
+* [SARL modules and execution engine](http://mvnrepository.com/artifact/io.sarl.maven).
+* The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server).
+    * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
     * The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
-Note this MW uses the [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server), not the official 2018 server. This updated edition brings back ites to shop as in the 2017 version.
-
-
 -----------------------------
-## USE/INSTALL AND DEVELP THE MIDDLEWARE
+## USING THE MIDDLEWARE
 
-Most of the times one would just use this middleware out-of-the-box to develop SARL Agents in City controller. 
+Most of the times one would just use this MW out-of-the-box to develop SARL controllers for the Agents in City game.
 
-To do so, you first need to have the JAR file for the MW installed in your local Maven repo for your controller application to use it. You can gather the MW via JitPack+GitHub by adding it as a dependency in the `pom.xml` file of your SARL application as follows:
+You can gather the MW via JitPack+GitHub by adding it as a dependency in the `pom.xml` file of your SARL application as follows:
 
 ```xml
 <properties>
-	<!-- SARL Agt City MW version -->
-	<agtcity-sarl-mw.version>0.10.0</agtcity-sarl-mw.version>
+	<!-- SARL Agt City MW version - can use tag or commit hash id -->
+	<agtcity-sarl-mw.version>1.2.${sarl.version}</agtcity-sarl-mw.version>
 	...
 </properties>
 
@@ -62,7 +57,7 @@ To do so, you first need to have the JAR file for the MW installed in your local
 </dependency>
 ```
 
-Alternatively, if you have the JAR file already of the MW, you can install it in your local Maven repo by running:
+Alternatively, if you have the JAR file already of the MW, you can manually install it in your local Maven repo by running:
 
 ```shell
 
@@ -71,13 +66,15 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 ```
 
 ----------------------------
-## RUN MW DEMO
+## RUN DEMO
 
-The MW comes with two simple agent controllers that can be used to test it when developing it further (see below for detailed explanations).
+The MW comes with two simple agent controllers that can be used for testing.
 
 1. **Start Game Server**. For example, from `server/` subdir:
 
-		java -jar target/server-2020-1.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
+	```bash
+	java -jar target/server-2020-1.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
+	```
 
 	Note that the configuration file (here, `conf/SampleConfig.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
 
@@ -85,13 +82,13 @@ The MW comes with two simple agent controllers that can be used to test it when 
 
 2. **Start the SARL demo controller**, either via ECLIPSE or through the CLI. For example:
 
-		```
-		mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
-		```
+	```bash
+	mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
+	```
 	
-	See below under Examples for more information on the two "dummy" controller examples provided here in the MW, mostly for testing and as agent templates.
+	See below under _Examples_ for more information on the two "dummy" controller examples provided here in the MW, mostly for testing and as agent templates.
 
-3. **Start simulation** by just hitting *ENTER* in the Game Server console.
+3. **Start the game simulation** by just hitting *ENTER* in the Game Server console.
 	* The web GUI should start displaying/monitoring the simulation.
 4. **Enjoy!** You should start seeing the agent reporting things in the console. 
     * You can see the simulation on the web browser.

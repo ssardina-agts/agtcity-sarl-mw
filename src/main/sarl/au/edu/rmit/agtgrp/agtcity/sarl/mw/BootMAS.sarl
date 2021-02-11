@@ -3,10 +3,9 @@
  */
 package au.edu.rmit.agtgrp.agtcity.sarl.mw
 
-
-import io.janusproject.Boot
-
+import io.sarl.bootstrap.SRE
 import io.sarl.lang.core.Agent
+
 import java.util.Scanner
 
 /** 
@@ -18,18 +17,16 @@ import java.util.Scanner
  * 2) the directory where the configuration file eismassimconfig.json is located (if missing agent will list and ask)
  * 
  */
-//@SuppressWarnings("potential_field_synchronization_problem")
 @SuppressWarnings("all")
 class BootMAS {
 	// Code adapted from example how to boot from name string: 	http://tinyurl.com/ycolmey5
 	def static main(args : String[]) : void {
-		Boot.offline = true
-		Boot.verboseLevel = 7 // ALL
+		var sre = SRE::bootstrap
+		sre.verboseLevel = 7
+
 		val basePackage = "au.edu.rmit.agtgrp.agtcity.sarl.mw.agents"
 		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent"]
 
-		// Boot a specific one and that' s it
-		// Boot.startJanus(typeof(DummyMultiCarController))
 		var agentToLaunch : String
 		if (args.length == 0) { // if not agent given in CLI argument, list the available ones and ask user for one
 			agentToLaunch = getSelectionFromuser("Choose the controller to run: ", AGENTS_AVAILABLE)
@@ -59,14 +56,18 @@ class BootMAS {
 		assert SARLagent != null;
 
 		if (args.length == 2) { // second CLI argument states which config dir has to be used to find "eismassimconfig.json"
-			Boot.startJanus(SARLagent, args.get(1))	// pass it to agent if there was one
+			sre.startAgent(SARLagent, args.get(1)) 		// pass it to agent if there was one
 		} else {
-			Boot.startJanus(SARLagent)
+			sre.startAgent(SARLagent)
 		}
 
 		
 	}
 
+	/** 
+	 * Given a set of options, present them with a message and ask user to select one; return the option string
+	 */
+	@SuppressWarnings("discouraged_reference")
 	static def getSelectionFromuser(message : String, options : String[]) : String {
 		for (var i = 0; i < options.size; i++) {
 			System.out.println(String.format("%d. %s", i + 1, options.get(i)))

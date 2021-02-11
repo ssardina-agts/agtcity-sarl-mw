@@ -1,14 +1,15 @@
-<!-- SARL-MASSIM - Interface between the SARL agent-oriented language and 
-    the MASSIM RMIT 2018+ server Copyright (C) 2017 The SARL-MASSIM Authors. This program 
-    is free software: you can redistribute it and/or modify it under the terms 
+<!-- SARL-MASSIM - Interface between the SARL agent-oriented language and the MASSIM RMIT 2018+ server 
+    Copyright (C) 2017 The SARL-MASSIM Authors. 
+    
+    This program is free software: you can redistribute it and/or modify it under the terms 
     of the GNU General Public License as published by the Free Software Foundation, 
     either version 3 of the License, or (at your option) any later version. This 
     program is distributed in the hope that it will be useful, but WITHOUT ANY 
     WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
     You should have received a copy of the GNU General Public License along with 
-    this program. If not, see <http://www.gnu.org/licenses/>. -->
-
+    this program. If not, see <http://www.gnu.org/licenses/>. 
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -48,19 +49,14 @@
     <properties>
 		<!--  Maven boot class for mvn exec:java -->
 		<boot.class>au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS</boot.class>
-		<!-- <mainClass>io.janusproject.Boot</mainClass>  -->
-
 
         <!-- SARL framework version and configuration -->
-        <!-- <sarl.version>${env.SARL_VERSION}</sarl.version> -->
-        <sarl.version>0.10.0</sarl.version>
-        
+        <sarl.version>0.11.0</sarl.version>
+        <janus.version>3.${sarl.version}</janus.version>
+      
 
         <compiler.level>1.8</compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- JANUS project version -->
-        <janus.version>2.${sarl.version}</janus.version>
 
         <!--  EIS-MASSIM Environment Interface Standard -->
         <!-- https://github.com/agentcontest/massim/blob/massim-2018-1.2/docs/eismassim.md -->
@@ -78,8 +74,46 @@
             <artifactId>io.janusproject.kernel</artifactId>
             <version>${janus.version}</version>
             
-            
-                        <exclusions>
+			<exclusions>
+			
+			
+			
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.jobs</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.registry</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.preferences</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.preferences</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.contenttype</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.app</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+              </exclusion>
               <exclusion>
                 <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.common</artifactId>
@@ -233,6 +267,7 @@
 	       <plugin>  <!-- Create sources.jar -->
 	              <groupId>org.apache.maven.plugins</groupId>
 	              <artifactId>maven-source-plugin</artifactId>
+                  <version>3.2.0</version>
 	              <executions>
 	                    <execution>
 	                          <id>attach-sources</id>
@@ -249,6 +284,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
                 <configuration>
 	                <addClasspath>true</addClasspath>
 	                <mainClass>${boot.class}</mainClass>
