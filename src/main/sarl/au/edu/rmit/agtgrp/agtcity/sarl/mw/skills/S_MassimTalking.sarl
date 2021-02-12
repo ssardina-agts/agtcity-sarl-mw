@@ -247,11 +247,11 @@ skill S_MassimTalking implements C_MassimTalking {
 	        // Filter the entities to the ones with name in global variable myEntities
 			// Result stored in jsonEntitiesFiltered
 	        var jsonEntities : JSONArray = config.optJSONArray("entities")
-	        if(jsonEntities === null) jsonEntities = new JSONArray()
+	        if (jsonEntities === null) jsonEntities = new JSONArray()
 			var jsonEntitiesFiltered = new JSONArray()
 			for (var i = 0; i < jsonEntities.length(); i++) {
 				val jsonEntity : JSONObject = jsonEntities.optJSONObject(i)
-				if(jsonEntity == null) continue
+				if (jsonEntity === null) continue
 				val name : String = jsonEntity.optString("name")
 				if (entities.contains(name)) { // FILTER HAPPENS HERE!!
 					jsonEntitiesFiltered.put(jsonEntity)
