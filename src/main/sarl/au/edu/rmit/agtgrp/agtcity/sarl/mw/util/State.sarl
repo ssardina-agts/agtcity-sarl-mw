@@ -34,7 +34,6 @@ import java.util.Collection
 import java.util.HashMap
 import java.util.HashSet
 import java.util.List
-import java.util.Map
 import java.util.Set
 import java.util.function.Predicate
 import massim.protocol.scenario.city.data.AuctionJobData
@@ -260,7 +259,6 @@ class State implements Cloneable  {
 	 */
 	def isAtShop(entityName : String) : boolean {
 		val entityData = entities.get(entityName)
-		System.out.println("###############################")
 		return (isAtFacility(entityName) && shops.containsKey(entityData.facility))
 	}
 

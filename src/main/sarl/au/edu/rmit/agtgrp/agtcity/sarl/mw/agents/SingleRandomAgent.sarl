@@ -85,7 +85,7 @@ agent SingleRandomAgent {
 	val eiRegistrationFileName = "eismassimconfig.json" 
 
 	// Entities to register in the server and control
-	val myConnectedEntities = #["entityA1"] 
+	val myConnectedEntities = #["entityA1", "entityA4"] 
 
 	// Data kept by this single SARL agent
 	var last_step : int = -1
@@ -260,28 +260,33 @@ agent SingleRandomAgent {
 	on E_EntitySensed {
 			reportState(occurrence.entityName)
 	}
-
 	on E_EntitySensed [reportState] {
+		val entityName = occurrence.entityName
+
 		agent_says("Here is the aggregated state after entity {0} has sensed: \n {1}",
-			occurrence.entityName, state.report());
+			entityName, state.report());
 	}
 
-	
-	/* s
-	 * When the agent is traveling, just continue
+	// Need to recharge from solar!
+	on E_EntitySensed [MT_getEntityState(occurrence.entityName).charge == 0] {
+		val entityName = occurrence.entityName
+		
+		agent_says("Entity **{0}** is low in charge, charging from solar", entityName)
+		MT_executeAction(occurrence.entityName, action_recharge)
+	}
+
+	/* 
+	 * When the agent is traveling and with fuel, just continue
 	 */
-	on E_EntitySensed [MT_getEntityState(entityName).routeLength > 0] {
+	on E_EntitySensed [MT_getEntityState(occurrence.entityName).routeLength > 0 &&
+		MT_getEntityState(occurrence.entityName).charge > 0] {
+			
 		val entityName = occurrence.entityName
 		val entity = MT_getEntityState(entityName)
 
-		if (entity.charge < 1) {
-			agent_says("Entity **{0}** is low in charge, charging from solar", entityName)
-			MT_executeAction(entityName, action_recharge)
-		} else {
-			agent_says("Seems entity **{0}** is already traveling: {1} steps to go!", entityName, entity.routeLength)
-			if (!MT_executeAction(entityName, action_continue))
-				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
-		}
+		agent_says("Continuing the path for entity **{0}**: {1} steps to go!", entityName, entity.routeLength)
+		if (!MT_executeAction(entityName, action_continue))
+			agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
 	}
 
 	/* 
@@ -291,7 +296,9 @@ agent SingleRandomAgent {
 	 * If we know of a shop, start going there
 	 * Otherwise, do nothing (wait for a shop to be known)
 	 */
-	on E_EntitySensed [MT_getEntityState(entityName).routeLength == 0]  {
+	on E_EntitySensed [MT_getEntityState(occurrence.entityName).routeLength == 0 &&
+		MT_getEntityState(occurrence.entityName).charge > 0] {
+			
 		val entityName = occurrence.entityName
 		val entityData = MT_getEntityState(entityName)
 		val shops = state.getShops()	// shops we know about
@@ -316,13 +323,26 @@ agent SingleRandomAgent {
 		}
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * The current state of an entity.
 	 * This is printed every step for each entity this SARL agent controls.
 	 *
 	 * @param entity to report for
 	 */
-	def reportState(entity : String) {
+	def reportState(entityName : String) {
 		val reportText = String.format(
 		"\n======================== REPORT FOR ENTITY **%s** ========================\n" +
 		"REPORT OF ENTITY: %s\n" +	
@@ -332,15 +352,15 @@ agent SingleRandomAgent {
 		"Team name: %s\n" + 
 		"Entities known: %s\n" +		
 		"========================== REPORT FOR ENTITY %s ==========================",
-		entity,
-		MT_reportEntityState(entity),
+		entityName,
+		MT_reportEntityState(entityName),
 		state.mapName,
 		state.simulationLength,
 		state.money,
 		state.seedCapital, 
 		state.team,
 		state.entities.keySet(),
-		entity
+		entityName
 		)
 		
 		agent_says(reportText) 
