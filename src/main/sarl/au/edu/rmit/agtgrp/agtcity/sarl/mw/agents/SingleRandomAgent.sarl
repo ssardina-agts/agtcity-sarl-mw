@@ -48,7 +48,7 @@ import java.util.Set
 event E_SenseEnvironment
 
 /**
- * Signal the sensing of some entity (i.e., player agent in the game) at a given step number
+ * Signal the sensing of some entity (i.e., entity agent in the game) at a given step number
  */
 event E_EntitySensed {
 	var stepNo : int
@@ -73,6 +73,8 @@ agent SingleRandomAgent {
 	uses Schedules
 
 	val myName = "Single-RANDOM-Agent"
+	val action_recharge = new Action("recharge")
+	val action_continue = new Action("continue")
 
 	val agentLogLevel = 4 		// debug = 4 this is for the high-level agent, not for SARL
 	val reportEILog = false	// Report XML messages from server 
@@ -200,14 +202,16 @@ agent SingleRandomAgent {
 					// Collect all percepts received by the entity -- will block until percept is received from server
 					// In general, all percepts for the entity: (role of agent --> collection of single percepts)
 					// In this game, players usually are of one role, so an entity will receive just one set of single percepts
-					debug("About to sense percepts for step {0} in player {1}", last_step + 1, entityName)
+					// The MW will save the data for each entity as an EnityData object
+					// which can be retrieved via  MT_getEntityState(entityName)
+					debug("About to sense percepts for step {0} in entity {1}", last_step + 1, entityName)
 					var percepts : Collection<Percept> percepts = MT_senseEntityPercepts(entityName) // This is BLOCKING!!
 					
 					// TODO: Change this to debug log
 					//var plist = percepts.stream().map([p | return p.name]).collect(Collectors.toList)
 					//System.out.println(String.join(",", plist))
 
-					agent_says("I have just sensed player {0} at step {1}", entityName, MT_getStepNo())
+					agent_says("I have just sensed entity {0} at step {1}", entityName, MT_getStepNo())
 
 					// Collect information from SIM-START percepts regarding static info of the simulation
 					// https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
@@ -215,15 +219,14 @@ agent SingleRandomAgent {
 						agent_says("Loading static info about simulation from sim-start percepts from entity {0}",
 							entityName)
 						state.recordSimStartData(percepts)
-						
-						}
+					}
 
 
-					// Updating the state of the entity where percepts come from
-					// ATTENTION: This step is already done by the MT once data is sensed, so it is technically not necessary
-					// The skill S_MassimTalking already maintains and updates upon sensing the state of connected  entities
-					// That state can be accessed via MT_getEntityState(entityName) as an EntityData object
-					// MT_updateEntityState(playerName, percepts) // manually update the entity data
+					// Not needed anymore, the MW does this automatically when it consumes the percept for the entity above
+					// MT_updateEntityState(entityName, percepts) // manually update the entity data
+					
+					// update the data of this entity in the state object
+					state.updateEntityData(entityName, MT_getEntityState(entityName))
 					
 					// Aggregate the percepts just sensed into the current state object
 					state.updateAggregatedGameState(percepts)
@@ -243,7 +246,7 @@ agent SingleRandomAgent {
 				} catch (e : PerceiveException) {
 					agent_shouts("There was an error in perception ({0}), maybe not yet connected? Will try later...", e.message)
 				} catch (e : Exception) {
-					error("Something bad has happened during perception for player **{0}**: {1}", entityName,
+					error("Something bad has happened during perception for entity **{0}**: {1}", entityName,
 						e.toString)
 					throw e
 				}
@@ -263,17 +266,22 @@ agent SingleRandomAgent {
 			occurrence.entityName, state.report());
 	}
 
-	/* 
+	
+	/* s
 	 * When the agent is traveling, just continue
 	 */
 	on E_EntitySensed [MT_getEntityState(entityName).routeLength > 0] {
 		val entityName = occurrence.entityName
 		val entity = MT_getEntityState(entityName)
 
-		agent_says("Seems player **{0}** is already traveling: {1} steps to go!", entityName, entity.routeLength)
-		if (!MT_executeAction(entityName, new Action("continue")))
-			agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
-
+		if (entity.charge < 1) {
+			agent_says("Entity **{0}** is low in charge, charging from solar", entityName)
+			MT_executeAction(entityName, action_recharge)
+		} else {
+			agent_says("Seems entity **{0}** is already traveling: {1} steps to go!", entityName, entity.routeLength)
+			if (!MT_executeAction(entityName, action_continue))
+				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", "continue", entityName)
+		}
 	}
 
 	/* 
@@ -285,28 +293,22 @@ agent SingleRandomAgent {
 	 */
 	on E_EntitySensed [MT_getEntityState(entityName).routeLength == 0]  {
 		val entityName = occurrence.entityName
-		val entity = MT_getEntityState(entityName)
+		val entityData = MT_getEntityState(entityName)
 		val shops = state.getShops()	// shops we know about
-		agent_shouts("Entity {1} will report and act for step {0}!!!", last_step, entityName)
+		agent_shouts("Entity {1} is not moving at step {0}. Will instruct to buy or go to another shop", last_step, entityName)
 
-		if (entity.facility !== null 
-			&& shops.containsKey(entity.facility) 
-			&& entity.lastAction.type != "buy"
-		) { // we are at a shop, by some item?
-			val stock = shops.get(entity.facility).stocks
-			val item = stock.get(rand.nextInt(stock.size() - 1))
+		if (state.isAtShop(entityName) 	&& entityData.lastAction.type != "buy") { // buy something!
+			val stock = shops.get(entityData.facility).stocks
+			val item = stock.get(rand.nextInt(stock.size() - 1))	// pick a random item in the shop
 			val quantity = "1"
 
-			agent_says("I will ask player **{1}** to to buy {0}", item.name, entityName)
+			agent_says("Entity **{1}** to buy {0}", item.name, entityName)
 			if (!MT_executeAction(entityName, new Action("buy", new Identifier(item.name), new Identifier(quantity))))
 				agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
-		} else if (shops.size() > 0) {	// We know some shop
-			// Pick some random facility and go!
-			// val destination = facilities.get(rand.nextInt(facilities.length - 1))
-			// Pick a random shop and go
+		} else if (shops.size() > 0) {	// We know some shop: pick one and go!
 			val destination = shops.values().get(rand.nextInt(shops.size() - 1))
 
-			agent_says("I will send player **{1}** to location {0}", destination.name, entityName)
+			agent_says("I will send entity **{1}** to location {0}", destination.name, entityName)
 			if (!MT_executeAction(entityName, new Action("goto", new Identifier(destination.name))))
 				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination.name, entityName)
 		} else {
@@ -342,9 +344,6 @@ agent SingleRandomAgent {
 		)
 		
 		agent_says(reportText) 
-		
-		
-		
 	}
 	
 }

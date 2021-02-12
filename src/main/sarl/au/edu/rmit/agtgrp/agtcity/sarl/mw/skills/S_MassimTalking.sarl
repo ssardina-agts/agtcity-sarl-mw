@@ -73,7 +73,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	var stepNo : int = 0 // last step number seen
 
 	
-	/* 
+	/**
 	 * EISMASSim is based on the Environment Interface Standard (EIS), a proposed standard for agent-environment interaction. 
 	 * 
 	 * EISMASSim maps the communication between entitys and the MASSim server, (i.e. sending and receiving XML-messages), 
@@ -86,19 +86,11 @@ skill S_MassimTalking implements C_MassimTalking {
 	 */
 	var public ei : EnvironmentInterface // main handler for the skill (from massim.eismassim)
 
-	/* 
-	 * Stores all the entities in the game server that I will connect and control
-	 */
+	// Sets of entities to be controlled the MW
 	var myEntities : Set<String> = new HashSet<String>
-
-	
-	/* 
-	 * Store information about entities in the game (indexed by their name) 
-	 * (for all that have been authenticated in the game server)
-	 * 
-	 */
+	// Current information for each entity that has been authenticated in the game server 
 	var entities : Map<String, EntityData> = new HashMap<String, EntityData>()
-
+	// Last changes (wrt last sensing) recorded for each entity
 	var entitiesLastChanges : Map<String, Set<String>> = new HashMap<String, Set<String>>()
 
 
@@ -117,17 +109,22 @@ skill S_MassimTalking implements C_MassimTalking {
 	// //////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Register the entity named entityName to control
+	 * Register an entity in the MW for control. 
+	 * Entities are not connected until MW is initialized.
+	 * 
+	 * @param entityName name of the entity to be registered in the MW
 	 */
 	def MT_registerEntityByName(entityName : String) {
 		myEntities.add(entityName)
 	}
 
 
-	/*
+	/**
 	 * Initialize and start the Environment Interface. 
 	 * 
 	 * Creates the EI, connects all entities to game server, and register appropriate EI agents to control them
+	 * 
+	 * @return  true if EI is connected to the server
 	 */
 	def MT_initialize() : boolean {
 		if (eiRegistrationFile === null) {
@@ -169,8 +166,8 @@ skill S_MassimTalking implements C_MassimTalking {
 		return connected
 	}
 
-	/* 
-	 * Make a player execute an action in the game server
+	/** 
+	 * Make an entity execute an action in the game server
 	 * 
 	 * @param entityName - the entity that is to execute the action
 	 * @param action - the action to send to the game server for the entity
@@ -281,12 +278,20 @@ skill S_MassimTalking implements C_MassimTalking {
 
 	/* 
 	 * Obtain the current state of the environment interface (paused, running, killed)
+	 * 
+	 * @return the state of the environment (paused, running, killed)
 	 */
 	@Pure
 	def MT_getStatus() : EnvironmentState {
 		return ei.getState()
 	}
 
+
+	/**
+	 * Provides all entities registered
+	 * 
+	 * @return a set of entity names
+	 */
 	@Pure
 	def MT_getEntityNames() : Set<String> {
 		return entities.keySet()
@@ -294,44 +299,24 @@ skill S_MassimTalking implements C_MassimTalking {
 
 	/** 
 	 * Provides a map from entity names to the entity state
+	 * 
+	 * @return map from entity names to entity data object
 	 */
 	@Pure
 	def MT_getAllEntityStates() : Map<String, EntityData> {
 		return entities
 	}
 
+	/** Retrieve the data for the entity 
+	 * 
+	 * @param entityName: the name of the entity to update
+	 * @return - current EntityData object for the entity
+	 */
 	@Pure
 	def MT_getEntityState(entityName : String) : EntityData {
 		return entities.get(entityName)
 	}
 	
-
-	/**
-	 * Update an specific entity state given set of percepts.
-	 * 
-	 * @param entityName: the name of the entity to update
-	 * @percepts: collection of percepts
-	 */
-	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>): void {
-		val attributesUpdated = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
-
-		// record what has changed for that entity
-		entitiesLastChanges.put(entityName, attributesUpdated)
-		
-		debug(String.format("Fields changed when updating the state of entity *%s*: %s", entityName, String.join(",", attributesUpdated)))
-		
-		val stepNo = Util.getStepNo(percepts)
-		
-		if (this.stepNo < stepNo) {
-			this.stepNo = stepNo
-		}
-	}
-
-	@Pure
-	def MT_reportEntityState(entityName : String) : String {
-		return CityAgentEntityManager.reportState(entities.get(entityName))
-	}
-
 	/** 
 	 * Retrieve the last step number sensed
 	 * 
@@ -342,6 +327,53 @@ skill S_MassimTalking implements C_MassimTalking {
 		return stepNo
 	}
 
+	
+	
+
+	// /////////////////////////////////////////////////////////////////////////////
+	//	CHECKERS
+	// /////////////////////////////////////////////////////////////////////////////
+	
+	
+	
+	// /////////////////////////////////////////////////////////////////////////////
+	//	OTHERS
+	// /////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Reports the state of an entity as a String
+	 * 
+	 * @param entityName: the name of the entity to update
+	 * @return a String denoting the state of the entity
+	 */
+	@Pure
+	def MT_reportEntityState(entityName : String) : String {
+		return CityAgentEntityManager.reportState(entities.get(entityName))
+	}
+
+	/** 
+	 * Update an entity's state using a set of percepts
+	 * 
+	 * @param entityName: the name of the entity to update
+	 * @percepts: collection of percepts
+	 */
+	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>) : void {
+		val attributesUpdated = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
+
+		// record what has changed for that entity
+		entitiesLastChanges.put(entityName, attributesUpdated)
+
+		debug(
+			String.format("Fields changed when updating the state of entity *%s*: %s", entityName,
+				String.join(",", attributesUpdated)))
+
+		val stepNo = Util.getStepNo(percepts)
+
+		if (this.stepNo < stepNo) {
+			this.stepNo = stepNo
+		}
+	}
+	
 	// //////////////////////////////////////////////////////////////////////////
 	// //////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////

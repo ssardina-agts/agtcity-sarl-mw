@@ -142,7 +142,15 @@ class State implements Cloneable  {
 			}
 		}
 	}
-	
+
+	/** Update the data of an entity
+	 * 
+	 * @param entityName entity to update its data object
+	 * @param entityData the object containing the state of the entity
+	 */
+	def updateEntityData(entityName : String, entityData : EntityData) : void {
+		entities.put(entityName, entityData)
+	}
 
 	/**
 	 * Updates the aggregated game state.
@@ -229,21 +237,52 @@ class State implements Cloneable  {
 	 * Have the info from the simulation loaded already in the state?
 	 */
 	def isSimStartLoaded() : boolean {
-		return ! (mapName === null)
+		return mapName !== null
+	}
+
+	/**
+	 * Is the entity currently in a facility?
+	 * 
+	 * @param entityName the name of the entity
+	 * @return true if entity is currently in a facility
+	 */
+	def isAtFacility(entityName : String) : boolean {
+		val x = entities.get(entityName)
+		
+		return (x.facility !== null)
+	}
+
+	/** 
+	 * Is the entity currently in a shop facility?
+	 * 
+	 * @param entityName the name of the entity
+	 * @return true if entity is currently in a facility
+	 */
+	def isAtShop(entityName : String) : boolean {
+		val entityData = entities.get(entityName)
+		System.out.println("###############################")
+		return (isAtFacility(entityName) && shops.containsKey(entityData.facility))
+	}
+
+	/** 
+	 * Is the entity currently in a charging station facility?
+	 * 
+	 * @param entityName the name of the entity
+	 * @return true if entity is currently in a charging station facility
+	 */
+	def isAtChargingStation(entityName : String) : boolean {
+		val entityData = entities.get(entityName)
+		return (entityData.facility !== null && chargingStations.containsKey(entityData.facility))
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	GETTERS
 	// /////////////////////////////////////////////////////////////////////////////
 
-	/*
-	 * Methods to extract individual information from percepts
-	 * 
-	 * @return entity hashmap name -> EntityData
-	 */
-
 	/** 
 	 * Get team member entities with basic details.
+	 * 
+	 * @return a map from entity names in the team to their current data as EntityData objects
 	 */
 	def getTeamEntities() : HashMap<String, EntityData> {
 		return getMatchingEntities([ entity : EntityData |
@@ -255,7 +294,7 @@ class State implements Cloneable  {
 	/** 
 	 * Get opposition entities with basic details.
 	 * 
-	 * @return entity HashMap name -> EntityData
+	 * @return a map from entity names in the opposition team to their current data as EntityData objects
 	 */
 	def getOppositionEntities() : HashMap<String, EntityData> {
 		return getMatchingEntities([ entity : EntityData |
@@ -268,7 +307,7 @@ class State implements Cloneable  {
 	 * Get entities matching a predicate with basic details.
 	 * 
 	 * @param filter a predicate to filter by
-	 * @return entity HashMap name -> EntityData
+	 * @return a map from entity names to entity information as EntityData that match the filter
 	 */
 	def getMatchingEntities(filter : Predicate<EntityData>) : HashMap<String, EntityData> {
 		val filtered_entities : HashMap<String, EntityData> = newHashMap()
@@ -302,7 +341,7 @@ class State implements Cloneable  {
 	/**
 	 * Get all charging stations
 	 *
-	 * @returns the set of names of known charging station facilities
+	 * @returns a map from known charging station names to their information as a ChargingStationData object
 	 */
 	def getChargingStations() : HashMap<String, ChargingStationData> {
 		return getFacilities(typeof(ChargingStationData))
@@ -310,8 +349,8 @@ class State implements Cloneable  {
 
 	/**
 	 * Get all dumps
-	 *
-	 * @returns the set of names of known dump facilities
+	 * 
+	 * @returns a map from known dumps names to their information as a DumpData object
 	 */
 	def getDumps() : HashMap<String, DumpData> {
 		return getFacilities(typeof(DumpData))
@@ -319,35 +358,35 @@ class State implements Cloneable  {
 
 	/**
 	 * Get all resource nodes
-	 *
-	 * @returns the set of names of known resource node facilities
+	 * 
+	 * @returns a map from known resource node names to their information as a ResourceNodeData object
 	 */
 	def getResourceNodes() : HashMap<String, ResourceNodeData> {
 		return getFacilities(typeof(ResourceNodeData))
 	}
 
 	/**
-	 * Get all shops
-	 *
-	 * @returns the set of names of known shop facilities
+	 * Get all known shops
+	 * 
+	 * @returns a map from known shop names to their information as a ShopData object
 	 */
 	def getShops() : HashMap<String, ShopData> {
 		return getFacilities(typeof(ShopData))
 	}
 
 	/**
-	 * Get all storages
-	 *
-	 * @returns the set of names of known storage facilities
+	 * Get all known storages
+	 * 
+	 * @returns a map from known storage names to their information as a StorageData object
 	 */
 	def getStorages() : HashMap<String, StorageData> {
 		return getFacilities(typeof(StorageData))
 	}
 
 	/**
-	 * Get all wells
-	 *
-	 * @returns a HashMap of known well facilities
+	 * Get all known wells
+	 * 
+	 * @returns a map from known well names to their information as a WellData object
 	 */
 	def getWells() : HashMap<String, WellData> {
 		return getFacilities(typeof(WellData))
@@ -355,8 +394,8 @@ class State implements Cloneable  {
 
 	/**
 	 * Get all workshops
-	 *
-	 * @returns the set of names of known workshop facilities
+	 * 
+	 * @returns a map from known workshop names to their information as a WorkshopData object
 	 */
 	def getWorkshops() : HashMap<String, WorkshopData> {
 		return getFacilities(typeof(WorkshopData))
@@ -380,9 +419,9 @@ class State implements Cloneable  {
 	}
 
 	/**
-	 * Get all regular jobs
-	 *
-	 * @returns the set of names of known regular jobs
+	 * Get all current  regular jobs
+	 * 
+	 * @returns a map from known regular jobs names to their information as a JobData object
 	 */
 	def getRegularJobs() : HashMap<String, JobData> {
 		val filtered_jobs : HashMap<String, JobData> = new HashMap();
@@ -397,8 +436,8 @@ class State implements Cloneable  {
 
 	/**
 	 * Get all auctions
-	 *
-	 * @returns the set of names of known auction jobs
+	 * 
+	 * @returns a map from known auction names to their information as a AuctionData object
 	 */
 	def getAuctionJobs() : HashMap<String, AuctionJobData> {
 		return getJobs(typeof(AuctionJobData))
@@ -406,8 +445,8 @@ class State implements Cloneable  {
 
 	/**
 	 * Get all missions
-	 *
-	 * @returns the set of names of known mission jobs
+	 * 
+	 * @returns a map from known mission names to their information as a MissionData object
 	 */
 	def getMissionJobs() : HashMap<String, MissionData> {
 		return getJobs(typeof(MissionData))
@@ -431,12 +470,21 @@ class State implements Cloneable  {
 	}
 
 	/**
-	 * Step last seen getters for all relevant data types.
+	 * The last step a facility has been sensed
+	 * 
+	 * @param d an object containing the data of a facility
+	 * @return last step the facility has been observed/sensed
 	 */
 	def getStepLastSeen(d : FacilityData) : int {
 		return getStepLastSeen(d.getName())
 	}
 
+	/** 
+	 * The last step a job has been sensed
+	 * 
+	 * @param d an object containing the data of a job
+	 * @return last step the job has been observed/sensed
+	 */
 	def getStepLastSeen(d : JobData) : int {
 		return getStepLastSeen(d.getId())
 	}
@@ -445,33 +493,15 @@ class State implements Cloneable  {
 		return getStepLastSeen(d.getName())
 	}
 
+	/** 
+	 * The last step something has been perceived
+	 * 
+	 * @param id the id of what has been perceived
+	 * @return last step the object has been perceived
+	 */
 	def getStepLastSeen(id : String) : int {
 		return this.stepLastSeen.containsKey(id) ? this.stepLastSeen.get(id) : -1
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	///////////////////////////////////////////////////////////////////////////////
