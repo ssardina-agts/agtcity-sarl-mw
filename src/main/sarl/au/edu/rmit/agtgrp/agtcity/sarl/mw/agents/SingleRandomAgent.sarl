@@ -209,9 +209,14 @@ agent SingleRandomAgent {
 
 					agent_says("I have just sensed player {0} at step {1}", entityName, MT_getStepNo())
 
-					// If this is first step, then percepts has SIM-START percepts, collect them all in state
+					// Collect information from SIM-START percepts regarding static info of the simulation
 					// https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md#sim-start-percepts
-					if(MT_getStepNo() == 0) state.recordSimStartData(percepts)
+					if (MT_getStepNo() == 0 || !state.isSimStartLoaded) {
+						agent_says("Loading static info about simulation from sim-start percepts from entity {0}",
+							entityName)
+						state.recordSimStartData(percepts)
+						
+						}
 
 
 					// Updating the state of the entity where percepts come from
@@ -317,8 +322,9 @@ agent SingleRandomAgent {
 	 */
 	def reportState(entity : String) {
 		val reportText = String.format(
-		"\n========================== REPORT FOR ENTITY %s ==========================\n" +
+		"\n======================== REPORT FOR ENTITY **%s** ========================\n" +
 		"REPORT OF ENTITY: %s\n" +	
+		"-------------------------------------------------\n" + 
 		"Playing in map **%s** for **%d** simulation steps\n" +  
 		"Team money: %d (seed capital was: %d)\n" + 
 		"Team name: %s\n" + 
