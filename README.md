@@ -104,25 +104,23 @@ Because the framework involves the [MASSIM game server](https://github.com/ssard
     - A **name**, like `connectionA1`.
     - A **username** (e.g., `agentA1`) and a **password** to be able to successfully establish the connection to the entity in the game server.
 
-2. The username of an entity connection is linked to a real game **game entity agent** (e.g., a particular truck or drone) in the game simulator. This is the name (e.g., "agentA1") that apperas in the  percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone. 
+2. The username of an entity connection is linked to a real game **game entity agent** (e.g., a particular truck or drone) in the game simulator. This is the name (e.g., "agentA1") that appears in the  percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone.
     
 3. A **player** agent in the EI links to or exposes an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity connection>`, for example `player_connectionA1`. 
-    - Potentially, the EI could link a "player" to many entity connections, but for simplicity we don't do that and establish a 1-to-1 mapping between EI players and sever entity connnections.
+    - Potentially, the EI could link a "player" to many entity connections, but for simplicity we don't do that and establish a 1-to-1 mapping between EI players and sever entity connections.
 
 
 So, `connectionA1` will be linked to `agentA32`, which is a truck vehicle in the game and will be exposed by the EI as `player_connectionA1` (which will be used to receive percepts and send actions via `connectionA1` to agent entity `agentA32`).
-
-
 
 ----------------------------
 ## INFRASTRUCTURED PROVIDED
 
 The MW provides:
 
-* A capacity and associated skill
-
-So, what is provided by this package?
-
+1. A capacity and associated skill `MassimTalking` to talk to the game server.
+2. A capacity and associated skill `Reporting` to communicate information (in console).
+3. A class `State` that can store the current overall state of those entities connected.
+4. Utility classes to create and update objects carrying domain information.
 
 ## MassimTalking Capacity and Skill 
 
@@ -130,7 +128,6 @@ The main component of this infrastructure are the two capabilities provided with
 
 * **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agent players, and control such players, by receiving their sensing percepts and performing actions in the simulation.
 	* The skill **S_MassimTalking** implements this capability.
-
 
 The main tools provided by the **C_MassimTalking** capability are:
 
@@ -150,17 +147,12 @@ The main tools provided by the **C_MassimTalking** capability are:
 	* `MT_getPlayerState(playerName : String) : PlayerState`: get the `PlayerState` of a given registered player.
 	* `MT_getStatus() : EnvironmentState`: get the state of the EI.
 
-The **S_MassimTalking** skill makes use of entity class **PlayerState** to store each player registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
-
-
-
+The **S_MassimTalking** skill makes use of entity class **EntityData** to store the lastest info about each entity registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
 
 ## Reporting Capacity and Skill 
 
 **C_Reporting**: a capability to report information.
 	* The skill **S_ConsoleReporting** implements this capability by printing on console.
-
-
 
 ### Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
 
@@ -174,10 +166,9 @@ Both are used by the demo **SchedulerAgent** to inform the dummy agents of the p
 
 There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
 
+## Aggregator `au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State`
 
-### Aggregator (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.util`)
-
-A set of classes are provided to support aggregating many percepts (for different players) into an aggregation, as there are much redundancy in the percepts received from the game server. 
+A `State` class is provided to aggregate a snapshot of the game as perceived by a SARL agent, which may sense across many entities. An object of this class can be used to carry the current snapshots of the simulator, as sensed via percepts.
 
 So, the idea is to sense all players and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
@@ -223,8 +214,6 @@ java -cp target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar io.janusproj
 
 
 One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
-
-
 
 ----------------------------
 ## PROJECT CONTRIBUTORS
