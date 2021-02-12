@@ -30,29 +30,29 @@ import java.util.Map
 import java.util.stream.Collectors
 
 class Util {
-	public static def extractDouble(param : Parameter) : double {
+	static def extractDouble(param : Parameter) : double {
         var p = param as Numeral
         return p.value.doubleValue
     }
 
-    public static def extractInt(param : Parameter) : int {
+    static def extractInt(param : Parameter) : int {
         var p = param as Numeral
         return p.value.intValue
     }
 
-    public static def extractString(param : Parameter) : String {
+    static def extractString(param : Parameter) : String {
         var p = param as Identifier
         return p.value
     }
 
-	public static def getNoOfPercepts(percepts : Collection<Percept>) : int {
+	static def getNoOfPercepts(percepts : Collection<Percept>) : int {
 		return percepts.size;
 	}
 
 
 	// The set of percepts will generally contain simStart always, even if it is not the initial percept
 	// This was done probably to have the initial configuration always available for agents to re-connect if required at any point	
-	public static def getTypePercept(percepts : Collection<Percept>) : String {
+	static def getTypePercept(percepts : Collection<Percept>) : String {
 		var seen_simStart = false
 		
 		for (p : percepts) {
@@ -80,7 +80,7 @@ class Util {
 	 * @percepts: a collection of many small percepts
 	 * @return: the agent entity name encoded in percepts
 	 */
-	public static def getAgentName(percepts : Collection<Percept>) : String {
+	static def getAgentName(percepts : Collection<Percept>) : String {
 		for (p : percepts) {
 			switch (p.name) {
 				case "name": {
@@ -97,7 +97,7 @@ class Util {
 	 * @percepts: a collection of many small percepts
 	 * @return: the step number encoded in percepts
 	 */
-	public static def getStepNo(percepts : Collection<Percept>) {
+	static def getStepNo(percepts : Collection<Percept>) {
 		return Util.extractInt(
 			percepts.stream().filter([p|"step".equals(p.name)]).collect(Collectors.toList()).get(0).parameters.get(0))
 	}
@@ -105,15 +105,15 @@ class Util {
 
 	
 	
-	public static def getLastActionResult(percepts : Collection<Percept>) : String {
+	static def getLastActionResult(percepts : Collection<Percept>) : String {
 
-		var action : String
+//		var action : String
 
 		for (p : percepts) {
 			switch (p.name) {
-				case "lastAction": {
-					action = Util.extractString(p.parameters.get(0))
-				}
+//				case "lastAction": {
+//					action = Util.extractString(p.parameters.get(0))
+//				}
 				case "lastActionResult": {
 					return Util.extractString(p.parameters.get(0))
 				}
