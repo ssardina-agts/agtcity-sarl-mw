@@ -105,6 +105,80 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
+	// AUXILIARLY PRIVATE TOOLS
+	// //////////////////////////////////////////////////////////////////////////
+
+	/* 
+	 * Register a new EI Agent and link it to some entity connection to control/sense it
+	 */
+	synchronized private def registerEIAgent(eiAgent : String, entityName : String, entityTeam : String, entityRole : String) {
+		// FIRST, we register the new EI agent name in the EI
+		try {
+			ei.registerAgent(eiAgent)
+		} catch (e : AgentException) {
+			e.printStackTrace()
+		}
+		// SECOND, we associate/link the EI agent to the entity connection entityName (representing some entity in the game server)
+		// With this, the EI agent will be able to sense and control the entity
+		// We do a 1-to-1 mapping from EI Agent to connected entities
+		try {
+			ei.associateEntity(eiAgent, entityName);
+		} catch (e : RelationException) {
+			e.printStackTrace()
+		}
+
+		// TODO: how to check if the agent did really connect to the server? seems that even if the server is down
+		// the EI system register the agent
+		if (ei.getAssociatedEntities(eiAgent).contains(entityName)) {
+			debug("EI agent *{0}* has been successfully associated with game entity *{1}*", eiAgent, entityName)
+			this.entities.put(eiAgent, CityAgentEntityManager.createEntity(eiAgent, entityRole, entityTeam))
+		} else {
+			warning("Unsuccessful association of agent *{0}* with entity *{1}*", eiAgent, entityName)
+		}
+	}
+
+	/* 
+	 * Takes a JSON registration file and filters the entities listed to  keep only those in filteredPlayers
+	 * 
+	 * @param eiRegitrationFile an EI registration file (with server and entity information)
+	 * @param entities array of entities to keep
+	 * @returns a temporary file that is a projection of the original file
+	 */
+	private def filterRegistrationFile(eiRegitrationFile : Path, entities : String[]) : Path {
+		var config : JSONObject
+		try {
+			config = new JSONObject(new String(Files.readAllBytes(Paths.get(eiRegitrationFile.toString))))
+			// System.out.println(config.toString(4))
+
+	        // Filter the entities to the ones with name in global variable myEntities
+			// Result stored in jsonEntitiesFiltered
+	        var jsonEntities : JSONArray = config.optJSONArray("entities")
+	        if(jsonEntities === null) jsonEntities = new JSONArray()
+			var jsonEntitiesFiltered = new JSONArray()
+			for (var i = 0; i < jsonEntities.length(); i++) {
+				val jsonEntity : JSONObject = jsonEntities.optJSONObject(i)
+				if(jsonEntity === null) continue
+				val name : String = jsonEntity.optString("name")
+				if (entities.contains(name)) { // FILTER HAPPENS HERE!!
+					jsonEntitiesFiltered.put(jsonEntity)
+				}
+			}
+			// Now update original config JSON (remove all entities and add the filtered ones)
+			config.remove("entities")
+			config.put("entities", jsonEntitiesFiltered)
+		} catch (e : IOException) {
+			e.printStackTrace();
+		}
+
+		val newFile : File = File.createTempFile("filtered_eiMassimSeverConfigFile", ".json")
+		val writer : FileWriter = new FileWriter(newFile)
+		writer.write(config.toString(4))
+		writer.close()
+
+		return newFile.toPath
+	}
+
+	// //////////////////////////////////////////////////////////////////////////
 	// MAIN TOOLS: INTERACTION WITH GAME SERVER
 	// //////////////////////////////////////////////////////////////////////////
 
@@ -126,6 +200,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * 
 	 * @return  true if EI is connected to the server
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	def MT_initialize() : boolean {
 		if (eiRegistrationFile === null) {
 			warning("Trying to register the game server, but no information about it is registered! :-(")
@@ -185,11 +260,15 @@ skill S_MassimTalking implements C_MassimTalking {
 	}
 
 	/** 
-	 * This yields the percept of the first entity the entity is of. 
-	 * In this game, entity are of one entity so this is enough
+	 * Retrieves the collection of percepts from an entity. 
+	 * This is blocking, until server sends info for entity.
+	 * 
+	 * @param entityName the entity to obtain the sensing info
+	 * @return collection of single percepts for the entity 
 	 */
 	def MT_senseEntityPercepts(entityName : String) : Collection<Percept> {
 		// This is where the sensing form the server happens via the EI
+		// Since each EI agent controles one connection, retrieve just the percept of the first (and only) one
 		var entityPercepts = ei.getAllPercepts(entityName).values().get(0)
 
 		// Update entity state with the first collection (only works if entity is linked to just one entity)
@@ -198,79 +277,6 @@ skill S_MassimTalking implements C_MassimTalking {
 		return entityPercepts 
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
-	// AUXILIARLY PRIVATE TOOLS
-	// //////////////////////////////////////////////////////////////////////////
-
-	/* 
-	 * Register a new EI Agent and link it to some entity connection to control/sense it
-	 */
-	private def registerEIAgent(eiAgent : String, entityName : String, entityTeam : String, entityRole : String) {
-		// FIRST, we register the new EI agent name in the EI
-		try {
-			ei.registerAgent(eiAgent)
-		} catch (e : AgentException) {
-			e.printStackTrace()
-		}
-		// SECOND, we associate/link the EI agent to the entity connection entityName (representing some entity in the game server)
-		//		With this, the EI agent will be able to sense and control the entity
-		//		We do a 1-to-1 mapping from EI Agent toconnected entities
-		try {
-			ei.associateEntity(eiAgent, entityName);
-		} catch (e : RelationException) {
-			e.printStackTrace()
-		}
-
-		// TODO: how to check if the agent did really connect to the server? seems that even if the server is down
-		// the EI system register the agent
-		if (ei.getAssociatedEntities(eiAgent).contains(entityName)) {
-			debug("EI agent *{0}* has been successfully associated with game entity *{1}*", eiAgent, entityName)
-			this.entities.put(eiAgent, CityAgentEntityManager.createEntity(eiAgent, entityRole, entityTeam))
-		} else {
-			warning("Unsuccessful association of agent *{0}* with entity *{1}*", eiAgent, entityName)
-		}
-	}
-
-	/* 
-	 * Takes a JSON registration file and filters the entities listed to  keep only those in filteredPlayers
-	 * 
-	 * @param eiRegitrationFile an EI registration file (with server and entity information)
-	 * @param entities array of entities to keep
-	 * @returns a temporary file that is a projection of the original file
-	 */
-	private def filterRegistrationFile(eiRegitrationFile : Path, entities : String[]) : Path {
-		var config : JSONObject
-		try {
-			config = new JSONObject(new String(Files.readAllBytes(Paths.get(eiRegitrationFile.toString))))
-			// System.out.println(config.toString(4))
-
-	        // Filter the entities to the ones with name in global variable myEntities
-			// Result stored in jsonEntitiesFiltered
-	        var jsonEntities : JSONArray = config.optJSONArray("entities")
-	        if (jsonEntities === null) jsonEntities = new JSONArray()
-			var jsonEntitiesFiltered = new JSONArray()
-			for (var i = 0; i < jsonEntities.length(); i++) {
-				val jsonEntity : JSONObject = jsonEntities.optJSONObject(i)
-				if (jsonEntity === null) continue
-				val name : String = jsonEntity.optString("name")
-				if (entities.contains(name)) { // FILTER HAPPENS HERE!!
-					jsonEntitiesFiltered.put(jsonEntity)
-				}
-			}
-			// Now update original config JSON (remove all entities and add the filtered ones)
-			config.remove("entities")
-			config.put("entities", jsonEntitiesFiltered)
-		} catch (e : IOException) {
-			e.printStackTrace();
-		}
-
-		val newFile : File = File.createTempFile("filtered_eiMassimSeverConfigFile", ".json")
-		val writer : FileWriter = new FileWriter(newFile)
-		writer.write(config.toString(4))
-		writer.close()
-
-		return newFile.toPath
-	}
 
 	// //////////////////////////////////////////////////////////////////////////
 	// GETTERS & SETTERS
@@ -309,8 +315,8 @@ skill S_MassimTalking implements C_MassimTalking {
 
 	/** Retrieve the data for the entity 
 	 * 
-	 * @param entityName: the name of the entity to update
-	 * @return - current EntityData object for the entity
+	 * @param entityName  the name of the entity to update
+	 * @return current EntityData object for the entity
 	 */
 	@Pure
 	def MT_getEntityState(entityName : String) : EntityData {
@@ -326,9 +332,6 @@ skill S_MassimTalking implements C_MassimTalking {
 	def MT_getStepNo() : int {
 		return stepNo
 	}
-
-	
-	
 
 	// /////////////////////////////////////////////////////////////////////////////
 	//	CHECKERS

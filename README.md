@@ -15,17 +15,17 @@ This framework can be [accessible via JitPack](https://jitpack.io/#com.github.ss
 -----------------------------
 ## PRE-REQUISITES
 
-* Java Runtime Environment (JRE) and Java Compiler (javac) v1.8+. 
-    * Tested with SUN Java 1.8 and OpenJDK 11.
-* Maven project management and comprehension tool (to meet dependencies, compile, package, run).
-* The [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server) (not the official 2018 server). This updated edition that brings back _items_ to _shop_ as in the 2017 version.
+- Java Runtime Environment (JRE) and Java Compiler (javac) v1.8+. 
+    - Tested with SUN Java 1.8 and OpenJDK 11.
+- Maven project management and comprehension tool (to meet dependencies, compile, package, run).
+- The [RMIT 2018+ game server edition](https://github.com/ssardina-agts/agtcity-server) (not the official 2018 server). This updated edition that brings back _items_ to _shop_ as in the 2017 version.
 
 The following  dependencies are resolved via Maven and JitPack automatically:
 
-* [SARL modules and execution engine](http://mvnrepository.com/artifact/io.sarl.maven).
-* The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server).
-    * This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
-    * The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
+- [SARL modules and execution engine](http://mvnrepository.com/artifact/io.sarl.maven).
+- The [EISMASSim](https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim) environment interface connectivity that comes with the [MASSim Agents in City Server (RMIT 2018+ edition)](https://github.com/ssardina-agts/agtcity-server).
+    - This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
+    - The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
 -----------------------------
 ## USING THE MIDDLEWARE
@@ -70,10 +70,16 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 
 The MW comes with two simple agent controllers that can be used for testing.
 
-1. **Start Game Server**. For example, from `server/` subdir:
+1. **Start Game Server**. From `server/` folder:
 
 	```bash
-	java -jar target/server-2020-1.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
+	$ ./startServer.sh conf/SampleConfig.json
+	```
+
+	or run it using Java itself:
+
+	```bash
+	$ java -jar target/server-2020-1.0-jar-with-dependencies.jar --monitor 8001 -conf conf/SampleConfig.json
 	```
 
 	Note that the configuration file (here, `conf/SampleConfig.json`) makes a reference to the team configuration file at the bottom (e.g., `conf/teams/A.json`) which is the file containing all agents allowed to connect and with which id and password. These are the ones your system will use in your agent configuration file.
@@ -89,28 +95,25 @@ The MW comes with two simple agent controllers that can be used for testing.
 	See below under _Examples_ for more information on the two "dummy" controller examples provided here in the MW, mostly for testing and as agent templates.
 
 3. **Start the game simulation** by just hitting *ENTER* in the Game Server console.
-	* The web GUI should start displaying/monitoring the simulation.
+	- The web GUI should start displaying/monitoring the simulation.
 4. **Enjoy!** You should start seeing the agent reporting things in the console. 
-    * You can see the simulation on the web browser.
+    - You can see the simulation on the web browser.
 
 ----------------------------
-## EI Player Entity --> Connection Entity --> Game Entity Agent 
+## EI Agent --> Connection Entity --> Game Entity Agent 
 
-Before explaining what the MW provides, in terms of capacities, skills, events and data structures, we need to understand the different abtsractions from an actual player agent game in the game (e.g., a truck or drone) to a SARL agent controlling one more of those agents.
+Before explaining what the MW provides, in terms of capacities, skills, events and data structures, we need to understand the different abstractions from an actual entity entity in the game (e.g., a specific truck or drone) to a SARL agent controlling one more of those agents.
 
-Because the framework involves the [MASSIM game server](https://github.com/ssardina-agts/agtcity-server), an [EISMASSim](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md) Environment Interface (EI from now on) for MASSIM, and the SARL agents, there are different entities and identifications that need to be understood:
+Because the framework involves the [MASSIM game server](https://github.com/ssardina-agts/agtcity-server), the [EISMASSim](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md) Environment Interface (EI from now on) for MASSIM, and the SARL agents, there are different components and identifications that need to be well understood:
 
-1. An **entity connection** represents a _connection a concrete entity_ in the game server (e.g., a truck or motorcycle) that can _execute actions_ and can _receive percepts_. An entity connection is specified in the JSON configuration file by:
-    - A **name**, like `connectionA1`.
-    - A **username** (e.g., `agentA1`) and a **password** to be able to successfully establish the connection to the entity in the game server.
+1. An entity is an agent playing in the simulation in some team, that is, a specific truck, drone, car in a team. A team will be composed of many entities of different types.
+2. An **entity connection** represents a _connection to a concrete entity_ in the game server (e.g., a truck or motorcycle) that can _execute actions_ and can _receive percepts_. An entity connection is specified in the JSON configuration file by:
+    - A **name** of the connection, like `connectionA1` or just `entityA1`.
+    - The **username** (e.g., `agentA1`) and a **password** to be able to successfully establish the connection to the entity in the game server. Via this credentials, the connection will link to a specific entity in the game (e.g., a specific truck).
+   
+3. An  **EI agent** in the EI links/exposes an entity connection to the application. In general an EI agent may link to many entity connections, but for simplicity, the MW skill does a 1-to-1 link between EI agents and entity connections (i.e., entities on the game. So, for every entity connection, there will be a corresponding EI agent with the same name: EI agent `entityA4` in the EI will juts manage the entity connection  `entityA4` (which could be, say, a truck in the game).
 
-2. The username of an entity connection is linked to a real game **game entity agent** (e.g., a particular truck or drone) in the game simulator. This is the name (e.g., "agentA1") that appears in the  percepts. For example, `connectionA1` could be the game entity `agentA1` which is a drone.
-    
-3. A **player** agent in the EI links to or exposes an entity connection. The skill does this automatically by registering one player per entity connection established. Those players will have the name `player_<entity connection>`, for example `player_connectionA1`. 
-    - Potentially, the EI could link a "player" to many entity connections, but for simplicity we don't do that and establish a 1-to-1 mapping between EI players and sever entity connections.
-
-
-So, `connectionA1` will be linked to `agentA32`, which is a truck vehicle in the game and will be exposed by the EI as `player_connectionA1` (which will be used to receive percepts and send actions via `connectionA1` to agent entity `agentA32`).
+So, for example, EI agent `entityA1` will be linked 1-to-1 to entity connection `entityA1` that has a username `agentA1` and a given password so as to control a truck in team A.
 
 ----------------------------
 ## INFRASTRUCTURED PROVIDED
@@ -119,63 +122,60 @@ The MW provides:
 
 1. A capacity and associated skill `MassimTalking` to talk to the game server.
 2. A capacity and associated skill `Reporting` to communicate information (in console).
-3. A class `State` that can store the current overall state of those entities connected.
-4. Utility classes to create and update objects carrying domain information.
+3. A set of useful events.
+4. A class `State` that can store the current overall state of those entities connected.
+5. Utility classes to create and update objects carrying domain information.
 
 ## MassimTalking Capacity and Skill 
 
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
-* **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agent players, and control such players, by receiving their sensing percepts and performing actions in the simulation.
-	* The skill **S_MassimTalking** implements this capability.
+- **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agent entities, and control such entities, by receiving their sensing percepts and performing actions in the simulation.
+	- The skill `S_MassimTalking` implements this capability.
 
 The main tools provided by the **C_MassimTalking** capability are:
 
-* For setup:
-	* When you create the skill, you need to pass the directory where the server JSON config file is located (e.g., `eismassimconfig.json`).
-		* This file has the details of the game server (e.g., IP, port) as well as all the entity connections to the server (e.g., `connectionA1`).
-	* `MT_registerEntityByName(entityName : String)`: register interest in controlling a given entity connection. If none is added, then it will be assumed that we will control all the connections in the server configuration file. This is useful if we do not want to control all the entity connections listed in the server configuration file, but only some of them.
-	* `MT_initialize()`: will create all network connection to game server for the entities of relevance and will register all the relevant players to be controlled that were added via `MT_addPlayerByName` (if none, then register all available connections).
-	* **NOTE:** there is no need to "register" players explicitly; they are all done automatically in the initialization phase.
-* For interaction with the game server:
-	*`MT_sensePlayerPercepts(playerName : String) : Map<String, Collection<Percept>>`: sense the percepts for a player; blocking.
-	* `MT_senseAllPlayerPercepts(playerName : String) : Map<String, Collection<Percept>>` sense the pecepts of all the players; blocking.
-	* `MT_executeAction(playerName : String, action : Action)`: instruct the execution of an action ofr a player. 
-* Getters:
-	* `MT_getPlayersNames() : Set<String>`: list of player connections registered in the MW.
-	* `MT_getAllPlayerStates() : Map<String, PlayerState>`: get the `PlayerState` of each registered player.
-	* `MT_getPlayerState(playerName : String) : PlayerState`: get the `PlayerState` of a given registered player.
-	* `MT_getStatus() : EnvironmentState`: get the state of the EI.
+- For setup:
+	- When you create the skill, you need to pass the directory where the server JSON config file is located (e.g., `eismassimconfig.json`).
+		- This file has the details of the game server (e.g., IP, port) as well as all the entity connections to the server (e.g., `entityA1` or `connectionA1`).
+	- `MT_registerEntityByName(entityName : String)`: register interest in controlling a given entity connection. If none is added, then it will be assumed that we will control all the connections in the server configuration file. This is useful if we do not want to control all the entity connections listed in the server configuration file, but only some of them.
+    	- Note this will NOT make the connection to the server, it will just signal the MW what will be controlled.
+	- `MT_initialize()`: will create all network connection to game server for the entities to be controlled. This will create one EI agent per entity connection, and register using each credentials.
+- For interaction with the game server:
+	- `MT_senseEntityPercepts(entityName : String) : Collection<Percept>`: sense the percepts of an entity; blocking.
+	- `MT_executeAction(entityName : String, action : Action)`: instruct an entity to execute an action in the game. 
+- Getters:
+	- `MT_getEntitiesNames() : Set<String>`: list of entity connections registered in the MW.
+	- `MT_getAllEntityData() : Map<String, EntityData>`: get the `EntityData` of each registered entity.
+	- `MT_getEntityData(entityName : String) : EntityData`: get the `EntityData` of a given registered entity.
+	- `MT_getStatus() : EnvironmentState`: get the state of the EI.
+	- `MT_getStepNo() : int`: get the last simulation step number seen.
 
-The **S_MassimTalking** skill makes use of entity class **EntityData** to store the lastest info about each entity registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
+The `S_MassimTalking` skill makes use of entity class `EntityData` to store the latest info about each entity registered in the game. This class stores, for example,  the location of the agent, its charge and load level, the items it is holding, etc.
 
-## Reporting Capacity and Skill 
+## Reporting Capacity and Skill
 
-**C_Reporting**: a capability to report information.
-	* The skill **S_ConsoleReporting** implements this capability by printing on console.
+`C_Reporting`: a capability to report information. It provides two actions:
+- `agent_says(message, param)`: says a message with [varidic](http://www.sarl.io/docs/official/reference/general/FuncDecls.html#4-variadic-function) arguments `param`.
+- `shouts_says(message, param)`: shouts a message with [varidic](http://www.sarl.io/docs/official/reference/general/FuncDecls.html#4-variadic-function) arguments `param`.
 
-### Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
+The skill `S_ConsoleReporting` implements this capability by printing on console.
 
-The main set of events are:
+## Events (package `au.edu.rmit.agtgrp.agtcity.sarl.mw.events`)
 
-* The general event **E_AgentAction** and its many subclasses define all the actions that players can do in the environment.
-* The general event **E_AgentPercept** and its many subclasses define all the various percepts players can receive form game server.
-	* Note they are not currently posted automatically, but they are available for use to the programmer to emit.
+A set of events are provided for signaling various pieces of information related to the application (e.g., actions, percepts received, jobs available, information about entities, etc.).
 
-Both are used by the demo **SchedulerAgent** to inform the dummy agents of the percepts received and to receive from them actions to execute.
-
-There are also other events used by the example agents (E_SpawnAgent, E_Act, E_SenseEnvironment, and E_SpawnComplete).
-
+Note these events are _not_ posted automatically, but they are available to the programmer to emit.
 ## Aggregator `au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State`
 
 A `State` class is provided to aggregate a snapshot of the game as perceived by a SARL agent, which may sense across many entities. An object of this class can be used to carry the current snapshots of the simulator, as sensed via percepts.
 
-So, the idea is to sense all players and build an aggregated view (in which repeated percepts are made unique), and then act on that.
+So, the idea is to sense all entities and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
 ----------------------------
 ## SuperSingleAgent Demo Controller 
 
-This package comes with a minimal example that basically shows how to sense the environment, report some information, and move players around randomly.
+This package comes with a minimal example that basically shows how to sense the environment, report some information, and move entities around randomly.
 
 They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
 
@@ -187,7 +187,7 @@ mvn exec:java
 
 ###  ###
 
-This is one single SARL agent that manages all the players in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move players randomly to facilities. Run it as follows:
+This is one single SARL agent that manages all the entities in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move entities randomly to facilities. Run it as follows:
 
 ```shell
 mvn exec:java 
@@ -218,9 +218,9 @@ One then needs to select the single agent configuration `conf/SingleAgent`, as a
 ----------------------------
 ## PROJECT CONTRIBUTORS
 
-* Sebastian Sardina (contact - ssardina@gmail.com)
-* Bob Zhou 
-* Keiran Hines
+- Sebastian Sardina (contact - ssardina@gmail.com)
+- Bob Zhou 
+- Keiran Hines
 
 
 ----------------------------

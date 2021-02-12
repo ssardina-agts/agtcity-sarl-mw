@@ -22,7 +22,8 @@ import java.util.Set
 import massim.protocol.scenario.city.data.ActionData
 
 /** 
- * E_AgentPercept superclass used to pass on all percepts from MASSIM. 
+ * Superclass used to pass on all percepts from MASSIM. 
+ * 
  * @param sources : a set of originating agents for a given percept 
  */
 event E_AgentInfo {
@@ -36,6 +37,7 @@ event E_AgentInfo {
 
 /** 
  * TeamPercept emitted once per tick to notify all entities of current team status. 
+ * 
  * @param monty, current team money. 
  */
 event E_TeamInfo extends E_AgentInfo {
