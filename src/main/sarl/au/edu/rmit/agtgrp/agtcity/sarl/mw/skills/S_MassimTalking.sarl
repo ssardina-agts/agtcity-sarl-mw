@@ -328,6 +328,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * 
 	 * @return - the last step number seen 
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	@Pure
 	def MT_getStepNo() : int {
 		return stepNo
@@ -360,6 +361,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * @param entityName: the name of the entity to update
 	 * @percepts: collection of percepts
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	def MT_updateEntityState(entityName : String, percepts : Collection<Percept>) : void {
 		val attributesUpdated = CityAgentEntityManager.updateEntity(entities.get(entityName), percepts)
 
