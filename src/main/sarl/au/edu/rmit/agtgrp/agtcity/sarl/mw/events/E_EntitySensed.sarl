@@ -1,0 +1,24 @@
+package au.edu.rmit.agtgrp.agtcity.sarl.mw.events
+
+import java.util.Collection
+import eis.iilang.Percept
+
+/** 
+ * Event to signal the perception in an entity 
+ * 
+ * @param stepNo the step where the sensing happened
+ * @param entityName  name of the entity who sensed
+ * @param percepts collection of single percepts 
+ */
+event E_EntitySensed {
+	var stepNo : int
+	var entityName : String
+	var percepts : Collection<Percept>
+
+	new(stepNo : int, entityName : String, percepts : Collection<Percept>) {
+		this.stepNo = stepNo
+		this.entityName = entityName
+		this.percepts = percepts
+	}
+
+}

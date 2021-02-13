@@ -166,7 +166,7 @@ A `State` class is provided to aggregate a snapshot of the game as perceived by 
 
 So, the idea is to sense all entities and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
-## `SingleRandomAgent` Demo Controller 
+## **`SingleRandomAgent`** Demo Controller 
 
 This package comes with a minimal example that basically shows how to sense the environment, report some information, and move entities around randomly across shops known.
 
