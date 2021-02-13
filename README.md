@@ -12,7 +12,6 @@ You can see the infrastructure working by clicking on the following video:
 
 This framework can be [accessible via JitPack](https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw) by adding the corresponding dependency and repository on the `pom.xml` (see below). 
 
------------------------------
 ## PRE-REQUISITES
 
 - Java Runtime Environment (JRE) and Java Compiler (javac) v1.8+. 
@@ -27,7 +26,6 @@ The following  dependencies are resolved via Maven and JitPack automatically:
     - This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
     - The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
------------------------------
 ## USING THE MIDDLEWARE
 
 Most of the times one would just use this MW out-of-the-box to develop SARL controllers for the Agents in City game.
@@ -65,7 +63,6 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 			-DartifactId=agtcity-sarl-mw -Dversion=1.2.0.7.2 -Dpackaging=jar
 ```
 
-----------------------------
 ## RUN DEMO
 
 The MW comes with two simple agent controllers that can be used for testing.
@@ -99,7 +96,6 @@ The MW comes with two simple agent controllers that can be used for testing.
 4. **Enjoy!** You should start seeing the agent reporting things in the console. 
     - You can see the simulation on the web browser.
 
-----------------------------
 ## EI Agent --> Connection Entity --> Game Entity Agent 
 
 Before explaining what the MW provides, in terms of capacities, skills, events and data structures, we need to understand the different abstractions from an actual entity entity in the game (e.g., a specific truck or drone) to a SARL agent controlling one more of those agents.
@@ -110,13 +106,12 @@ Because the framework involves the [MASSIM game server](https://github.com/ssard
 2. An **entity connection** represents a _connection to a concrete entity_ in the game server (e.g., a truck or motorcycle) that can _execute actions_ and can _receive percepts_. An entity connection is specified in the JSON configuration file by:
     - A **name** of the connection, like `connectionA1` or just `entityA1`.
     - The **username** (e.g., `agentA1`) and a **password** to be able to successfully establish the connection to the entity in the game server. Via this credentials, the connection will link to a specific entity in the game (e.g., a specific truck).
-   
+
 3. An  **EI agent** in the EI links/exposes an entity connection to the application. In general an EI agent may link to many entity connections, but for simplicity, the MW skill does a 1-to-1 link between EI agents and entity connections (i.e., entities on the game. So, for every entity connection, there will be a corresponding EI agent with the same name: EI agent `entityA4` in the EI will juts manage the entity connection  `entityA4` (which could be, say, a truck in the game).
 
 So, for example, EI agent `entityA1` will be linked 1-to-1 to entity connection `entityA1` that has a username `agentA1` and a given password so as to control a truck in team A.
 
-----------------------------
-## INFRASTRUCTURED PROVIDED
+## INFRASTRUCTURE PROVIDED
 
 The MW provides:
 
@@ -126,14 +121,13 @@ The MW provides:
 4. A class `State` that can store the current overall state of those entities connected.
 5. Utility classes to create and update objects carrying domain information.
 
-## MassimTalking Capacity and Skill 
+## MassimTalking Capacity and Skill
 
 The main component of this infrastructure are the two capabilities provided with its corresponding skills:
 
-- **C_MassimTalking**: the main capability that allows the agent to connect to the game server, register agent entities, and control such entities, by receiving their sensing percepts and performing actions in the simulation.
-	- The skill `S_MassimTalking` implements this capability.
+- `C_MassimTalking`: the main capability of the MW allowing SARL agents to connect to the game server, register entities, and control such entities by receiving their sensing percepts and performing actions in the simulation. The skill `S_MassimTalking` implements this capability for the [Agent in City RMIT server](https://github.com/ssardina-agts/agtcity-server/).
 
-The main tools provided by the **C_MassimTalking** capability are:
+The main tools provided by the `C_MassimTalking` capability are:
 
 - For setup:
 	- When you create the skill, you need to pass the directory where the server JSON config file is located (e.g., `eismassimconfig.json`).
@@ -172,29 +166,23 @@ A `State` class is provided to aggregate a snapshot of the game as perceived by 
 
 So, the idea is to sense all entities and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
-----------------------------
-## SuperSingleAgent Demo Controller 
+## `SingleRandomAgent` Demo Controller 
 
-This package comes with a minimal example that basically shows how to sense the environment, report some information, and move entities around randomly.
-
-They also showcase the infrastructure provided to use the MW and store information as Java data (see `helpers/` and `entities/` subdirs).
+This package comes with a minimal example that basically shows how to sense the environment, report some information, and move entities around randomly across shops known.
 
 The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which can take the agent to boot as argument or otherwise will ask the user for which one to execute:
 
-```
+```bash
 mvn exec:java
 ```
 
-###  ###
-
-This is one single SARL agent that manages all the entities in the simulation via the Skill provided. It does almost nothing, simply sense,  print some status information, and move entities randomly to facilities. Run it as follows:
+This controller is one single SARL agent that manages all the entities in the simulation via the provided skill. Controller simply senses connected entities and moves them randomly across shops and buys random items on them. Run it as follows:
 
 ```shell
 mvn exec:java 
 ```
 
 This will ask for agent selection from the available ones and then which folder in `conf/` to be used to find the `eismassimconfig.json` configuration connection file. We can provide one, or both, as follows:
-
 
 ```shell
 mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
@@ -206,24 +194,15 @@ If packaged with all dependencies one can use:
 java -jar target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar  SingleRandomAgent
 ```
 
-Alternatively, one can rely on the Janus booting class as follows:
-
-```shell
-java -cp target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar io.janusproject.Boot au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
-```
-
-
 One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
 
 ----------------------------
 ## PROJECT CONTRIBUTORS
 
 - Sebastian Sardina (contact - ssardina@gmail.com)
-- Bob Zhou 
+- Bob Zhou
 - Keiran Hines
 
-
-----------------------------
 ## LICENSE ##
 
 This project is using the GPLv3 for open source licensing for information and the license visit GNU website (https://www.gnu.org/licenses/gpl-3.0.en.html).
