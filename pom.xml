@@ -1,6 +1,6 @@
 <!-- SARL-MASSIM - Interface between the SARL agent-oriented language and the MASSIM RMIT 2018+ server 
     Copyright (C) 2017 The SARL-MASSIM Authors. 
-    
+
     This program is free software: you can redistribute it and/or modify it under the terms 
     of the GNU General Public License as published by the Free Software Foundation, 
     either version 3 of the License, or (at your option) any later version. This 
@@ -8,7 +8,7 @@
     WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
     You should have received a copy of the GNU General Public License along with 
-    this program. If not, see <http://www.gnu.org/licenses/>. 
+    this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -18,7 +18,7 @@
     <version>2.0.${sarl.version}</version>
 
     <!-- ##################################################################
-		PROJECT INFO 
+		PROJECT INFO
      ####################################################################### -->
 	<name>SARL Agents in City Middleware</name>
     <description>
@@ -32,7 +32,7 @@
 	      <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
 	    </license>
   	</licenses>
-  
+
   	<developers>
     	<developer>
 	      <name>Sebastian Sardina</name>
@@ -44,7 +44,7 @@
 
 
     <!-- ##################################################################
-		SARL-MASSIM PROPERTIES 
+		SARL-MASSIM PROPERTIES
      ####################################################################### -->
     <properties>
 		<!--  Maven boot class for mvn exec:java -->
@@ -53,7 +53,7 @@
         <!-- SARL framework version and configuration -->
         <sarl.version>0.11.0</sarl.version>
         <janus.version>3.${sarl.version}</janus.version>
-      
+
 
         <compiler.level>1.8</compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -65,7 +65,7 @@
 
 
     <!-- ##################################################################
-		DEPENDENCIES 
+		DEPENDENCIES
      ####################################################################### -->
     <dependencies>
         <!-- JANUS Project kernel (contains SARL language core) -->
@@ -73,11 +73,8 @@
             <groupId>io.janusproject</groupId>
             <artifactId>io.janusproject.kernel</artifactId>
             <version>${janus.version}</version>
-            
+
 			<exclusions>
-			
-			
-			
               <exclusion>
                 <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
@@ -182,8 +179,7 @@
             <version>${eismassim.version}</version>
         </dependency>
     </dependencies>
-    
-    
+
     <!-- ##################################################################
 		REPOSITORIES 
      ####################################################################### -->
@@ -197,7 +193,7 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-    
+
     <repositories>
         <repository>
             <id>maven.sarl.io</id>
@@ -207,7 +203,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        
+
         <!-- JitPack used for remote installation of MASSim from Github -->
         <repository>
             <id>jitpack.io</id>
@@ -220,7 +216,7 @@
 		BUILD PIPELINE PLUGINS 
      ####################################################################### -->
     <build>
-    
+
          <resources>
                <resource>
                     <directory>src/main/sarl</directory>
@@ -231,8 +227,7 @@
                     <filtering>false</filtering>
                 </resource>
           </resources>
-    
-    
+
 		<!--  PLUGINS FOR BUILDING -->
         <plugins>
             <plugin>
@@ -277,8 +272,8 @@
 	                    </execution>
 	              </executions>
 	       </plugin>
-    
-			<!--  Class to execute via maven exec:java 
+
+			<!--  Class to execute via maven exec:java
 			https://www.mojohaus.org/exec-maven-plugin/
 			-->
             <plugin>
