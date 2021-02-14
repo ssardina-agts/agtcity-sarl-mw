@@ -33,9 +33,14 @@ public class ConfHandler {
      * A method of finding a "conf" directory inside the current working directory. s
      * @return String The config Directory path
      */
-    public static String getConfDir() {
+    public static String getConfDir(String... args) {
         String configDir = "";
-        File confDir = new File("conf");
+        File confDir = new File("conf");	// Default
+        
+        if (args.length > 0) {
+        	confDir = new File(args[0]);
+        }
+        
         confDir.mkdirs();
         File[] confFiles = confDir.listFiles(File::isDirectory);
 

@@ -67,7 +67,7 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 
 The MW comes with two simple agent controllers that can be used for testing.
 
-1. **Start Game Server**. From `server/` folder:
+1. **Start RMIT 2018+ Game Server**. From `server/` folder:
 
 	```bash
 	$ ./startServer.sh conf/SampleConfig.json
@@ -86,7 +86,7 @@ The MW comes with two simple agent controllers that can be used for testing.
 2. **Start the SARL demo controller**, either via ECLIPSE or through the CLI. For example:
 
 	```bash
-	mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
+	$ mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
 	```
 	
 	See below under _Examples_ for more information on the two "dummy" controller examples provided here in the MW, mostly for testing and as agent templates.

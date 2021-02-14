@@ -28,6 +28,7 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_ConsoleReporting
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_EntitySensed
 
 // EI imports
 import eis.exceptions.PerceiveException
@@ -52,22 +53,6 @@ import java.util.Set
 
 event E_SenseEnvironment
 
-/**
- * Signal the sensing of some entity (i.e., entity agent in the game) at a given step number
- */
-event E_EntitySensed {
-	var stepNo : int
-	var entityName : String
-	var percepts : Collection<Percept>
-	
-	new(stepNo : int, entityName : String, percepts : Collection<Percept>) {
-		this.stepNo = stepNo
-		this.entityName = entityName
-		this.percepts = percepts
-	}
-	
-}
-
 /** 
  * This is a monolithic SARL agent to manage ALL the entity agents of a team in the game simulation.
  */
@@ -77,26 +62,31 @@ agent SingleRandomAgent {
 	uses C_Reporting, C_MassimTalking
 	uses Schedules
 
-	val myName = "Single-RANDOM-Agent"
+	val myName = this.class.simpleName
 	val action_recharge = new Action("recharge")
 	val action_continue = new Action("continue")
 
 	val agentLogLevel = 4 		// debug = 4 this is for the high-level agent, not for SARL
-	val reportEILog = false	// Report XML messages from server 
+	val reportEILog = false	    // Report XML messages from server 
 	val reportState = false 	// Report current state of entity and state tracking
 	
 
-	// Server configuration file: server info (port/host + options) & entities credentials
-	val eiRegistrationFileName = "eismassimconfig.json" 
-
+	// We allow SARL systems to have a directory to store configuration files or data
+	// In this case it is very simple as that directory will just have the EI configuration file eismassimconfig.json
+	// but more complex SARL systems can make use of various files to use at boot time
+	// The EI configuration file contains info to connect entities to server: server info (port/host + options) & entities credentials
+	var eiConfigurationDir : String // the configuration folder to be used (given by argument or asked to the user)
+	val eiConfigurationFileName = "eismassimconfig.json"	// fixed (should be inside the configuration dir)
+	val eiConfigurationDirs = "conf"	// the folder containing many configuration folders
+	
 	// Entities to register in the server and control
 	val myConnectedEntities = #["entityA1", "entityA4"] 
 
 	// Data kept by this single SARL agent
 	var last_step : int = -1
 	var facilities : Set<String>
-	var rand : Random
-	var state : State = new State()// used to track the current state as per percepts received
+	var rand : Random = new Random()
+	var state : State = new State() // used to track the current state as per percepts received
 	
 	
 	/* 
@@ -118,13 +108,7 @@ agent SingleRandomAgent {
 	 */
 	on Initialize { // Should only be initializing with the EIS as a parameter.
 			var args = newArrayList(occurrence.parameters) // may receive config directory at creation
-			var eiConfigDir : String
 
-			rand = new Random()
-
-			// Create a state object (all percept info will be integrated here by the MW)
-			state = new State() 
-			
 			setLogLevel(agentLogLevel) // set debug level for Logging built-in capacity
 			setSkill(new S_ConsoleReporting(myName), C_Reporting) // Give reporting skill via console to agent
 
@@ -132,18 +116,18 @@ agent SingleRandomAgent {
 			 * 1. FIRST, collect the directory where the server configuration file eiRegistrationFile is located
 			 * If none is given as CLI argument, search inside conf/ folder and make user select one
 			 */
-			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiRegistrationFileName)
+			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiConfigurationFileName)
 			if (args.length != 0) 
-				eiConfigDir = args.get(0) as String	// use the config dir given as CLI argument
+				eiConfigurationDir = args.get(0) as String	// use the config dir given as CLI argument
 			else 
 				// Ask the user which folder in conf/ is to be used to use the EI config file
-				eiConfigDir = ConfHandler.getConfDir() 	// ask user which folder in conf/ to use
-			val eiRegistrationFile = Paths.get(eiConfigDir, eiRegistrationFileName)
+			eiConfigurationDir = ConfHandler.getConfDir(eiConfigurationDirs) // ask user which configuration dir to use 
+			val eiConfigurationFile = Paths.get(eiConfigurationDir, eiConfigurationFileName)
 			debug("\n***************************************************\n" +
 				  	"Configuration settings:\n" + 
 					"\t My SARL agent name: {0}\n" +
 					"\t EI registration file: {1}\n" +
-					"***************************************************", myName, eiRegistrationFile)
+					"***************************************************", myName, eiConfigurationFile)
 
 			try {
 
@@ -151,8 +135,8 @@ agent SingleRandomAgent {
 				 * 2. SECOND, install Massim-Talking skill to talk to the  game server using EI registration file 
 				 * (no actual connection to entities yet, just recording of registration file to be used)
 				 */
-				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiRegistrationFile)
-				setSkill(new S_MassimTalking(eiRegistrationFile, reportEILog), C_MassimTalking)
+				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiConfigurationFile)
+				setSkill(new S_MassimTalking(eiConfigurationFile, reportEILog), C_MassimTalking)
 
 				/** 
 				 * 3. THIRD, configure the skill by providing which specific entities this SARL agent will control
@@ -171,7 +155,7 @@ agent SingleRandomAgent {
 				 * 
 				 * All entities registered for control are authenticated and connected to the server
 				 */
-				agent_says("PHASE 4: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiRegistrationFileName);
+				agent_says("PHASE 4: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiConfigurationFileName);
 				if (MT_initialize()) {
 					agent_says("The EI is now initialized, entities are being authenticated...")
 				} else {
@@ -256,7 +240,7 @@ agent SingleRandomAgent {
 					throw e
 				}
 			]) // FINISH sensing cycle for all entities - We have sensed every entity now
-			agent_shouts("Finished sensing the environment for all the entities connected. Next report and act for step {0}!!!",
+			agent_shouts("Finished sensing the environment at step {0} for all the entities connected.",
 				last_step)
 		} // end of game & sensing finished
 	} // end of on E_SenseEnvironment
