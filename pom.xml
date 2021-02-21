@@ -178,6 +178,118 @@
             <artifactId>eismassim</artifactId>
             <version>${eismassim.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.sarl</groupId>
+            <artifactId>io.sarl.sre.test.framework</artifactId>
+            <version>${sarl.version}</version>
+            <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.jobs</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.registry</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.preferences</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.preferences</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.contenttype</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.app</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.preferences</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.registry</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.registry</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.jobs</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.contenttype</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.app</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.runtime</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.filesystem</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.runtime</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.resources</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.text</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>org.eclipse.jdt.core</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <!-- ##################################################################
@@ -286,6 +398,11 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.1</version>
+            </plugin>
         </plugins>
     </build>
 </project>

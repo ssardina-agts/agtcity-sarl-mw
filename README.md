@@ -196,6 +196,14 @@ java -jar target/agtcity-sarl-mw-2.0.0.8.6-jar-with-dependencies.jar  SingleRand
 
 One then needs to select the single agent configuration `conf/SingleAgent`, as all agents are controlled centrally.
 
+### Mock e2e testing of **`SingleRandomAgent`** Demo Controller
+
+A basic end to end test is provided with SingleRandomAgent. The test describe some initial scenario percepts and verifies the behaviour of the agent without having to run/connect to the MASSIM server. Tests utilize JUnit5 and Mockito. To run:
+
+```shell
+mvn test
+```
+
 ----------------------------
 ## PROJECT CONTRIBUTORS
 
