@@ -20,23 +20,13 @@ package au.edu.rmit.agtgrp.agtcity.sarl.mw;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.timeout
-import static org.mockito.ArgumentMatchers.anyString
-import static org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentCaptor
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
-
-import org.mockito.internal.stubbing.answers.AnswersWithDelay
 
 import org.junit.jupiter.api.^extension.ExtendWith
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 
 import massim.eismassim.EnvironmentInterface
-import eis.iilang.Action
 import eis.iilang.EnvironmentState
 import eis.iilang.Function
 import eis.iilang.ParameterList
@@ -44,14 +34,11 @@ import eis.iilang.Percept
 import eis.iilang.Numeral
 import eis.iilang.Identifier
 
-import java.lang.Thread
-import java.nio.file.Paths
-import java.util.Arrays
 import java.util.Collection
-import java.util.Map
 import java.util.UUID
 import java.util.logging.Level
 
+import io.sarl.bootstrap.SREBootstrap
 import io.sarl.sre.test.framework.context.LogTrackingMode
 import io.sarl.sre.test.framework.context.SreRunContext
 import io.sarl.sre.test.framework.^extension.SreRunExtension
@@ -74,125 +61,115 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 ])
 class SingleRandomAgentTest {
 
-	/* Time in milliseconds. */
-	val STEP_DELAY = 2000
-
-	/* Time in milliseconds. Allow for agents to initialise */
-	val VERIFY_DELAY = STEP_DELAY + 2000
+	/* The Sarl runtime engine for each test. */
+	var ctx : SreRunContext
+	var kern : SREBootstrap
+	var ei : EnvironmentInterface
 
 	/* Produces a collection of percepts that will convince the agent the scenario has started. */
-	def step0() : Map<String, Collection<Percept>> {
-		val step : Map = newHashMap()
-		step.put("stub", // usually the agent name, but MW does not use this
-			newLinkedList(
-				new Percept("step", new Numeral(0)),
-				new Percept("routeLength", new Numeral(0)),
-				new Percept("charge", new Numeral(50)),
-				new Percept("shop",
-					new Identifier("shop1"),
-					new Numeral(-37.50),
-					new Numeral(180.37),
-					new Numeral(3),
-					new ParameterList(
-						new Function("item",
-							new Identifier("item1"),
-							new Numeral(13),
-							new Numeral(5)
-						)
+	static def step0(shopName : String) : Collection<Percept> {
+		return newLinkedList(
+			new Percept("step", new Numeral(0)),
+			new Percept("routeLength", new Numeral(0)),
+			new Percept("charge", new Numeral(50)),
+			new Percept("shop",
+				new Identifier(shopName),
+				new Numeral(-37.50),
+				new Numeral(180.37),
+				new Numeral(3),
+				new ParameterList(
+					new Function("item",
+						new Identifier("item1"),
+						new Numeral(13),
+						new Numeral(5)
 					)
 				)
 			)
 		)
-		return step
 	}
 
 	/* Produces a collection of percepts that will convince the agent the next step has been perceived. */
-	def step(stepNumber : int) : Map<String, Collection<Percept>> {
-		val step : Map = newHashMap()
-		step.put("stub", // usually the agent name, but MW does not use this
-			newLinkedList(
-				new Percept("step", new Numeral(stepNumber)),
-				new Percept("routeLength", new Numeral(0))
-			)
+	static def step(stepNumber : int) : Collection<Percept> {
+		return newLinkedList(
+			new Percept("step", new Numeral(stepNumber)),
+			new Percept("routeLength", new Numeral(0))
 		)
-		return step
+	}
+
+	/* Produces a collection of percepts that will convince the agent the final step has been perceived. */
+	static def stepLast() : Collection<Percept> {
+		return newLinkedList(
+			new Percept("score", new Numeral(100))
+		)
+	}
+
+	@BeforeEach
+	def beforeEach(extension rc : SreRunContext) : void {
+		ctx = rc
+		/* Initialise a fresh SARL environment for each test. */
+        kern = ctx.setupTheSreKernel(Level::FINEST, LogTrackingMode::STANDARD_LOGGER_BEHAVIOR)
+		/* Create mocked environment interface for intercepting comms with the server. */
+		ei = typeof(EnvironmentInterface).mock
 	}
 
 	/**
 	 * SingleRandomAgent end to end test. Sends step 0 percepts and asserts first random
-	 * action for two agents in the game.
+	 * action for two agents in the scenario.
 	 */
 	@Test
-	def firstActionsTest(extension rc : SreRunContext) {
-		/* Create mocked environment interface for intercepting comms with the server. */
-		val ei = typeof(EnvironmentInterface).mock
+	def firstActionsTest() {
+		val agents = newArrayList("agentA1", "agentA4")
+		val scenario = new ScenarioStepper(agents)
 
-		/* Argument captors for verifying calls to EI. */
-		val agentCaptor : ArgumentCaptor<String> = ArgumentCaptor.forClass(typeof(String));
-		val actionCaptor : ArgumentCaptor<Action> = ArgumentCaptor.forClass(typeof(Action));
-
-		/* Emulate enough EI state to convince the middleware we are connected. */
-		when(ei.getState).thenReturn(EnvironmentState.RUNNING)
-		when(ei.getEntities).thenReturn(newLinkedList("agentA1", "agentA4"))
-		when(ei.getAssociatedEntities(anyString)).thenReturn(newHashSet("agentA1", "agentA4"))
-
-		/* Assign an environment manager to produce some Percept stimuli for the agents. */
-		when(ei.getAllPercepts(anyString)).thenAnswer(new Answer() {
-			val agents : int = 2;
-			var count : int = 0;
-
-			def answer(invocation : InvocationOnMock) : Object {
-				/**
-				 * Provide step0 intitial game state to all agents.
-				 * After step0 agents are free to post an action, verified below...
-				 */
-				if (count++ < agents)
-					return step0()
-
-				/* step 1, 2 ... not part of this test, delay percept responses with sleep. */
-				/* TODO find some way to control the step sending within the unit test. */
-				Thread.sleep(STEP_DELAY)
-				return step(count / agents)
-			}
-		})
-
-		/* Starting SRE kernel for the agent to live in. */
-        var kern = setupTheSreKernel(Level::FINEST, LogTrackingMode::STANDARD_LOGGER_BEHAVIOR)
-        val id0 = UUID::randomUUID
-
-		/* Create a massim skill injected with our mocked environment interface. */
-		val massimSkill : S_MassimTalking = new S_MassimTalking(ei, false)
-		val initParams = <Object>newArrayOfSize(1)
-		Arrays.fill(initParams, massimSkill)
-		/* Starting agent. */
-        waitForAgentSpawned(id0) [
-            kern.startAgentWithID(typeof(SingleRandomAgent), id0, initParams)
-        ]
-
-		/**
-		 * Now we can verify the actions posted by the agents.
-		 *
-		 * !!! EnvironmentInterface#performAction is a final method. This makes it difficult to mock.
-		 * As of the current Mockito version, you can enable final method mock support
-		 * with the following config file:
-		 * src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker
-		 */
-
-		verify(ei, timeout(VERIFY_DELAY).times(2)).performAction(agentCaptor.capture(), actionCaptor.capture())
-		val acts = agentCaptor.getAllValues()
+		MassimSteps.givenCityServer(ei, EnvironmentState.RUNNING, scenario, agents)
+		SarlSteps.givenSarlAgent(ctx, kern,
+			typeof(SingleRandomAgent),
+			new S_MassimTalking(ei, false))
+		MassimSteps.whenAgentsPerceiveStep(scenario, agents, step0("shop1"))
+		val acts = MassimSteps.thenActionsPerformed(ei, 2)
 
 		/* Both agents submitted an action. */
 		assertTrue(acts.size() == 2 &&
-			acts.contains("agentA1") &&
-			acts.contains("agentA4"))
+			acts.containsKey("agentA1") &&
+			acts.containsKey("agentA4"))
+
 		/* Both actions were goto events. */
-		actionCaptor.getAllValues().forEach([action | assertEquals("goto", action.getName())]);
+		acts.values().forEach([action | assertEquals("goto", action.getName())])
 		/* All goto were to shop1. */
-		actionCaptor.getAllValues().forEach([action | assertEquals("shop1", extractString(action.parameters.get(0)))]);
+		acts.values().forEach([action | assertEquals("shop1", extractString(action.parameters.get(0)))])
+	}
 
-		/* Tests complete, kill the agent gracefully and finish test. */
-        rootContext.defaultSpace.emit(UUID::randomUUID, new E_EndGame)
+	/**
+	 * SingleRandomAgent end to end test. Sends step 0 percepts and asserts a different first random
+	 * action for two agents in the scenario.
+	 */
+	@Test
+	def firstActionsForDifferentShopTest() {
+		val agents = newArrayList("agentA1", "agentA4")
+		val scenario = new ScenarioStepper(agents)
 
-        waitForTheKernel(STANDARD_TIMEOUT)
+		MassimSteps.givenCityServer(ei, EnvironmentState.RUNNING, scenario, agents)
+		SarlSteps.givenSarlAgent(ctx, kern,
+			typeof(SingleRandomAgent),
+			new S_MassimTalking(ei, false))
+		MassimSteps.whenAgentsPerceiveStep(scenario, agents, step0("shop4"))
+		val acts = MassimSteps.thenActionsPerformed(ei, 2)
+
+		/* Both agents submitted an action. */
+		assertTrue(acts.size() == 2 &&
+			acts.containsKey("agentA1") &&
+			acts.containsKey("agentA4"))
+
+		/* Both actions were goto events. */
+		acts.values().forEach([action | assertEquals("goto", action.getName())])
+		/* All goto were to shop1. */
+		acts.values().forEach([action | assertEquals("shop4", extractString(action.parameters.get(0)))])
+	}
+
+	@AfterEach
+	def afterEach() : void {
+		/* Test complete, kill the agent gracefully and finish test. */
+        ctx.rootContext.defaultSpace.emit(UUID::randomUUID, new E_EndGame)
+        ctx.waitForTheKernel(STANDARD_TIMEOUT)
 	}
 }
