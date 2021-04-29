@@ -14,8 +14,10 @@ import eis.iilang.EnvironmentState
 import eis.iilang.Percept
 
 import java.util.Collection
+import java.util.function.Function
 import java.util.List
 import java.util.Map
+import java.util.logging.Logger
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
@@ -24,12 +26,15 @@ import java.util.stream.IntStream
  */
 class MassimSteps {
 
+	/* Logger. */
+	static val logger : Logger = Logger.getLogger(typeof(MassimSteps).getName())
+
 	/**
 	 * Mock some {@code EnvironmentInterface} methods to indicate that the massim server is
 	 * in a given state with some given agents.
 	 *
-	 * @param ei mocked
-	 * @param state to mock
+	 * @param ei mocked environment interface
+	 * @param state for the mocked environment interface to report
 	 * @param stepper a provider of percepts when an agent requests them
 	 * @param the agents to mock within the environment
 	 */
@@ -60,6 +65,17 @@ class MassimSteps {
 	}
 
 	/**
+	 * Add a collection of percepts for each agent to receive within one step. Each agent
+	 * receives the exact same percept.
+	 *
+	 * @param stepper to add the step to
+	 * @param percepts to insert into the next step
+	 */
+	static def whenAgentsPerceiveStep(stepper : ScenarioStepper, percepts : Collection<Percept>) {
+		stepper.getAllAgents().forEach([agt | stepper.addStepToQueue(agt, percepts)])
+	}
+
+	/**
 	 * !!! REQUIRES SPECIFIC MOCKITO CONFIGURATION !!!
 	 * src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker
 	 * 
@@ -78,7 +94,8 @@ class MassimSteps {
 	 * !!! REQUIRES SPECIFIC MOCKITO CONFIGURATION !!!
 	 * src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker
 	 * 
-	 * Verify that a number of actions have been sent to the given {@link EnvironmentInterface}.
+	 * Verify and return a number of actions that have been sent to the given {@link EnvironmentInterface}.
+	 *
 	 * @param ei the mocked environment interface
 	 * @param size the number of actions to wait for
 	 * @param TIMEOUT after no action received from all agents
@@ -101,7 +118,18 @@ class MassimSteps {
 		val actions : List<Action> = actionCaptor.getAllValues()
 
 		if (agents.size != agents.stream().distinct().count()) {
-			System.out.println("AGENTS PRODUCED MORE THAN ONE ACTION.")
+			logger.severe("Received more than one action for a single massim entity within a single step: " +
+				agents
+					.stream()
+					.collect(Collectors.groupingBy(
+						Function.identity(),
+						Collectors.counting()
+					))
+					.entrySet().stream()
+					.filter([m | m.getValue() > 1])
+					.map([e | e.getKey()])
+					.collect(Collectors.toSet())
+			)
 		}
 
 		return IntStream.range(0, size).boxed()

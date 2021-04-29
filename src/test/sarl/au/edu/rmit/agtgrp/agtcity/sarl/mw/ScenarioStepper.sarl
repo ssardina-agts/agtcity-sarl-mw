@@ -6,7 +6,9 @@ import org.mockito.stubbing.Answer
 import java.util.Collection
 import java.util.List
 import java.util.Map
+import java.util.Set
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.logging.Logger
 import java.util.stream.Collectors
 
 import eis.iilang.Percept
@@ -16,29 +18,39 @@ import eis.iilang.Percept
  */
 class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
 
+	/* Logger. */
+	static val logger : Logger = Logger.getLogger(typeof(ScenarioStepper).getName())
+
 	/* Time between polling for some percepts to post (ms). */
 	static val POLL_DELAY = 50
 
 	/* Time to wait for percepts to be posted after an agent has requested some (ms). */
 	static val PERCEPT_TIMEOUT = 2000
 
-	val agents : int
 	val steps : Map<String, ConcurrentLinkedQueue<Collection<Percept>>>
 
 	new(agents : List<String>) {
-		this.agents = agents.size()
 		this.steps = agents
 			.stream()
 			.collect(Collectors
 				.toMap([a | a], [a | new ConcurrentLinkedQueue<Collection<Percept>>()]))
 	}
 
+	/**
+	 * Intended to be called on a request for all percepts for an agent.
+	 * If a step containing percepts is in the queue for the calling agent
+	 * then it is returned, otherwise we block until a step is present in
+	 * the queue.
+	 *
+	 * @param invocation properties
+	 */
+	@SuppressWarnings("discouraged_reference")
 	def answer(invocation : InvocationOnMock) : Map<String, Collection<Percept>> {
 		val callingAgent : String = invocation.getArgument(0)
 
 		val stepsQueue = steps.get(callingAgent)
-		if (stepsQueue == null) {
-			System.err.println("Expecting one of " + steps.keySet() + " but percepts were requested by " + callingAgent)
+		if (stepsQueue === null) {
+			logger.severe("Expecting one of " + steps.keySet() + " but percepts were requested by " + callingAgent)
 			return null
 		}
 
@@ -52,13 +64,16 @@ class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
 			count++
 			Thread.sleep(POLL_DELAY)
 		}
-		/* Timeout, no steps were given for us to send. Send end game. */
-		System.err.println("Expecting steps for " + callingAgent + " to send, had none, timeout")
-		//return step.put(callingAgent, stepLast())
+		/* Timeout, no steps were given for us to send. */
+		logger.severe(callingAgent + " requested a step, had nothing to send after " + PERCEPT_TIMEOUT + " ms, timeout")
 		return null
 	}
 
 	def addStepToQueue(agt : String, step : Collection<Percept>) {
 		steps.get(agt).add(step)
+	}
+
+	def getAllAgents() : Set<String> {
+		return steps.keySet()
 	}
 }

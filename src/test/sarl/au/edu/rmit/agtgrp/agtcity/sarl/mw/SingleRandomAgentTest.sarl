@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package au.edu.rmit.agtgrp.agtcity.sarl.mw;
+package au.edu.rmit.agtgrp.agtcity.sarl.mw
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 import org.junit.jupiter.api.^extension.ExtendWith
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 
 import massim.eismassim.EnvironmentInterface
 import eis.iilang.EnvironmentState
@@ -35,7 +35,6 @@ import eis.iilang.Numeral
 import eis.iilang.Identifier
 
 import java.util.Collection
-import java.util.UUID
 import java.util.logging.Level
 
 import io.sarl.bootstrap.SREBootstrap
@@ -49,7 +48,6 @@ import static extension io.sarl.tests.api.tools.TestMockito.mock
 import static au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util.extractString
 
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_EndGame
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 
 /**
@@ -57,19 +55,27 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
  * and making assertions about multiple SingeRandomAgent first actions.
  */
 @ExtendWith(#[
-    typeof(SreRunExtension)
+	typeof(SreRunExtension)
 ])
 class SingleRandomAgentTest {
 
-	/* The Sarl runtime engine for each test. */
+	/* The sarl run context for each test. */
 	var ctx : SreRunContext
+
+	/* The Sarl runtime engine for each test. */
 	var kern : SREBootstrap
+
+	/* The mocked massim environment interface for each test. */
 	var ei : EnvironmentInterface
+
+	/* The scenario stepper for each test. */
+	var scenario : ScenarioStepper
 
 	/* Produces a collection of percepts that will convince the agent the scenario has started. */
 	static def step0(shopName : String) : Collection<Percept> {
 		return newLinkedList(
 			new Percept("step", new Numeral(0)),
+			new Percept("steps", new Numeral(1000)),
 			new Percept("routeLength", new Numeral(0)),
 			new Percept("charge", new Numeral(50)),
 			new Percept("shop",
@@ -99,6 +105,7 @@ class SingleRandomAgentTest {
 	/* Produces a collection of percepts that will convince the agent the final step has been perceived. */
 	static def stepLast() : Collection<Percept> {
 		return newLinkedList(
+			new Percept("step", new Numeral(999)),
 			new Percept("score", new Numeral(100))
 		)
 	}
@@ -107,7 +114,7 @@ class SingleRandomAgentTest {
 	def beforeEach(extension rc : SreRunContext) : void {
 		ctx = rc
 		/* Initialise a fresh SARL environment for each test. */
-        kern = ctx.setupTheSreKernel(Level::FINEST, LogTrackingMode::STANDARD_LOGGER_BEHAVIOR)
+		kern = ctx.setupTheSreKernel(Level::FINEST, LogTrackingMode::STANDARD_LOGGER_BEHAVIOR)
 		/* Create mocked environment interface for intercepting comms with the server. */
 		ei = typeof(EnvironmentInterface).mock
 	}
@@ -119,7 +126,7 @@ class SingleRandomAgentTest {
 	@Test
 	def firstActionsTest() {
 		val agents = newArrayList("agentA1", "agentA4")
-		val scenario = new ScenarioStepper(agents)
+		scenario = new ScenarioStepper(agents)
 
 		MassimSteps.givenCityServer(ei, EnvironmentState.RUNNING, scenario, agents)
 		SarlSteps.givenSarlAgent(ctx, kern,
@@ -146,7 +153,7 @@ class SingleRandomAgentTest {
 	@Test
 	def firstActionsForDifferentShopTest() {
 		val agents = newArrayList("agentA1", "agentA4")
-		val scenario = new ScenarioStepper(agents)
+		scenario = new ScenarioStepper(agents)
 
 		MassimSteps.givenCityServer(ei, EnvironmentState.RUNNING, scenario, agents)
 		SarlSteps.givenSarlAgent(ctx, kern,
@@ -169,7 +176,7 @@ class SingleRandomAgentTest {
 	@AfterEach
 	def afterEach() : void {
 		/* Test complete, kill the agent gracefully and finish test. */
-        ctx.rootContext.defaultSpace.emit(UUID::randomUUID, new E_EndGame)
-        ctx.waitForTheKernel(STANDARD_TIMEOUT)
+		MassimSteps.whenAgentsPerceiveStep(scenario, stepLast())
+		ctx.waitForTheKernel(STANDARD_TIMEOUT)
 	}
 }
