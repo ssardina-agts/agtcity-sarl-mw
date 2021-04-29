@@ -303,6 +303,14 @@ skill S_MassimTalking implements C_MassimTalking {
 		return ei.getState()
 	}
 
+	/**
+	 * Kill the environment interface. To be used at the end of the scenario.
+	 */
+	@Pure
+	def MT_kill() : void {
+		ei.kill()
+	}
+
 
 	/**
 	 * Provides all entities registered

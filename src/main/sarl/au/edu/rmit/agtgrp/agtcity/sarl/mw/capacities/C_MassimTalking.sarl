@@ -104,6 +104,11 @@ capacity C_MassimTalking {
 	 */
 	def MT_getStatus() : EnvironmentState
 
+	/*
+	 * Kill the environment interface. To be used at the end of the scenario.
+	 */
+	def MT_kill() : void
+
 	/** 
 	 * Retrieve the last step number sensed
 	 * 

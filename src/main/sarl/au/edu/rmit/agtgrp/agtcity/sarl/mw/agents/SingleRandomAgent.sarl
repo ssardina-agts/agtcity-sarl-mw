@@ -260,8 +260,14 @@ agent SingleRandomAgent {
 			]) // FINISH sensing cycle for all entities - We have sensed every entity now
 			agent_shouts("Finished sensing the environment at step {0} for all the entities connected.",
 				last_step)
+
+			if (state.isLastStep()) {
+				agent_shouts("The scenario has finished, ending sense loop.")
+				break
+			}
+
 		} // end of game & sensing finished
-		in(2000)[emit(new E_EndGame())]
+		in(1000)[emit(new E_EndGame())]
 	} // end of on E_SenseEnvironment
 
 
@@ -332,6 +338,7 @@ agent SingleRandomAgent {
 	}
 
 	on E_EndGame {
+		MT_kill
 		killMe
 	}
 	
