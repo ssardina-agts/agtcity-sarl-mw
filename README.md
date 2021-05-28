@@ -65,7 +65,10 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 
 ## RUN DEMO
 
-The MW comes with two simple agent controllers that can be used for testing.
+The MW comes with two simple SARL agent controllers that can be used for testing:
+
+* `SingleRandomAgent`: a set of four connected entities/agents go to shops randomly and buy items.
+* `SingleGiveAgent`: two agents are connected, they go to shop1, one buys items and gives to the other.
 
 1. **Start RMIT 2018+ Game Server**. From `server/` folder:
 
@@ -88,7 +91,7 @@ The MW comes with two simple agent controllers that can be used for testing.
 	```bash
 	$ mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"
 	```
-	
+
 	See below under _Examples_ for more information on the two "dummy" controller examples provided here in the MW, mostly for testing and as agent templates.
 
 3. **Start the game simulation** by just hitting *ENTER* in the Game Server console.
@@ -166,9 +169,12 @@ A `State` class is provided to aggregate a snapshot of the game as perceived by 
 
 So, the idea is to sense all entities and build an aggregated view (in which repeated percepts are made unique), and then act on that.
 
-## **`SingleRandomAgent`** Demo Controller 
+## Demo controllers for testing 
 
-This package comes with a minimal example that basically shows how to sense the environment, report some information, and move entities around randomly across shops known.
+This package comes with two minimal examples that basically shows how to sense the environment, report some information, and move entities around randomly across shops known.
+
+* `SingleRandomAgent`: a set of four connected entities/agents go to shops randomly and buy items.
+* `SingleGiveAgent`: two agents are connected, they go to shop1, one buys items and gives to the other.
 
 The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which can take the agent to boot as argument or otherwise will ask the user for which one to execute:
 
@@ -176,13 +182,9 @@ The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtci
 mvn exec:java
 ```
 
-This controller is one single SARL agent that manages all the entities in the simulation via the provided skill. Controller simply senses connected entities and moves them randomly across shops and buys random items on them. Run it as follows:
+This will ask for agent selection from the available ones and then which folder in `conf/` to be used to find the `eismassimconfig.json` server connection info file.
 
-```shell
-mvn exec:java 
-```
-
-This will ask for agent selection from the available ones and then which folder in `conf/` to be used to find the `eismassimconfig.json` configuration connection file. We can provide one, or both, as follows:
+To directly specify which controller and server connection info file:
 
 ```shell
 mvn exec:java -Dexec.args="SingleRandomAgent conf/SingleAgent"

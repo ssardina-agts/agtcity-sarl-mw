@@ -35,6 +35,7 @@ import eis.exceptions.PerceiveException
 import eis.iilang.Action
 import eis.iilang.EnvironmentState
 import eis.iilang.Identifier
+import eis.iilang.Numeral
 import eis.iilang.Percept
 
 // SARL imports
@@ -57,14 +58,18 @@ event E_SenseEnvironment
  * This is a monolithic SARL agent to manage ALL the entity agents of a team in the game simulation.
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-agent SingleRandomAgent {
+agent SingleGiveAgent {
 	uses Logging, Lifecycle, DefaultContextInteractions
 	uses C_Reporting, C_MassimTalking
 	uses Schedules
 
 	val myName = this.class.simpleName
-	val ACT_RECHARGE = new Action("recharge")
-	val ACT_CONTINUE = new Action("continue")
+
+	//	Static action objects
+	val ACT_CONTINUE : Action = new Action("continue")
+	val ACT_RECEIVE : Action = new Action("receive")
+	val ACT_RECHARGE : Action = new Action("recharge")
+	
 
 	val agentLogLevel = 4 		// debug = 4 this is for the high-level agent, not for SARL
 	val reportEILog = false	    // Report XML messages from server 
@@ -80,7 +85,10 @@ agent SingleRandomAgent {
 	val eiConfigurationDirs = "conf"	// the folder containing many configuration folders
 	
 	// Entities to register in the server and control
-	val myConnectedEntities = #["entityA1", "entityA4", "entityA10", "entityA12"] 
+	val RECEIVE_ENTITY = "entityA10"
+	val RECEIVE_AGENT = "agentA10"
+	val myConnectedEntities = #["entityA4", RECEIVE_ENTITY]
+
 
 	// Data kept by this single SARL agent
 	var last_step : int = -1
@@ -279,38 +287,62 @@ agent SingleRandomAgent {
 	}
 
 	/* 
-	 * When the agent is not traveling:
+	 * When the agent is not traveling.
 	 * 
-	 * If it is in a shop facility, buy something
-	 * If we know of a shop, start going there
-	 * Otherwise, do nothing (wait for a shop to be known)
+	 * If you are not in a shop, go to shop1
+	 * 
+	 * Otherwise if you are RECEIVE_ENTITY, just receive
+	 * If you are not RECEIVE_ENTITY, then buy if you have nothing, otherwise give what you have to AGENT_ENTITY
 	 */
-	on E_EntitySensed [MT_getEntityState(occurrence.entityName).routeLength == 0 &&
-		MT_getEntityState(occurrence.entityName).charge > 0] {
+	on E_EntitySensed 
+		[MT_getEntityState(occurrence.entityName).routeLength == 0 &&
+			MT_getEntityState(occurrence.entityName).charge > 0] {
 			
 		val entityName = occurrence.entityName
 		val entityData = MT_getEntityState(entityName)
 		val shops = state.getShops()	// shops we know about
-		agent_shouts("Entity {1} is not moving at step {0}. Will instruct to buy or go to another shop", last_step, entityName)
+		agent_shouts("Entity {1} is not moving at step {0}. Will receive, buy, or give", last_step, entityName) 
 
-		if (state.isAtShop(entityName) 	&& entityData.lastAction.type != "buy") { // buy something!
-			val stock = shops.get(entityData.facility).stocks
-			val item = stock.get(rand.nextInt(stock.size() - 1))	// pick a random item in the shop
-			val quantity = "1"
+		// no matter who you are, if oyu are not in a shop, go to shop1
+		if (!state.isAtShop(entityName)) {
+			if (shops.size() > 0) { // We know some shop: go to shop1!
+			// val destination = shops.values().get(rand.nextInt(shops.size() - 1))
+				val destination = shops.get("shop1")
 
-			agent_says("Entity **{1}** to buy {0}", item.name, entityName)
-			if (!MT_executeAction(entityName, new Action("buy", new Identifier(item.name), new Identifier(quantity))))
-				agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
-		} else if (shops.size() > 0) {	// We know some shop: pick one and go!
-			val destination = shops.values().get(rand.nextInt(shops.size() - 1))
-
-			agent_says("I will send entity **{1}** to location {0}", destination.name, entityName)
-			if (!MT_executeAction(entityName, new Action("goto", new Identifier(destination.name))))
-				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination.name, entityName)
-		} else {
-			agent_shouts("I just don't know any facility to go yet, sorry...!")
+				agent_says("I will send entity **{1}** to location {0}", destination.name, entityName)
+				if (!MT_executeAction(entityName, new Action("goto", new Identifier(destination.name))))
+					agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination.name,
+						entityName)
+			} else
+				agent_shouts("I just don't know any facility to go yet, sorry...!")
+		} else { // you are in a shop (hopefully shop1!)
+			// if you are entityA1, just receive
+			// otherwise (you are not entityA1), if you hold an item, give it. Otherwise buy something 
+			if (entityName.equals(RECEIVE_ENTITY)) {
+				agent_says("Entity **{1}** to {0}", "receive", entityName)
+				if (!MT_executeAction(entityName, ACT_RECEIVE))
+					agent_shouts("Was not able to successfully send action receive() for entity {1}", entityName)
+			} else {
+				if (!entityData.items.isEmpty()) {
+					val item = entityData.items.get(0)
+					agent_says("Entity **{1}** to give {0}", item.name, entityName)
+					val give_action = new Action("give", new Identifier(RECEIVE_AGENT), new Identifier(item.name),
+						new Numeral(item.amount)) 
+           			if (!MT_executeAction(entityName, give_action))
+						agent_shouts("Was not able to successfully send action give({0}) for entity {1}", item.name, entityName)
+				} else  { // have no items, buy something!
+					val stock = shops.get(entityData.facility).stocks
+					val item = stock.get(rand.nextInt(stock.size() - 1))	// pick a random item in the shop
+					val quantity = "1"
+		
+					agent_says("Entity **{1}** to buy {0}", item.name, entityName)
+					if (!MT_executeAction(entityName, new Action("buy", new Identifier(item.name), new Identifier(quantity))))
+						agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
+					}
+			}
 		}
 	}
+		
 	
 	
 	
