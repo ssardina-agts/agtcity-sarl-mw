@@ -316,7 +316,7 @@ agent SingleGiveAgent {
 			} else
 				agent_shouts("I just don't know any facility to go yet, sorry...!")
 		} else { // you are in a shop (hopefully shop1!)
-			// if you are entityA1, just receive
+			// if you are entityA1, just receive; 
 			// otherwise (you are not entityA1), if you hold an item, give it. Otherwise buy something 
 			if (entityName.equals(RECEIVE_ENTITY)) {
 				agent_says("Entity **{1}** to {0}", "receive", entityName)
@@ -338,7 +338,7 @@ agent SingleGiveAgent {
 					agent_says("Entity **{1}** to buy {0}", item.name, entityName)
 					if (!MT_executeAction(entityName, new Action("buy", new Identifier(item.name), new Identifier(quantity))))
 						agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
-					}
+				}
 			}
 		}
 	}
