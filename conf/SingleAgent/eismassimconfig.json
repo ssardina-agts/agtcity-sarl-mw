@@ -13,6 +13,15 @@
     {"name": "entityA3", "username": "agentA3", "password": "1", "iilang": false, "xml": true},
     {"name": "entityA4", "username": "agentA4", "password": "1", "iilang": false, "xml": true},
     {"name": "entityA5", "username": "agentA5", "password": "1", "iilang": false, "xml": true},
-    {"name": "entityA6", "username": "agentA6", "password": "1", "iilang": false, "xml": true}
+    {"name": "entityA6", "username": "agentA6", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA7", "username": "agentA7", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA8", "username": "agentA8", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA9", "username": "agentA9", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA10", "username": "agentA10", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA11", "username": "agentA11", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA12", "username": "agentA12", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA13", "username": "agentA13", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA14", "username": "agentA14", "password": "1", "iilang": false, "xml": true},
+    {"name": "entityA15", "username": "agentA15", "password": "1", "iilang": false, "xml": true}
   ]
 }
