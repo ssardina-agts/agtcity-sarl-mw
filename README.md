@@ -8,9 +8,7 @@ You can see the infrastructure working by clicking on the following video:
 
 [![click to watch video](https://multiagentcontest.org/2016/banner.jpg)](https://youtu.be/nFR7Strp9ms).
 
-**Version convention**: `Major.Minor.<SARL Version>`. For example, 1.3.0.8.6 is version 1.3 for SARL 0.8.6.
-
-This framework can be [accessible via JitPack](https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw) by adding the corresponding dependency and repository on the `pom.xml` (see below). 
+This framework can be [accessible via JitPack](https://jitpack.io/#com.github.ssardina-agts/agtcity-sarl-mw) by adding the corresponding dependency and repository on the `pom.xml` (see below).
 
 ## PRE-REQUISITES
 
@@ -26,6 +24,10 @@ The following  dependencies are resolved via Maven and JitPack automatically:
     - This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
     - The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
+## VERSION CONVENTION
+
+[Semantic versioning](https://semver.org/) is used with versions of the form `Major.Minor.Patch`. Each version will rely on a particular SARL version, which is indicated via `<sarl.version>` property in the POM file.
+
 ## USING THE MIDDLEWARE
 
 Most of the times one would just use this MW out-of-the-box to develop SARL controllers for the Agents in City game.
@@ -35,7 +37,7 @@ You can gather the MW via JitPack+GitHub by adding it as a dependency in the `po
 ```xml
 <properties>
 	<!-- SARL Agt City MW version - can use tag or commit hash id -->
-	<agtcity-sarl-mw.version>1.2.${sarl.version}</agtcity-sarl-mw.version>
+	<agtcity-sarl-mw.version>14b2889</agtcity-sarl-mw.version>
 	...
 </properties>
 
@@ -55,7 +57,7 @@ You can gather the MW via JitPack+GitHub by adding it as a dependency in the `po
 </dependency>
 ```
 
-Alternatively, if you have the JAR file already of the MW, you can manually install it in your local Maven repo by running:
+Alternatively, if you have the JAR file already of the MW, you can manually install it in your local Maven via `mvn install:install-file`; for example:
 
 ```shell
 
@@ -67,8 +69,8 @@ mvn install:install-file -Dfile=agtcity-sarl-mw-1.2.0.7.2.jar -DgroupId=com.gith
 
 The MW comes with two simple SARL agent controllers that can be used for testing:
 
-* `SingleRandomAgent`: a set of four connected entities/agents go to shops randomly and buy items.
-* `SingleGiveAgent`: two agents are connected, they go to shop1, one buys items and gives to the other.
+- `SingleRandomAgent`: a set of four connected entities/agents go to shops randomly and buy items.
+- `SingleGiveAgent`: two agents are connected, they go to shop1, one buys items and gives to the other.
 
 1. **Start RMIT 2018+ Game Server**. From `server/` folder:
 
@@ -173,12 +175,12 @@ So, the idea is to sense all entities and build an aggregated view (in which rep
 
 This package comes with two minimal examples that basically shows how to sense the environment, report some information, and move entities around randomly across shops known.
 
-* `SingleRandomAgent`: a set of four connected entities/agents go to shops randomly and buy items.
-* `SingleGiveAgent`: two agents are connected, they go to shop1, one buys items and gives to the other.
+- `SingleRandomAgent`: a set of four connected entities/agents go to shops randomly and buy items.
+- `SingleGiveAgent`: two agents are connected, they go to shop1, one buys items and gives to the other.
 
 The default Maven execution class is the booting class `au.edu.rmit.agtgrp.agtcity.sarl.mw.BootMAS` which can take the agent to boot as argument or otherwise will ask the user for which one to execute:
 
-```bash
+```shell
 mvn exec:java
 ```
 
