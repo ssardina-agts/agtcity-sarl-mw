@@ -36,7 +36,10 @@
   <!-- ########################################################################## -->
   <properties>
     <!-- SARL framework version and configuration -->
-    <sarl.version>0.11.0</sarl.version>
+    <sarl.version>0.12.0</sarl.version>
+
+    <!-- Version of Guice (missing dependency from test package) (package: com.google.inject:guice). -->
+    <guice.version>4.2.3</guice.version>
 
     <jdk.version>1.8</jdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -105,6 +108,13 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.7.0</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Needed for io.sarl.sre.test.framework 0.12 -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+            <classifier>no_aop</classifier>
         </dependency>
         <dependency>
             <groupId>io.sarl</groupId>
