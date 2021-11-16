@@ -25,7 +25,7 @@ class BootMAS {
 		sre.verboseLevel = 7
 
 		val basePackage = "au.edu.rmit.agtgrp.agtcity.sarl.mw.agents"
-		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent"]
+		val AGENTS_AVAILABLE : String[] = #["SingleRandomAgent", "SingleGiveAgent"]
 
 		var agentToLaunch : String
 		if (args.length == 0) { // if not agent given in CLI argument, list the available ones and ask user for one
@@ -41,8 +41,8 @@ class BootMAS {
 				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
 			case 'SingleRandomAgent':
 				fullyQualifiedAgent = basePackage + ".SingleRandomAgent"
-			case 'SchedulerAgent':
-				fullyQualifiedAgent = basePackage + ".scheduler.SchedulerAgent"
+			case 'SingleGiveAgent':
+				fullyQualifiedAgent = basePackage + ".SingleGiveAgent"
 			default:
 				throw new IllegalArgumentException("Invalid agent to start: " + agentToLaunch)
 		}

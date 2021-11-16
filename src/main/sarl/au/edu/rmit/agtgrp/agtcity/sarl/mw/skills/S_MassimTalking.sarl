@@ -49,17 +49,17 @@ import org.json.JSONObject
 /** 
  * @author Sebastian Sardina (ssardina@gmail.com)
  * 
- * Skill implementing the C_MassimTalking capacity to conncet to MAC Agents in City MASSIM 2017 Game Server
+ * Skill implementing the C_MassimTalking capacity to connect to MAC Agents in City MASSIM 2017 Game Server
  * 
  * - connect to game server (using configuration files)
  * - register entities (using configuration files for credentials)
  * - perceive the environment (receive percepts)
- * - send actions to the game server (for the entitys registered) 
+ * - send actions to the game server (for the entities registered) 
  * 
  * Uses the MASSIM EI interface from EISHUB (https://github.com/eishub/massim)
  * 
- * NOTE: we call agents to SARL agents; and entitys to agents in the MASSIM simulation.
- * Hence, a SARL agent, may register and control one more entitys in the simulation (even all)
+ * NOTE: we call agents to SARL agents; and entities to agents in the MASSIM simulation.
+ * Hence, a SARL agent, may register and control one more entities in the simulation (even all)
  */
 skill S_MassimTalking implements C_MassimTalking {
 	uses Logging
@@ -84,7 +84,7 @@ skill S_MassimTalking implements C_MassimTalking {
 	 * 
 	 * Check: https://github.com/agentcontest/massim/blob/master/docs/eismassim.md
 	 */
-	var public ei : EnvironmentInterface // main handler for the skill (from massim.eismassim)
+	public var ei : EnvironmentInterface // main handler for the skill (from massim.eismassim)
 
 	// Sets of entities to be controlled the MW
 	var myEntities : Set<String> = new HashSet<String>
@@ -94,7 +94,11 @@ skill S_MassimTalking implements C_MassimTalking {
 	var entitiesLastChanges : Map<String, Set<String>> = new HashMap<String, Set<String>>()
 
 
-
+	// USEFUL CONSTANTS
+	val ACT_CONTINUE : Action = new Action("continue")
+	val ACT_RECEIVE : Action = new Action("receive")
+	val ACT_RECHARGE : Action = new Action("recharge")
+	
 	// /////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTORS
 	// //////////////////////////////////////////////////////////////////////////
@@ -148,6 +152,7 @@ skill S_MassimTalking implements C_MassimTalking {
 
 	/* 
 	 * Takes a JSON registration file and filters the entities listed to  keep only those in filteredPlayers
+	 * This can be used to register only a set of agents
 	 * 
 	 * @param eiRegitrationFile an EI registration file (with server and entity information)
 	 * @param entities array of entities to keep

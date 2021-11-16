@@ -29,13 +29,13 @@ import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.utils.ConfHandler
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.util.State
 import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_EntitySensed
-import au.edu.rmit.agtgrp.agtcity.sarl.mw.events.E_EndGame
 
 // EI imports
 import eis.exceptions.PerceiveException
 import eis.iilang.Action
 import eis.iilang.EnvironmentState
 import eis.iilang.Identifier
+import eis.iilang.Numeral
 import eis.iilang.Percept
 
 // SARL imports
@@ -58,14 +58,18 @@ event E_SenseEnvironment
  * This is a monolithic SARL agent to manage ALL the entity agents of a team in the game simulation.
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-agent SingleRandomAgent {
+agent SingleGiveAgent {
 	uses Logging, Lifecycle, DefaultContextInteractions
 	uses C_Reporting, C_MassimTalking
 	uses Schedules
 
 	val myName = this.class.simpleName
-	val ACT_RECHARGE = new Action("recharge")
-	val ACT_CONTINUE = new Action("continue")
+
+	//	Static action objects
+	val ACT_CONTINUE : Action = new Action("continue")
+	val ACT_RECEIVE : Action = new Action("receive")
+	val ACT_RECHARGE : Action = new Action("recharge")
+	
 
 	val agentLogLevel = 4 		// debug = 4 this is for the high-level agent, not for SARL
 	val reportEILog = false	    // Report XML messages from server 
@@ -76,18 +80,23 @@ agent SingleRandomAgent {
 	// In this case it is very simple as that directory will just have the EI configuration file eismassimconfig.json
 	// but more complex SARL systems can make use of various files to use at boot time
 	// The EI configuration file contains info to connect entities to server: server info (port/host + options) & entities credentials
+	var eiConfigurationDir : String // the configuration folder to be used (given by argument or asked to the user)
 	val eiConfigurationFileName = "eismassimconfig.json"	// fixed (should be inside the configuration dir)
 	val eiConfigurationDirs = "conf"	// the folder containing many configuration folders
 	
 	// Entities to register in the server and control
-	val myConnectedEntities = #["entityA1", "entityA4", "entityA10", "entityA12"] 
+	val RECEIVE_ENTITY = "entityA10"
+	val RECEIVE_AGENT = "agentA10"
+	val myConnectedEntities = #["entityA4", RECEIVE_ENTITY]
+
 
 	// Data kept by this single SARL agent
 	var last_step : int = -1
 	var facilities : Set<String>
 	var rand : Random = new Random()
 	var state : State = new State() // used to track the current state as per percepts received
-
+	
+	
 	/* 
 	 * SARL agent is initialized 
 	 *
@@ -105,63 +114,44 @@ agent SingleRandomAgent {
 	 * If a directory is given in CLI argument, then  EI registration file eismassimconfig.json is search there.
 	 * Otherwise, possible options as per folders under conf/ are scanned and given to user for selection	 * 
 	 */
+	on Initialize { // Should only be initializing with the EIS as a parameter.
+			var args = newArrayList(occurrence.parameters) // may receive config directory at creation
 
-	/**
-	 * 1. FIRST, collect the directory where the server configuration file eiRegistrationFile is located
-	 * If none is given as CLI argument, search inside conf/ folder and make user select one
-	 */
-	on Initialize [ occurrence.parameters.length > 0 && occurrence.parameters.get(0) instanceof S_MassimTalking ] {
-		/* Use massim skill as provided to the agent. */
-		val massimSkill = occurrence.parameters.get(0) as S_MassimTalking
-		init(massimSkill)
-	}
+			setLogLevel(agentLogLevel) // set debug level for Logging built-in capacity
+			setSkill(new S_ConsoleReporting(myName), C_Reporting) // Give reporting skill via console to agent
 
-	on Initialize [ occurrence.parameters.length > 0 && occurrence.parameters.get(0) instanceof String ] {
-		/* Use the config dir given as CLI argument. */
-		val eiConfigurationDir = occurrence.parameters.get(0) as String
-		val eiConfigurationFile = Paths.get(eiConfigurationDir, eiConfigurationFileName)
-		val massimSkill = new S_MassimTalking(eiConfigurationFile, reportEILog)
-		debug("\n***************************************************\n" +
-				"Configuration settings:\n" + 
-				"\t My SARL agent name: {0}\n" +
-				"\t EI registration file: {1}\n" +
-				"***************************************************", myName, eiConfigurationFile)
-		init(massimSkill)
-	}
-
-	on Initialize [ occurrence.parameters.length == 0 ] {
-		/* No config dir provided. Ask the user which folder in conf/ is to be used to use the EI config file. */
-		val eiConfigurationDir = ConfHandler.getConfDir(eiConfigurationDirs) // ask user which configuration dir to use 
-		val eiConfigurationFile = Paths.get(eiConfigurationDir, eiConfigurationFileName)
-		val massimSkill = new S_MassimTalking(eiConfigurationFile, reportEILog)
-		debug("\n***************************************************\n" +
-				"Configuration settings:\n" + 
-				"\t My SARL agent name: {0}\n" +
-				"\t EI registration file: {1}\n" +
-				"***************************************************", myName, eiConfigurationFile)
-		init(massimSkill)
-	}
-
-	/** 
-	 * 2. SECOND, install Massim-Talking skill to talk to the  game server using EI registration file 
-	 * (no actual connection to entities yet, just recording of registration file to be used)
-	 */
-	def init(massimSkill : S_MassimTalking) : void {
-	 	/* Give reporting skill via console to agent. */
-		setSkill(new S_ConsoleReporting(myName), C_Reporting)
-		/* Set debug level for Logging built-in capacity. */
-		setLogLevel(agentLogLevel)
-
-		agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL")
-		setSkill(massimSkill, C_MassimTalking)
+			/**
+			 * 1. FIRST, collect the directory where the server configuration file eiRegistrationFile is located
+			 * If none is given as CLI argument, search inside conf/ folder and make user select one
+			 */
+			agent_says("PHASE 1: INSTALL MASSIM-TALKING SKILL WITH CONFIG FILE: {0}", eiConfigurationFileName)
+			if (args.length != 0) 
+				eiConfigurationDir = args.get(0) as String	// use the config dir given as CLI argument
+			else 
+				// Ask the user which folder in conf/ is to be used to use the EI config file
+			eiConfigurationDir = ConfHandler.getConfDir(eiConfigurationDirs) // ask user which configuration dir to use 
+			val eiConfigurationFile = Paths.get(eiConfigurationDir, eiConfigurationFileName)
+			debug("\n***************************************************\n" +
+				  	"Configuration settings:\n" + 
+					"\t My SARL agent name: {0}\n" +
+					"\t EI registration file: {1}\n" +
+					"***************************************************", myName, eiConfigurationFile)
 
 			try {
+
+				/** 
+				 * 2. SECOND, install Massim-Talking skill to talk to the  game server using EI registration file 
+				 * (no actual connection to entities yet, just recording of registration file to be used)
+				 */
+				agent_says("PHASE 2: INSTALL MASSIM-TALKING SKILL WITH EI REGISTRATION FILE {0}", eiConfigurationFile)
+				setSkill(new S_MassimTalking(eiConfigurationFile, reportEILog), C_MassimTalking)
+
 				/** 
 				 * 3. THIRD, configure the skill by providing which specific entities this SARL agent will control
 				 * 	The entities to control have to be among those listed in the registration file
 				 * 	No actual connection (or server authentication) happens at this step
 				 */
-				agent_says("PHASE 2: REGISTERING ENTITIES TO CONTROL: ", myConnectedEntities.toString)
+				agent_says("PHASE 3: REGISTERING ENTITIES TO CONTROL: ", myConnectedEntities.toString)
 				if (myConnectedEntities !== null)
 					myConnectedEntities.forEach [ entityName : String |	// entityA1, entityA2, .../entityAn
 						MT_registerEntityByName(entityName) // register entities to control (no authentication yet)
@@ -173,7 +163,7 @@ agent SingleRandomAgent {
 				 * 
 				 * All entities registered for control are authenticated and connected to the server
 				 */
-				agent_says("PHASE 3: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiConfigurationFileName);
+				agent_says("PHASE 4: INITIALIZING CONNECTIONS {1} USING EI CONFIG FILE {0}", eiConfigurationFileName);
 				if (MT_initialize()) {
 					agent_says("The EI is now initialized, entities are being authenticated...")
 				} else {
@@ -185,7 +175,7 @@ agent SingleRandomAgent {
 				 * 5. FIFTH, finally with all entities registered and connected, emit an event to start 
 				 * sensing and controlling those entities 
 				 */
-				agent_says("PHASE 4 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
+				agent_says("PHASE 5 (FINAL): Emit E_SenseEnvironment() to start sensing and acting")
 				in(2000)[emit(new E_SenseEnvironment())]	// wait 2 seconds to allow everyone to auhenticate to server
 			} catch (e : Exception) {
 				error("Sorry but I was not able to initialize the skill to talk to server! Message: {0}", e.message)
@@ -260,14 +250,7 @@ agent SingleRandomAgent {
 			]) // FINISH sensing cycle for all entities - We have sensed every entity now
 			agent_shouts("Finished sensing the environment at step {0} for all the entities connected.",
 				last_step)
-
-			if (state.isLastStep()) {
-				agent_shouts("The scenario has finished, ending sense loop.")
-				break
-			}
-
 		} // end of game & sensing finished
-		in(1000)[emit(new E_EndGame())]
 	} // end of on E_SenseEnvironment
 
 
@@ -304,43 +287,62 @@ agent SingleRandomAgent {
 	}
 
 	/* 
-	 * When the agent is not traveling:
+	 * When the agent is not traveling.
 	 * 
-	 * If it is in a shop facility, buy something
-	 * If we know of a shop, start going there
-	 * Otherwise, do nothing (wait for a shop to be known)
+	 * If you are not in a shop, go to shop1
+	 * 
+	 * Otherwise if you are RECEIVE_ENTITY, just receive
+	 * If you are not RECEIVE_ENTITY, then buy if you have nothing, otherwise give what you have to AGENT_ENTITY
 	 */
-	on E_EntitySensed [MT_getEntityState(occurrence.entityName).routeLength == 0 &&
-		MT_getEntityState(occurrence.entityName).charge > 0] {
+	on E_EntitySensed 
+		[MT_getEntityState(occurrence.entityName).routeLength == 0 &&
+			MT_getEntityState(occurrence.entityName).charge > 0] {
 			
 		val entityName = occurrence.entityName
 		val entityData = MT_getEntityState(entityName)
 		val shops = state.getShops()	// shops we know about
-		agent_shouts("Entity {1} is not moving at step {0}. Will instruct to buy or go to another shop", last_step, entityName)
+		agent_shouts("Entity {1} is not moving at step {0}. Will receive, buy, or give", last_step, entityName) 
 
-		if (state.isAtShop(entityName) 	&& entityData.lastAction.type != "buy") { // buy something!
-			val stock = shops.get(entityData.facility).stocks
-			val item = stock.get(rand.nextInt(stock.size() - 1))	// pick a random item in the shop
-			val quantity = "1"
+		// no matter who you are, if oyu are not in a shop, go to shop1
+		if (!state.isAtShop(entityName)) {
+			if (shops.size() > 0) { // We know some shop: go to shop1!
+			// val destination = shops.values().get(rand.nextInt(shops.size() - 1))
+				val destination = shops.get("shop1")
 
-			agent_says("Entity **{1}** to buy {0}", item.name, entityName)
-			if (!MT_executeAction(entityName, new Action("buy", new Identifier(item.name), new Identifier(quantity))))
-				agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
-		} else if (shops.size() > 0) {	// We know some shop: pick one and go!
-			val destination = shops.values().get(rand.nextInt(shops.size()))
-
-			agent_says("I will send entity **{1}** to location {0}", destination.name, entityName)
-			if (!MT_executeAction(entityName, new Action("goto", new Identifier(destination.name))))
-				agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination.name, entityName)
-		} else {
-			agent_shouts("I just don't know any facility to go yet, sorry...!")
+				agent_says("I will send entity **{1}** to location {0}", destination.name, entityName)
+				if (!MT_executeAction(entityName, new Action("goto", new Identifier(destination.name))))
+					agent_shouts("Was not able to successfully send action goto({0}) for entity {1}", destination.name,
+						entityName)
+			} else
+				agent_shouts("I just don't know any facility to go yet, sorry...!")
+		} else { // you are in a shop (hopefully shop1!)
+			// if you are entityA1, just receive; 
+			// otherwise (you are not entityA1), if you hold an item, give it. Otherwise buy something 
+			if (entityName.equals(RECEIVE_ENTITY)) {
+				agent_says("Entity **{1}** to {0}", "receive", entityName)
+				if (!MT_executeAction(entityName, ACT_RECEIVE))
+					agent_shouts("Was not able to successfully send action receive() for entity {1}", entityName)
+			} else {
+				if (!entityData.items.isEmpty()) {
+					val item = entityData.items.get(0)
+					agent_says("Entity **{1}** to give {0}", item.name, entityName)
+					val give_action = new Action("give", new Identifier(RECEIVE_AGENT), new Identifier(item.name),
+						new Numeral(item.amount)) 
+           			if (!MT_executeAction(entityName, give_action))
+						agent_shouts("Was not able to successfully send action give({0}) for entity {1}", item.name, entityName)
+				} else  { // have no items, buy something!
+					val stock = shops.get(entityData.facility).stocks
+					val item = stock.get(rand.nextInt(stock.size() - 1))	// pick a random item in the shop
+					val quantity = "1"
+		
+					agent_says("Entity **{1}** to buy {0}", item.name, entityName)
+					if (!MT_executeAction(entityName, new Action("buy", new Identifier(item.name), new Identifier(quantity))))
+						agent_shouts("Was not able to successfully send action buy({0}) for entity {1}", item.name, entityName)
+				}
+			}
 		}
 	}
-
-	on E_EndGame {
-		MT_kill
-		killMe
-	}
+		
 	
 	
 	
