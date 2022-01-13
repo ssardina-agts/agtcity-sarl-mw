@@ -108,6 +108,15 @@ skill S_MassimTalking implements C_MassimTalking {
 		Log.setLogOn(eiLogOn)	// set EI LogOn: if True, XML messages will be print out
 	}
 
+	/**
+	 * Use this to inject an environment interface, eg with custom initialised config or a mock for testing.
+	 */
+	new (ei : EnvironmentInterface, eiLogOn : boolean = true) {
+		super() // Call the super's constructor
+		this.ei = ei;
+		Log.setLogOn(eiLogOn)	// set EI LogOn: if True, XML messages will be print out
+	}
+
 	// //////////////////////////////////////////////////////////////////////////
 	// AUXILIARLY PRIVATE TOOLS
 	// //////////////////////////////////////////////////////////////////////////
@@ -207,20 +216,22 @@ skill S_MassimTalking implements C_MassimTalking {
 	 */
 	@SuppressWarnings("potential_field_synchronization_problem")
 	def MT_initialize() : boolean {
-		if (eiRegistrationFile === null) {
-			warning("Trying to register the game server, but no information about it is registered! :-(")
-			return false
-		}
+		if (ei === null) {
+			if (eiRegistrationFile === null) {
+				warning("Trying to register the game server, but no information about it is registered! :-(")
+				return false
+			}
 
-		// Filter the registration file wrt the set of registered entities  in the MW to be controlled (stored in myEntities)
-		// If myEntities is empty, then control ALL the ones listed in the registration file
-		var filtered_eiRegistrationFile : Path = eiRegistrationFile
-		if (!myEntities.empty) {
-			filtered_eiRegistrationFile = filterRegistrationFile(eiRegistrationFile, myEntities)
+			// Filter the registration file wrt the set of registered entities  in the MW to be controlled (stored in myEntities)
+			// If myEntities is empty, then control ALL the ones listed in the registration file
+			var filtered_eiRegistrationFile : Path = eiRegistrationFile
+			if (!myEntities.empty) {
+				filtered_eiRegistrationFile = filterRegistrationFile(eiRegistrationFile, myEntities)
+			}
+
+			// TODO: if this fails (e.g., file is not there) it keeps going, does not throw exception!
+			ei = new EnvironmentInterface(filtered_eiRegistrationFile.toString)
 		}
-	
-		// TODO: if this fails (e.g., file is not there) it keeps going, does not throw exception!
-		ei = new EnvironmentInterface(filtered_eiRegistrationFile.toString)
 		try {
 				// This is where the EI is started and connections are established to server for entities
 				// Each entity is authenticated to server, and they are re-connected if they drop.       		
@@ -295,6 +306,13 @@ skill S_MassimTalking implements C_MassimTalking {
 	@Pure
 	def MT_getStatus() : EnvironmentState {
 		return ei.getState()
+	}
+
+	/**
+	 * Kill the environment interface. To be used at the end of the scenario.
+	 */
+	def MT_kill() : void {
+		ei.kill()
 	}
 
 
@@ -390,12 +408,12 @@ skill S_MassimTalking implements C_MassimTalking {
 	def install {
 		// Function invoked when the skill is installed in the owner.
 		// You should put all the initialization statements in this block of code.
-		info("Installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
+		debug("Installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
 	}
 
 	def uninstall {
 		// Function invoked when the skill is uninstalled from the owner.
 		// You should put all the resource release statements in this block of code.
-		info("Un-installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
+		debug("Un-installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
 	}
 }

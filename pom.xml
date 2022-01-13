@@ -36,7 +36,10 @@
   <!-- ########################################################################## -->
   <properties>
     <!-- SARL framework version and configuration -->
-    <sarl.version>0.11.0</sarl.version>
+    <sarl.version>0.12.0</sarl.version>
+
+    <!-- Version of Guice (missing dependency from test package) (package: com.google.inject:guice). -->
+    <guice.version>4.2.3</guice.version>
 
     <jdk.version>1.8</jdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -91,6 +94,51 @@
   <!-- ############################## DEPENDENCIES ############################## -->
   <!-- ########################################################################## -->
   <dependencies>
+        <!--  EIS-MASSIM Environment Interface Standard Modified for RMIT server
+        	https://github.com/ssardina-agts/agtcity-server/tree/master/eismassim
+         -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Needed for io.sarl.sre.test.framework 0.12 -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+            <classifier>no_aop</classifier>
+        </dependency>
+        <dependency>
+            <groupId>io.sarl</groupId>
+            <artifactId>io.sarl.sre.test.framework</artifactId>
+            <version>${sarl.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.common</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.ecore</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.core.runtime</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>org.eclipse.jdt.core</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
 
     <dependency>
       <groupId>io.sarl.maven</groupId>
@@ -101,95 +149,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.osgi</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.jobs</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.registry</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.preferences</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.preferences</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.contenttype</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.app</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.osgi</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.preferences</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.registry</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.registry</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.jobs</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.contenttype</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.equinox.app</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.osgi</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
           <artifactId>org.eclipse.core.runtime</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.filesystem</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.runtime</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.core.resources</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.platform</groupId>
-          <artifactId>org.eclipse.text</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.eclipse.jdt</groupId>
@@ -206,96 +166,16 @@
 			<!-- To remove all the WARNINGS -->
 			<exclusions>
 				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.common</artifactId>
+					<groupId>org.eclipse.emf</groupId>
+					<artifactId>org.eclipse.emf.common</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.osgi</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.jobs</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.registry</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.preferences</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.preferences</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.contenttype</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.app</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.osgi</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.preferences</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.registry</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.registry</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.jobs</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.contenttype</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.app</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.osgi</artifactId>
+					<groupId>org.eclipse.emf</groupId>
+					<artifactId>org.eclipse.emf.ecore</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.eclipse.platform</groupId>
 					<artifactId>org.eclipse.core.runtime</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.filesystem</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.runtime</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.resources</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.text</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.eclipse.jdt</groupId>
@@ -344,16 +224,26 @@
           <target>${jdk.version}</target>
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
-
         <dependencies>
-          <!-- Fix to deal with issue with wrong signed class (June 2021) https://groups.google.com/g/sarl/c/dt9u1dg6PK0 -->
           <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
             <version>3.14.100</version>
           </dependency>
+          <dependency>
+            <groupId>io.sarl.maven</groupId>
+            <artifactId>io.sarl.maven.sdk</artifactId>
+            <version>${sarl.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
         </dependencies>
       </plugin>
+
 
       <!--
 			<plugin>
@@ -415,6 +305,35 @@
         </executions>
       </plugin>
 
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-jar-plugin</artifactId>
+		<executions>
+		  <execution>
+			<goals>
+			  <goal>test-jar</goal>
+			</goals>
+		  </execution>
+		</executions>
+	  </plugin>
+	  <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-assembly-plugin</artifactId>
+		  <configuration>
+			  <descriptors>
+				  <descriptor>src/main/assembly/test-jar-with-dependencies.xml</descriptor>
+			  </descriptors>
+		  </configuration>
+		  <executions>
+			  <execution>
+				  <phase>package</phase>
+				  <goals>
+					  <goal>single</goal>
+				  </goals>
+			  </execution>
+		  </executions>
+	  </plugin>
+
       <!-- Class to execute via Maven exec:java https://www.mojohaus.org/exec-maven-plugin/ 
 				To execute a particular class do: mvn exec:java -Dexec.mainClass=BootMAS2 -->
       <plugin>
@@ -426,7 +345,11 @@
           <mainClass>${exec.mainClass}</mainClass>
         </configuration>
       </plugin>
-
-    </plugins>
-  </build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.1</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

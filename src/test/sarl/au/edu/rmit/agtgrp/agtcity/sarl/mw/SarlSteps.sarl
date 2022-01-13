@@ -1,0 +1,29 @@
+package au.edu.rmit.agtgrp.agtcity.sarl.mw;
+
+import java.util.Arrays
+import java.util.UUID
+
+import io.sarl.bootstrap.SREBootstrap
+import io.sarl.lang.core.Agent
+import io.sarl.sre.test.framework.context.SreRunContext
+
+/**
+ * A collection of test steps used to manipulation of a sarl environment.
+ */
+class SarlSteps {
+
+	/**
+	 * Create an agent and spawn it within the given SRE.
+	 *
+	 * @param rc the sarl run context
+	 * @param kern the sarl kernel to spawn the agent within
+	 * @param initParams parameters to pass the agent
+	 */
+	static def givenSarlAgent(extension rc : SreRunContext, kern : SREBootstrap, agentClass : Class<? extends Agent>, params : Object*) {
+		val id0 = UUID::randomUUID
+		/* Starting agent. */
+		waitForAgentSpawned(id0) [
+			kern.startAgentWithID(agentClass, id0, params)
+		]
+	}
+}

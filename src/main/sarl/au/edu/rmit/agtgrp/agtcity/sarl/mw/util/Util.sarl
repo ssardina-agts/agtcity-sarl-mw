@@ -92,6 +92,17 @@ class Util {
 	}
 
 	/** 
+	 * Extracts the simulation length of the percepts data
+	 * 
+	 * @percepts: a collection of many small percepts
+	 * @return: the length of the simulation (including step 0)
+	 */
+	static def getSimulationLength(percepts : Collection<Percept>) {
+		return Util.extractInt(
+			percepts.stream().filter([p|"steps".equals(p.name)]).collect(Collectors.toList()).get(0).parameters.get(0))
+	}
+
+	/** 
 	 * Extracts the step number of the percepts data
 	 * 
 	 * @percepts: a collection of many small percepts

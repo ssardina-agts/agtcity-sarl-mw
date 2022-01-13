@@ -1,0 +1,182 @@
+/** 
+ * SARL-MASSIM - Interface between the SARL agent-oriented language 
+ * and the MASSIM RMIT 2018+ server
+ * Copyright (C) 2017 The SARL-MASSIM Authors.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package au.edu.rmit.agtgrp.agtcity.sarl.mw
+
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+import org.junit.jupiter.api.^extension.ExtendWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
+
+import massim.eismassim.EnvironmentInterface
+import eis.iilang.EnvironmentState
+import eis.iilang.Function
+import eis.iilang.ParameterList
+import eis.iilang.Percept
+import eis.iilang.Numeral
+import eis.iilang.Identifier
+
+import java.util.Collection
+import java.util.logging.Level
+
+import io.sarl.bootstrap.SREBootstrap
+import io.sarl.sre.test.framework.context.LogTrackingMode
+import io.sarl.sre.test.framework.context.SreRunContext
+import io.sarl.sre.test.framework.^extension.SreRunExtension
+import static io.sarl.sre.test.framework.Constants.STANDARD_TIMEOUT
+
+import static extension io.sarl.tests.api.tools.TestMockito.mock
+
+import static au.edu.rmit.agtgrp.agtcity.sarl.mw.util.Util.extractString
+
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.agents.SingleRandomAgent
+import au.edu.rmit.agtgrp.agtcity.sarl.mw.skills.S_MassimTalking
+
+/**
+ * Tests demonstrating basic EnvironmentInterface mocking, providing fake percepts
+ * and making assertions about multiple SingeRandomAgent first actions.
+ */
+@ExtendWith(#[
+	typeof(SreRunExtension)
+])
+class SingleRandomAgentTest {
+
+	/* The sarl run context for each test. */
+	var ctx : SreRunContext
+
+	/* The Sarl runtime engine for each test. */
+	var kern : SREBootstrap
+
+	/* The mocked massim environment interface for each test. */
+	var ei : EnvironmentInterface
+
+	/* The scenario stepper for each test. */
+	var scenario : ScenarioStepper
+
+	/* Produces a collection of percepts that will convince the agent the scenario has started. */
+	static def step0(shopName : String) : Collection<Percept> {
+		return newLinkedList(
+			new Percept("step", new Numeral(0)),
+			new Percept("steps", new Numeral(1000)),
+			new Percept("routeLength", new Numeral(0)),
+			new Percept("charge", new Numeral(50)),
+			new Percept("shop",
+				new Identifier(shopName),
+				new Numeral(-37.50),
+				new Numeral(180.37),
+				new Numeral(3),
+				new ParameterList(
+					new Function("item",
+						new Identifier("item1"),
+						new Numeral(13),
+						new Numeral(5)
+					)
+				)
+			)
+		)
+	}
+
+	/* Produces a collection of percepts that will convince the agent the next step has been perceived. */
+	static def step(stepNumber : int) : Collection<Percept> {
+		return newLinkedList(
+			new Percept("step", new Numeral(stepNumber)),
+			new Percept("routeLength", new Numeral(0))
+		)
+	}
+
+	/* Produces a collection of percepts that will convince the agent the final step has been perceived. */
+	static def stepLast() : Collection<Percept> {
+		return newLinkedList(
+			new Percept("step", new Numeral(999)),
+			new Percept("score", new Numeral(100))
+		)
+	}
+
+	@BeforeEach
+	def beforeEach(extension rc : SreRunContext) : void {
+		ctx = rc
+		/* Initialise a fresh SARL environment for each test. */
+		kern = ctx.setupTheSreKernel(Level::FINEST, LogTrackingMode::STANDARD_LOGGER_BEHAVIOR)
+		/* Create mocked environment interface for intercepting comms with the server. */
+		ei = typeof(EnvironmentInterface).mock
+	}
+
+	/**
+	 * SingleRandomAgent end to end test. Sends step 0 percepts and asserts first random
+	 * action for two agents in the scenario.
+	 */
+	@Test
+	def firstActionsTest() {
+		val agents = newArrayList("agentA1", "agentA4")
+		scenario = new ScenarioStepper(agents)
+
+		MassimSteps.givenCityServer(ei, EnvironmentState.RUNNING, scenario, agents)
+		SarlSteps.givenSarlAgent(ctx, kern,
+			typeof(SingleRandomAgent),
+			new S_MassimTalking(ei, false))
+		MassimSteps.whenAgentsPerceiveStep(scenario, agents, step0("shop1"))
+		val acts = MassimSteps.thenActionsPerformed(ei, 2)
+
+		/* Both agents submitted an action. */
+		assertTrue(acts.size() == 2 &&
+			acts.containsKey("agentA1") &&
+			acts.containsKey("agentA4"))
+
+		/* Both actions were goto events. */
+		acts.values().forEach([action | assertEquals("goto", action.getName())])
+		/* All goto were to shop1. */
+		acts.values().forEach([action | assertEquals("shop1", extractString(action.parameters.get(0)))])
+	}
+
+	/**
+	 * SingleRandomAgent end to end test. Sends step 0 percepts and asserts a different first random
+	 * action for two agents in the scenario.
+	 */
+	@Test
+	def firstActionsForDifferentShopTest() {
+		val agents = newArrayList("agentA1", "agentA4")
+		scenario = new ScenarioStepper(agents)
+
+		MassimSteps.givenCityServer(ei, EnvironmentState.RUNNING, scenario, agents)
+		SarlSteps.givenSarlAgent(ctx, kern,
+			typeof(SingleRandomAgent),
+			new S_MassimTalking(ei, false))
+		MassimSteps.whenAgentsPerceiveStep(scenario, agents, step0("shop4"))
+		val acts = MassimSteps.thenActionsPerformed(ei, 2)
+
+		/* Both agents submitted an action. */
+		assertTrue(acts.size() == 2 &&
+			acts.containsKey("agentA1") &&
+			acts.containsKey("agentA4"))
+
+		/* Both actions were goto events. */
+		acts.values().forEach([action | assertEquals("goto", action.getName())])
+		/* All goto were to shop1. */
+		acts.values().forEach([action | assertEquals("shop4", extractString(action.parameters.get(0)))])
+	}
+
+	@AfterEach
+	def afterEach() : void {
+		/* Test complete, kill the agent gracefully and finish test. */
+		MassimSteps.whenAgentsPerceiveStep(scenario, stepLast())
+		ctx.waitForTheKernel(STANDARD_TIMEOUT)
+	}
+}

@@ -1,0 +1,85 @@
+package au.edu.rmit.agtgrp.agtcity.sarl.mw;
+
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+
+import java.util.Collection
+import java.util.List
+import java.util.Map
+import java.util.Set
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.logging.Logger
+import java.util.stream.Collectors
+
+import eis.iilang.Percept
+
+/**
+ * A utility to aid stepping through steps provided by a junit test scenario.
+ */
+class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
+
+	/* Logger. */
+	static val logger : Logger = Logger.getLogger(typeof(ScenarioStepper).getName())
+
+	/* Time between polling for some percepts to post (ms). */
+	static val POLL_DELAY = 50
+
+	/* Time to wait for percepts to be posted after an agent has requested some (ms). */
+	static val DEFAULT_PERCEPT_TIMEOUT : int = 2000
+	val PERCEPT_TIMEOUT : int
+
+	val steps : Map<String, ConcurrentLinkedQueue<Collection<Percept>>>
+
+	new(agents : List<String>, PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
+		this.PERCEPT_TIMEOUT = PERCEPT_TIMEOUT
+		this.steps = agents.stream().collect(
+			Collectors.toMap([a|a], [a|new ConcurrentLinkedQueue<Collection<Percept>>()]))
+	}
+
+	new(^agent : String, PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
+		this.PERCEPT_TIMEOUT = PERCEPT_TIMEOUT
+		this.steps = newHashMap(Pair.of(^agent, new ConcurrentLinkedQueue<Collection<Percept>>()))
+	}
+
+	/**
+	 * Intended to be called on a request for all percepts for an agent.
+	 * If a step containing percepts is in the queue for the calling agent
+	 * then it is returned, otherwise we block until a step is present in
+	 * the queue.
+	 *
+	 * @param invocation properties
+	 */
+	@SuppressWarnings("discouraged_reference")
+	def answer(invocation : InvocationOnMock) : Map<String, Collection<Percept>> {
+		val callingAgent : String = invocation.getArgument(0)
+
+		val stepsQueue = steps.get(callingAgent)
+		if (stepsQueue === null) {
+			logger.severe("Expecting one of " + steps.keySet() + " but percepts were requested by " + callingAgent)
+			return null
+		}
+
+		var count : int = 0
+		val step = newHashMap()
+		while (count * POLL_DELAY < PERCEPT_TIMEOUT) {
+			val percepts = stepsQueue.poll()
+			if (percepts !== null) {
+				step.put(callingAgent, percepts)
+				return step
+			}
+			count++
+			Thread.sleep(POLL_DELAY)
+		}
+		/* Timeout, no steps were given for us to send. */
+		logger.severe(callingAgent + " requested a step, had nothing to send after " + PERCEPT_TIMEOUT + " ms, timeout")
+		return null
+	}
+
+	def addStepToQueue(agt : String, step : Collection<Percept>) {
+		steps.get(agt).add(step)
+	}
+
+	def getAllAgents() : Set<String> {
+		return steps.keySet()
+	}
+}

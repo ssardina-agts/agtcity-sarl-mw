@@ -85,6 +85,8 @@ class State implements Cloneable  {
  */
 	public var stepLastSeen : HashMap<String, Integer>
 
+	public var lastStep : boolean = false
+
 	
 	/**
 	 * Constructor that initializes all of the HashMaps to empty
@@ -162,7 +164,7 @@ class State implements Cloneable  {
 	def updateAggregatedGameState(percepts : Collection<Percept>) {
 		val stepNo = Util.getStepNo(percepts)
 		
-		if (stepNo < this.stepNo) return	// old step no
+		if (stepNo >= this.simulationLength - 1) this.lastStep = true
 		
 		this.stepNo = stepNo
 		for (p : percepts) {
@@ -237,6 +239,13 @@ class State implements Cloneable  {
 	 */
 	def isSimStartLoaded() : boolean {
 		return mapName !== null
+	}
+
+	/**
+	 * Has the final step of the game been received?
+	 */
+	def isLastStep() : boolean {
+		return lastStep
 	}
 
 	/**
