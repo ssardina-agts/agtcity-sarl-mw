@@ -120,7 +120,6 @@
             <groupId>io.sarl</groupId>
             <artifactId>io.sarl.sre.test.framework</artifactId>
             <version>${sarl.version}</version>
-            <scope>test</scope>
             <exclusions>
               <exclusion>
                 <groupId>org.eclipse.emf</groupId>
@@ -148,14 +147,6 @@
 
       <!-- To remove all the WARNINGS -->
       <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.emf</groupId>
-          <artifactId>org.eclipse.emf.common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.emf</groupId>
-          <artifactId>org.eclipse.emf.ecore</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>org.eclipse.platform</groupId>
           <artifactId>org.eclipse.core.runtime</artifactId>
@@ -233,16 +224,26 @@
           <target>${jdk.version}</target>
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
-
         <dependencies>
-          <!-- Fix to deal with issue with wrong signed class (June 2021) https://groups.google.com/g/sarl/c/dt9u1dg6PK0 -->
           <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
             <version>3.14.100</version>
           </dependency>
+          <dependency>
+            <groupId>io.sarl.maven</groupId>
+            <artifactId>io.sarl.maven.sdk</artifactId>
+            <version>${sarl.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
         </dependencies>
       </plugin>
+
 
       <!--
 			<plugin>
@@ -303,6 +304,35 @@
           </execution>
         </executions>
       </plugin>
+
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-jar-plugin</artifactId>
+		<executions>
+		  <execution>
+			<goals>
+			  <goal>test-jar</goal>
+			</goals>
+		  </execution>
+		</executions>
+	  </plugin>
+	  <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-assembly-plugin</artifactId>
+		  <configuration>
+			  <descriptors>
+				  <descriptor>src/main/assembly/test-jar-with-dependencies.xml</descriptor>
+			  </descriptors>
+		  </configuration>
+		  <executions>
+			  <execution>
+				  <phase>package</phase>
+				  <goals>
+					  <goal>single</goal>
+				  </goals>
+			  </execution>
+		  </executions>
+	  </plugin>
 
       <!-- Class to execute via Maven exec:java https://www.mojohaus.org/exec-maven-plugin/ 
 				To execute a particular class do: mvn exec:java -Dexec.mainClass=BootMAS2 -->
