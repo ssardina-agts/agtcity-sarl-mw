@@ -311,7 +311,6 @@ skill S_MassimTalking implements C_MassimTalking {
 	/**
 	 * Kill the environment interface. To be used at the end of the scenario.
 	 */
-	@Pure
 	def MT_kill() : void {
 		ei.kill()
 	}
@@ -409,12 +408,12 @@ skill S_MassimTalking implements C_MassimTalking {
 	def install {
 		// Function invoked when the skill is installed in the owner.
 		// You should put all the initialization statements in this block of code.
-		info("Installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
+		debug("Installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
 	}
 
 	def uninstall {
 		// Function invoked when the skill is uninstalled from the owner.
 		// You should put all the resource release statements in this block of code.
-		info("Un-installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
+		debug("Un-installing the skill to talk to MASSIM Agents in City 2018+ Game Server")
 	}
 }

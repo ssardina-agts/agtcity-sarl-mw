@@ -85,6 +85,7 @@ capacity C_MassimTalking {
 	/* 
 	 * Obtain set of entity names that have been registered
 	 */
+	@Pure
 	def MT_getEntityNames() : Set<String>
 
 	/** 
@@ -102,6 +103,7 @@ capacity C_MassimTalking {
 	/*
 	 * Obtain the current state of the environment interface (paused, running, killed)
 	 */
+	@Pure
 	def MT_getStatus() : EnvironmentState
 
 	/*
@@ -114,6 +116,7 @@ capacity C_MassimTalking {
 	 * 
 	 * @return - the last step number seen 
 	 */
+	@Pure
 	def MT_getStepNo() : int
 
 
