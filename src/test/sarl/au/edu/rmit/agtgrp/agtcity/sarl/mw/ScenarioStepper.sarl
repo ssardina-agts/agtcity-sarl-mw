@@ -25,15 +25,20 @@ class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
 	static val POLL_DELAY = 50
 
 	/* Time to wait for percepts to be posted after an agent has requested some (ms). */
-	static val PERCEPT_TIMEOUT = 2000
+	static val DEFAULT_PERCEPT_TIMEOUT : int = 2000
+	val PERCEPT_TIMEOUT : int
 
 	val steps : Map<String, ConcurrentLinkedQueue<Collection<Percept>>>
 
-	new(agents : List<String>) {
-		this.steps = agents
-			.stream()
-			.collect(Collectors
-				.toMap([a | a], [a | new ConcurrentLinkedQueue<Collection<Percept>>()]))
+	new(agents : List<String>, PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
+		this.PERCEPT_TIMEOUT = PERCEPT_TIMEOUT
+		this.steps = agents.stream().collect(
+			Collectors.toMap([a|a], [a|new ConcurrentLinkedQueue<Collection<Percept>>()]))
+	}
+
+	new(^agent : String, PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
+		this.PERCEPT_TIMEOUT = PERCEPT_TIMEOUT
+		this.steps = newHashMap(Pair.of(^agent, new ConcurrentLinkedQueue<Collection<Percept>>()))
 	}
 
 	/**
@@ -57,8 +62,9 @@ class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
 		var count : int = 0
 		val step = newHashMap()
 		while (count * POLL_DELAY < PERCEPT_TIMEOUT) {
-			if (!stepsQueue.isEmpty()) {
-				step.put(callingAgent, stepsQueue.poll())
+			val percepts = stepsQueue.poll()
+			if (percepts !== null) {
+				step.put(callingAgent, percepts)
 				return step
 			}
 			count++

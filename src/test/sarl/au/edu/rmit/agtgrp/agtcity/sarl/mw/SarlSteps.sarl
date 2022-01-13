@@ -19,14 +19,11 @@ class SarlSteps {
 	 * @param kern the sarl kernel to spawn the agent within
 	 * @param initParams parameters to pass the agent
 	 */
-	static def givenSarlAgent(extension rc : SreRunContext, kern : SREBootstrap, agentClass : Class<? extends Agent>, skills : Object) {
+	static def givenSarlAgent(extension rc : SreRunContext, kern : SREBootstrap, agentClass : Class<? extends Agent>, params : Object*) {
 		val id0 = UUID::randomUUID
-		/* Create a massim skill injected with our mocked environment interface. */
-		val initParams = <Object>newArrayOfSize(1)
-		Arrays.fill(initParams, skills)
 		/* Starting agent. */
 		waitForAgentSpawned(id0) [
-			kern.startAgentWithID(agentClass, id0, initParams)
+			kern.startAgentWithID(agentClass, id0, params)
 		]
 	}
 }

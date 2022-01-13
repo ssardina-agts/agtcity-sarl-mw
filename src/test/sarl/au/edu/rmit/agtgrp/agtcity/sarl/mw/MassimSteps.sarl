@@ -28,40 +28,78 @@ class MassimSteps {
 
 	/* Logger. */
 	static val logger : Logger = Logger.getLogger(typeof(MassimSteps).getName())
+	
+	static val capturedActions : Map<EnvironmentInterface, Integer> = newHashMap
 
-	/**
+	/** 
 	 * Mock some {@code EnvironmentInterface} methods to indicate that the massim server is
 	 * in a given state with some given agents.
-	 *
+	 * 
 	 * @param ei mocked environment interface
 	 * @param state for the mocked environment interface to report
 	 * @param stepper a provider of percepts when an agent requests them
 	 * @param the agents to mock within the environment
 	 */
-	static def givenCityServer(ei : EnvironmentInterface, state : EnvironmentState, stepper : ScenarioStepper, agents : Collection<String>) {
-		/* Emulate enough EI state to convince the middleware we are connected. */
-		when(ei.getState)
-			.thenReturn(state)
-		when(ei.getEntities)
-			.thenReturn(newLinkedList(agents))
-		when(ei.getAssociatedEntities(anyString))
-			.thenReturn(newHashSet(agents))
+	static def givenCityServer(ei : EnvironmentInterface, state : EnvironmentState, stepper : ScenarioStepper,
+		agents : Collection<String>) {
 
-		/* Assign an environment manager to produce some Percept stimuli for the agents. */
-		when(ei.getAllPercepts(anyString))
-			.thenAnswer(stepper)
+			/* Emulate enough EI state to convince the middleware we are connected.
+			 */
+		when(ei.getState).thenReturn(state)
+		when(ei.getEntities).thenReturn(newLinkedList(agents))
+		when(ei.getAssociatedEntities(anyString)) // todo not the same
+		.thenReturn(newHashSet(agents))
+
+		/* Assign an environment manager to produce some Percept stimuli for the agents.
+		 */
+		when(ei.getAllPercepts(anyString)).thenAnswer(stepper)
 	}
 
-	/**
+	/** 
+	 * Mock some {@code EnvironmentInterface} methods to indicate that the massim server is
+	 * in a given state with some given agents.
+	 * 
+	 * @param ei mocked environment interface
+	 * @param state for the mocked environment interface to report
+	 * @param stepper a provider of percepts when an agent requests them
+	 */
+	static def givenCityServer(ei : EnvironmentInterface, state : EnvironmentState, stepper : ScenarioStepper) {
+
+			/* Emulate enough EI state to convince the middleware we are connected.
+			 */
+		when(ei.getState).thenReturn(state)
+		when(ei.getEntities).thenReturn(newLinkedList(stepper.allAgents))
+		when(ei.getAssociatedEntities(anyString)) // todo not the same
+		.thenReturn(newHashSet(stepper.allAgents))
+
+		/* Assign an environment manager to produce some Percept stimuli for the agents.
+		 */
+		when(ei.getAllPercepts(anyString)).thenAnswer(stepper)
+	}
+
+	/** 
 	 * Adds a collection of percepts for each agent to receive within one step. Each agent
 	 * receives the exact same percept.
-	 *
+	 * 
 	 * @param stepper to add the step to
 	 * @param agents who will receive the collection of percepts in the given step
 	 * @param percepts to insert into the next step
 	 */
-	static def whenAgentsPerceiveStep(stepper : ScenarioStepper, agents : List<String>, percepts : Collection<Percept>) {
-		agents.forEach([agt | stepper.addStepToQueue(agt, percepts)])
+	static def whenAgentsPerceiveStep(stepper : ScenarioStepper, agents : List<String>,
+		percepts : Collection<Percept>) {
+		agents.forEach([agt|stepper.addStepToQueue(agt, percepts)])
+	}
+
+	/** 
+	 * Adds a collection of percepts for an agent to receive within one step.
+	 * 
+	 * @param stepper to add the step to
+	 * @param agents who will receive the collection of percepts in the given step
+	 * @param percepts to insert into the next step
+	 */
+	static def whenAgentPerceivesStep(stepper : ScenarioStepper, ^agent : String,
+		percepts : Collection<Percept>) {
+		stepper.addStepToQueue(^agent, percepts)
 	}
 
 	/**
@@ -106,21 +144,27 @@ class MassimSteps {
 		val agentCaptor : ArgumentCaptor<String> = ArgumentCaptor.forClass(typeof(String))
 		val actionCaptor : ArgumentCaptor<Action> = ArgumentCaptor.forClass(typeof(Action))
 
+		/* We may have already captured some actions. Since this is to be used
+		 * to evaluate agents on a step by step basis, return only actions for this single step interval.*/
+		val alreadyCaptured = capturedActions.computeIfAbsent(ei, [0]);
+		val captureNow = alreadyCaptured + size
+
 		/*
 		 * !!! EnvironmentInterface#performAction is a final method. This makes it difficult to mock.
 		 * As of the current Mockito version, you can enable final method mock support
 		 * with the following config file:
 		 * src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker
 		 */
-		verify(ei, timeout(TIMEOUT).times(size))
+		verify(ei, timeout(TIMEOUT).times(captureNow))
 			.performAction(agentCaptor.capture(), actionCaptor.capture())
 		val agents : List<String> = agentCaptor.getAllValues()
 		val actions : List<Action> = actionCaptor.getAllValues()
 
-		if (agents.size != agents.stream().distinct().count()) {
-			logger.severe("Received more than one action for a single massim entity within a single step: " +
+		if (agents.stream().skip(alreadyCaptured).distinct().count() != size) {
+			throw new AssertionError("Received more than one action for a single massim entity within a single step: " +
 				agents
 					.stream()
+					.skip(alreadyCaptured)
 					.collect(Collectors.groupingBy(
 						Function.identity(),
 						Collectors.counting()
@@ -131,8 +175,9 @@ class MassimSteps {
 					.collect(Collectors.toSet())
 			)
 		}
+		capturedActions.put(ei, captureNow)
 
-		return IntStream.range(0, size).boxed()
+		return IntStream.range(alreadyCaptured, captureNow).boxed()
 			.collect(Collectors.toMap([i | agents.get(i)], [i | actions.get(i)]))
 	}
 }
