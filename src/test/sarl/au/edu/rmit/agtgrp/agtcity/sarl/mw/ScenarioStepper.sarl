@@ -12,6 +12,7 @@ import java.util.logging.Logger
 import java.util.stream.Collectors
 
 import eis.iilang.Percept
+import java.util.function.Supplier
 
 /**
  * A utility to aid stepping through steps provided by a junit test scenario.
@@ -29,16 +30,19 @@ class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
 	val PERCEPT_TIMEOUT : int
 
 	val steps : Map<String, ConcurrentLinkedQueue<Collection<Percept>>>
+	val onTimeout : Supplier<Collection<Percept>>
 
-	new(agents : List<String>, PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
+	new(agents : List<String>, onTimeout : Supplier<Collection<Percept>> = [null], PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
 		this.PERCEPT_TIMEOUT = PERCEPT_TIMEOUT
 		this.steps = agents.stream().collect(
 			Collectors.toMap([a|a], [a|new ConcurrentLinkedQueue<Collection<Percept>>()]))
+		this.onTimeout = onTimeout
 	}
 
-	new(^agent : String, PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
+	new(^agent : String, onTimeout : Supplier<Collection<Percept>> = [null], PERCEPT_TIMEOUT : int = DEFAULT_PERCEPT_TIMEOUT) {
 		this.PERCEPT_TIMEOUT = PERCEPT_TIMEOUT
 		this.steps = newHashMap(Pair.of(^agent, new ConcurrentLinkedQueue<Collection<Percept>>()))
+		this.onTimeout = onTimeout
 	}
 
 	/**
@@ -72,7 +76,7 @@ class ScenarioStepper implements Answer<Map<String, Collection<Percept>>> {
 		}
 		/* Timeout, no steps were given for us to send. */
 		logger.severe(callingAgent + " requested a step, had nothing to send after " + PERCEPT_TIMEOUT + " ms, timeout")
-		return null
+		return newHashMap(Pair.of(callingAgent, onTimeout.get))
 	}
 
 	def addStepToQueue(agt : String, step : Collection<Percept>) {
