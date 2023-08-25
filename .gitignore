@@ -34,3 +34,4 @@ src/main/generated-sources/*myClauses-*
 myClauses*
 generated-sources
 .vscode/settings.json
+.vscode
