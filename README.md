@@ -24,6 +24,19 @@ The following  dependencies are resolved via Maven and JitPack automatically:
     - This is a Java API that provides high-level access to the game sever to avoid dealing with low-level XML or JSON messages. It uses the generic [Environment Interface Standard (EIS)](https://github.com/eishub/eis) to communicate with the MASSim server (this is automatically gathered via Maven by the server package).
     - The doc of the protocol and messages can be found [here](https://github.com/ssardina-agts/agtcity-server/blob/master/docs/eismassim.md).
 
+
+### Update August 2023
+
+The system did not compiled anymore; see [issue #13](https://github.com/ssardina-agts/sarl-prolog-cap/issues/13). The POM was fixed as per fix reported in SARL issue [#1079](https://github.com/sarl/sarl/issues/1079).
+
+However, the system yields error under Java 17, so we need to install and use Java 11 (linux):
+
+```shell
+$ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+```
+
+Maven will always use the Java set in `JAVA_HOME`.
+
 ## VERSION CONVENTION
 
 [Semantic versioning](https://semver.org/) is used with versions of the form `Major.Minor.Patch`. Each version will rely on a particular SARL version, which is indicated via `<sarl.version>` property in the POM file.

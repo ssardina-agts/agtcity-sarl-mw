@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <!-- ########################################################################## -->
@@ -6,7 +8,7 @@
   <!-- ########################################################################## -->
   <groupId>com.github.ssardina-agts</groupId>
   <artifactId>agtcity-sarl-mw</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.1</version>
 
   <name>SARL Agents in City Middleware</name>
   <description>
@@ -38,7 +40,14 @@
     <!-- SARL framework version and configuration -->
     <sarl.version>0.11.0</sarl.version>
 
-    <jdk.version>1.8</jdk.version>
+    <!-- Since the 3.8.0 version of the Maven compiler plugin, you can actually specify the release
+    version of Java rather than source and target: -->
+    <java.release>11</java.release>
+
+    <!-- Not used anymore, now we use release  -->
+    <!-- <jdk.version>1.8</jdk.version> -->
+
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!--  EIS-MASSIM Environment Interface Standard -->
@@ -198,111 +207,111 @@
       </exclusions>
     </dependency>
 
-		<!-- To run SARL applications using the SRE -->
-		<dependency>
-			<groupId>io.janusproject</groupId>
-			<artifactId>io.janusproject.kernel</artifactId>
-			<version>3.${sarl.version}</version>
-			<!-- To remove all the WARNINGS -->
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.osgi</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.jobs</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.registry</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.preferences</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.preferences</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.contenttype</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.app</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.osgi</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.preferences</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.registry</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.registry</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.jobs</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.contenttype</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.equinox.app</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.osgi</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.runtime</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.filesystem</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.runtime</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.core.resources</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.platform</groupId>
-					<artifactId>org.eclipse.text</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jdt</groupId>
-					<artifactId>org.eclipse.jdt.core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+    <!-- To run SARL applications using the SRE -->
+    <dependency>
+      <groupId>io.janusproject</groupId>
+      <artifactId>io.janusproject.kernel</artifactId>
+      <version>3.${sarl.version}</version>
+      <!-- To remove all the WARNINGS -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.osgi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.jobs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.registry</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.preferences</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.preferences</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.contenttype</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.app</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.osgi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.preferences</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.registry</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.registry</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.jobs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.contenttype</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.equinox.app</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.osgi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.filesystem</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.core.resources</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>org.eclipse.text</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jdt</groupId>
+          <artifactId>org.eclipse.jdt.core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
 
     <!--  EIS-MASSIM Environment Interface Standard Modified for RMIT server
@@ -340,19 +349,35 @@
         <version>${sarl.version}</version>
         <extensions>true</extensions>
         <configuration>
-          <source>${jdk.version}</source>
-          <target>${jdk.version}</target>
+          <release>${java.release}</release>
+          <!-- <source>${jdk.version}</source> -->
+          <!-- <target>${jdk.version}</target> -->
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
 
         <dependencies>
-          <!-- Fix to deal with issue with wrong signed class (June 2021) https://groups.google.com/g/sarl/c/dt9u1dg6PK0 -->
+          <!-- Fix to deal with issue with wrong signed class (June 2021)
+          https://groups.google.com/g/sarl/c/dt9u1dg6PK0 -->
+          <!-- Later: https://github.com/sarl/sarl/issues/1079 -->
           <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
             <version>3.14.100</version>
           </dependency>
+          <dependency>
+            <groupId>io.sarl.maven</groupId>
+            <artifactId>io.sarl.maven.sdk</artifactId>
+            <version>${sarl.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
         </dependencies>
+
+
       </plugin>
 
       <!--
@@ -385,7 +410,8 @@
         </executions>
       </plugin>
 
-      <!-- Aggregate project into a FULL JAR package https://maven.apache.org/plugins/maven-assembly-plugin/ 
+      <!-- Aggregate project into a FULL JAR package
+      https://maven.apache.org/plugins/maven-assembly-plugin/ 
 				check https://github.com/sarl/sarl/issues/1061 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
